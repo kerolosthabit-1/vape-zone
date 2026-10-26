@@ -1,14 +1,19 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#000000">
+<script>
+try{var t=localStorage.getItem('vapestock_theme_v1');if(t!=='light'&&t!=='dark'&&t!=='navy')t='dark';document.documentElement.setAttribute('data-theme',t);var m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',t==='light'?'#f3f5f9':t==='navy'?'#0d1119':'#000000')}catch(e){}
+</script>
 <title>Vape Zone — جرد ومبيعات (أونلاين)</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-:root{color-scheme:dark;--bg:#000000;--panel:#151b26;--panel2:#1c2432;--text:#f2f5fa;--muted:#a2adbf;--line:#2a3445;--accent:#39d3a3;--accent2:#16a77c;--red:#e45e68;--yellow:#e6b84b;--blue:#72a7ff}
+:root{color-scheme:dark;--bg:#000000;--panel:#0a0a0a;--panel2:#121212;--text:#f4f4f5;--muted:#9ca3af;--line:#232323;--accent:#39d3a3;--accent2:#16a77c;--red:#e45e68;--yellow:#e6b84b;--blue:#72a7ff}
+:root[data-theme="navy"]{color-scheme:dark;--bg:#0d1119;--panel:#151b26;--panel2:#1c2432;--text:#f2f5fa;--muted:#a2adbf;--line:#2a3445}
+:root[data-theme="light"]{color-scheme:light;--bg:#f3f5f9;--panel:#ffffff;--panel2:#f7f8fb;--text:#18202d;--muted:#5f6b7c;--line:#e1e6ee;--accent2:#0e7a5a;--red:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;font-size:14px}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 13px;background:var(--accent);color:#07261d;font-weight:750}button.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line)}button.danger{background:color-mix(in srgb,var(--red) 17%,var(--panel));color:var(--red);border:1px solid color-mix(in srgb,var(--red) 35%,var(--line))}button.small{padding:6px 9px;font-size:12px}.app{min-height:100vh;background:var(--bg)}header{padding:20px clamp(14px,3vw,34px);background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:13px;background:#000000;display:grid;place-items:center;overflow:hidden;flex:0 0 auto}.logo img{width:100%;height:100%;object-fit:cover;display:block}.brand h1{font-size:21px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.header-actions{display:flex;gap:8px;flex-wrap:wrap}.layout{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 85px)}aside{border-left:1px solid var(--line);padding:18px 12px;background:var(--panel)}.nav{display:flex;flex-direction:column;gap:6px;position:sticky;top:10px}.nav button{display:flex;gap:10px;align-items:center;text-align:right;background:transparent;color:var(--muted);font-weight:650}.nav button.active,.nav button:hover{background:color-mix(in srgb,var(--accent) 13%,var(--panel));color:var(--text)}main{padding:clamp(14px,3vw,30px);max-width:1500px;width:100%;margin:auto}.page-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}.page-title h2{font-size:24px;margin:0}.page-title p{color:var(--muted);margin:5px 0 0}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-bottom:18px}.stat,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px}.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:25px;font-weight:850;margin-top:8px;overflow-wrap:anywhere}.stat .hint{font-size:11px;color:var(--muted);margin-top:5px}.content-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(270px,.75fr);gap:15px}.panel h3{font-size:16px;margin:0 0 15px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}.panel-head h3{margin:0}.muted{color:var(--muted)}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:13px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field label{font-size:12px;color:var(--muted)}input,select{width:100%;min-width:0;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px 11px;outline:none}input:focus,select:focus{border-color:var(--accent2)}.toolbar input{flex:1;min-width:150px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}table{border-collapse:collapse;width:100%;white-space:nowrap;font-size:13px}th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:650;background:var(--panel2)}tbody tr:last-child td{border-bottom:0}.empty{text-align:center;padding:28px;color:var(--muted)}.badge{display:inline-block;border-radius:7px;padding:4px 7px;font-size:11px;background:var(--panel2);color:var(--muted)}.badge.low{color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--panel))}.badge.ok{color:var(--accent2);background:color-mix(in srgb,var(--accent) 12%,var(--panel))}.actions{display:flex;gap:5px}.actions button{padding:6px 8px;font-size:11px}.quick-list{display:flex;flex-direction:column;gap:10px}.quick-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.quick-row:last-child{border-bottom:0}.quick-row strong{display:block}.quick-row small{color:var(--muted)}.view{display:none}.view.active{display:block}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.form-grid .wide{grid-column:1/-1}.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.notice{border:1px solid color-mix(in srgb,var(--yellow) 40%,var(--line));background:color-mix(in srgb,var(--yellow) 8%,var(--panel));padding:12px 14px;border-radius:11px;margin-bottom:15px;font-size:12px;line-height:1.8}.sale-layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:15px}.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px}.product-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px;text-align:right;color:var(--text);display:flex;flex-direction:column;gap:8px}.product-card b{line-height:1.5}.product-card span{font-size:12px;color:var(--muted)}.product-card strong{color:var(--accent2)}.cart-row{display:flex;align-items:center;justify-content:space-between;gap:7px;border-bottom:1px solid var(--line);padding:10px 0}.cart-row:last-child{border:0}.qty{display:flex;align-items:center;gap:6px}.qty button{padding:3px 8px}.total-line{display:flex;justify-content:space-between;padding:8px 0;color:var(--muted)}.total-line.final{font-size:20px;font-weight:850;color:var(--text);border-top:1px solid var(--line);margin-top:6px;padding-top:13px}.toast{position:fixed;bottom:18px;left:18px;right:18px;max-width:400px;margin:auto;background:var(--text);color:var(--bg);padding:13px 16px;border-radius:12px;box-shadow:0 10px 35px #0002;z-index:10;display:none}.toast.show{display:block}.footnote{color:var(--muted);font-size:11px;line-height:1.8;margin-top:14px}.mobile-nav{display:none}
 @media(max-width:950px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.content-grid,.sale-layout{grid-template-columns:1fr}.layout{grid-template-columns:1fr}aside{display:none}.mobile-nav{display:flex;overflow:auto;gap:6px;padding:9px;background:var(--panel);border-bottom:1px solid var(--line)}.mobile-nav button{white-space:nowrap;font-size:12px;padding:9px 11px}.mobile-nav button.active{background:var(--accent);color:#07261d}.sale-layout .cart-panel{order:-1}}@media(max-width:520px){header{padding:14px}.brand h1{font-size:18px}.header-actions button{padding:8px 9px;font-size:12px}main{padding:13px}.page-title h2{font-size:21px}.stat{padding:13px}.stat .value{font-size:20px}.form-grid{grid-template-columns:1fr}.form-grid .wide{grid-column:auto}.panel{padding:13px}.product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 [hidden]{display:none!important}
@@ -26,6 +31,41 @@ button.link:hover{text-decoration:underline}
 .account-chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:7px 12px;font-size:12px;max-width:240px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .account-chip::before{content:'\25CF';color:var(--accent);font-size:9px}
 .gate .footnote{margin-top:16px}
+
+/* ==== حركة ناعمة على الأزرار ==== */
+button{transition:transform .16s ease,box-shadow .2s ease,background .2s ease,color .2s ease,border-color .2s ease,filter .2s ease}
+button:hover{transform:translateY(-1px)}
+button:active{transform:translateY(0) scale(.97)}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button:not(.secondary):not(.danger):not(.link):not(.product-card):not(.theme-option){position:relative;overflow:hidden}
+button:not(.secondary):not(.danger):not(.link):not(.product-card):not(.theme-option)::after{content:'';position:absolute;top:0;bottom:0;left:-75%;width:55%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.4),transparent);transform:skewX(-18deg);transition:left .55s ease;pointer-events:none}
+button:not(.secondary):not(.danger):not(.link):not(.product-card):not(.theme-option):hover::after{left:135%}
+button:not(.secondary):not(.danger):not(.link):not(.product-card):not(.theme-option):hover{box-shadow:0 8px 24px color-mix(in srgb,var(--accent) 30%,transparent)}
+.nav button{box-shadow:none!important}
+.nav button:hover{transform:none}
+.nav button:active{transform:scale(.96)}
+.nav button::after{display:none!important}
+button.link:hover,button.link:active{transform:none}
+.product-card{transition:transform .18s ease,box-shadow .2s ease,border-color .2s ease,background .2s ease}
+.product-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 10px 24px rgba(0,0,0,.35)}
+.stat{transition:transform .2s ease,border-color .2s ease,box-shadow .2s ease}
+.stat:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 10px 26px rgba(0,0,0,.25)}
+@media(hover:none){button:hover{transform:none}button:not(.secondary):not(.danger):not(.link):not(.product-card):not(.theme-option):hover{box-shadow:none}button:not(.secondary):not(.danger):not(.link):not(.product-card):not(.theme-option):hover::after{left:-75%}.nav button:hover{transform:none}.product-card:hover,.stat:hover{transform:none;box-shadow:none;border-color:var(--line)}.theme-option:hover{border-color:var(--line)}}
+@media(prefers-reduced-motion:reduce){button,.product-card,.stat,.theme-option{transition:none!important}button:hover,button:active,.product-card:hover,.stat:hover,.theme-option:hover{transform:none!important}button::after{display:none!important}}
+
+/* ==== اختيار المظهر ==== */
+.theme-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.theme-option{display:flex;flex-direction:column;gap:8px;text-align:right;background:var(--panel2);border:1px solid var(--line);border-radius:13px;padding:11px;color:var(--text);font-weight:700;transition:transform .16s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease,color .2s ease}
+.theme-option:hover{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.theme-option.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 26px color-mix(in srgb,var(--accent) 18%,transparent)}
+.theme-option .tp{display:flex;height:44px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:#000}
+.theme-option .tp-main{flex:1}
+.theme-option .tp-side{width:36%}
+.theme-option .tp-dot{width:9px}
+.theme-option b{font-size:13px;line-height:1.4}
+.theme-option small{color:var(--muted);font-weight:500;font-size:11px;line-height:1.5}
+.theme-option.active b::after{content:'  ✓';color:var(--accent)}
+@media(max-width:560px){.theme-grid{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -85,6 +125,11 @@ button.link:hover{text-decoration:underline}
 <section class="view" id="view-settings">
   <div class="page-title"><div><h2>الإعدادات والنسخ الاحتياطي</h2><p>حافظ على بيانات المحل وانقلها بين الأجهزة.</p></div></div>
   <div class="panel"><h3>بيانات المحل</h3><form id="settingsForm"><div class="form-grid"><div class="field"><label>اسم المحل</label><input id="shopName" placeholder="اسم المحل"></div><div class="field"><label>العملة</label><input value="جنيه مصري (ج.م)" disabled></div></div><div class="form-actions"><button type="submit">حفظ الإعدادات</button></div></form></div>
+  <div class="panel" style="margin-top:15px"><h3>مظهر البرنامج</h3><p class="muted" style="margin:-6px 0 12px;line-height:1.8">اختار الوضع اللي يريحك. الاختيار بيتحفظ على الجهاز ده، وتقدر تغيّره في أي وقت.</p><div class="theme-grid">
+    <button type="button" class="theme-option" data-theme-option="light"><span class="tp"><span class="tp-main" style="background:#f3f5f9"></span><span class="tp-side" style="background:#ffffff"></span><span class="tp-dot" style="background:#0e7a5a"></span></span><b>☀️ فاتح</b><small>أبيض مريح للنهار</small></button>
+    <button type="button" class="theme-option" data-theme-option="dark"><span class="tp"><span class="tp-main" style="background:#000000"></span><span class="tp-side" style="background:#0a0a0a"></span><span class="tp-dot" style="background:#39d3a3"></span></span><b>⚫ أسود حقيقي</b><small>أسود محايد لشاشة AMOLED</small></button>
+    <button type="button" class="theme-option" data-theme-option="navy"><span class="tp"><span class="tp-main" style="background:#0d1119"></span><span class="tp-side" style="background:#151b26"></span><span class="tp-dot" style="background:#39d3a3"></span></span><b>🔵 كحلي</b><small>الوضع الأزرق الأصلي</small></button>
+  </div></div>
   <div class="panel" style="margin-top:15px"><h3>نقل البيانات بين الكمبيوتر والموبايل</h3><p class="muted" style="line-height:1.9">مش محتاج تنقل حاجة يدويًا: سجّل دخول بنفس الإيميل وكلمة المرور على أي جهاز، وهتلاقي كل البيانات موجودة وبتتحدّث لحظيًا.<br>النسخة الاحتياطية اختيارية وبننصح بها كأمان إضافي (لو حصلت مشكلة في الحساب). الاستعادة تستبدل البيانات الموجودة على السحابة؛ استخدمها بحرص.</p><div class="form-actions"><button id="exportSettings">تنزيل نسخة احتياطية الآن</button><button class="secondary" id="importSettings">استعادة من ملف</button></div></div>
   <div class="panel" style="margin-top:15px"><h3>إعادة ضبط البيانات</h3><p class="muted">استخدم الاختيار ده فقط لو عايز تبدأ من الصفر. صدّر نسخة احتياطية أولًا. الحذف هيتزامن على كل الأجهزة.</p><button class="danger" id="resetBtn">حذف كل بيانات البرنامج</button></div>
   <p class="footnote">هذه نسخة أونلاين تعمل بحساب شخصي وقاعدة بيانات سحابية مجانية. لا تُدخل بيانات شخصية حساسة، وكلمة المرور مسؤوليتك — متشاركهاش مع حد مش موثوق.</p>
@@ -112,6 +157,8 @@ button.link:hover{text-decoration:underline}
 <script>
 (() => {
 const KEY='vapestock_local_v1';
+const THEME_KEY='vapestock_theme_v1';
+const THEMES=['light','dark','navy'];
 const LEGACY_SHOP_ID='vape-zone-main';
 let SHOP_ID='';
 const SB_URL='https://rzzupcminrhzavfhanvb.supabase.co';
@@ -168,7 +215,9 @@ $('completeSale').addEventListener('click',()=>{if(!cart.length){toast('أضف �
 function renderPurchases(){const sel=$('purchaseProduct');const old=sel.value;sel.innerHTML='<option value="">اختر الصنف</option>'+data.products.map(p=>`<option value="${p.id}">${esc(p.name)} (المتاح ${p.qty})</option>`).join('');if(product(old))sel.value=old;$('purchasesTable').innerHTML=table(['التاريخ','الصنف','الكمية','التفاصيل'],data.moves.filter(m=>m.type==='شراء').slice(-30).reverse().map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.name)}</td><td>${m.qty}</td><td>${esc(m.note||'—')}</td></tr>`),'لا توجد حركات شراء مسجلة')}
 $('purchaseForm').addEventListener('submit',e=>{e.preventDefault();const p=product($('purchaseProduct').value),qty=num('purchaseQty'),cost=$('purchaseCost').value===''?null:num('purchaseCost');if(!p||!Number.isInteger(qty)||qty<=0||cost!==null&&cost<0){toast('راجع الصنف والكمية والتكلفة');return}p.qty+=qty;if(cost!==null)p.cost=cost;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'شراء',name:p.name,qty,note:$('purchaseNote').value.trim()});markDirty(p.id);save();$('purchaseForm').reset();renderPurchases();toast('تم تسجيل إضافة البضاعة')});
 function renderReports(){$('reportSales').textContent=money(allSales());$('reportProfit').textContent=money(allProfit());$('reportCount').textContent=data.sales.length;$('reportStock').textContent=money(stockValue());$('salesTable').innerHTML=table(['الفاتورة','التاريخ','الأصناف','الإجمالي','الخصم','المكسب'],data.sales.slice().reverse().map(s=>`<tr><td>#${esc(s.id)}</td><td>${esc(s.date)}</td><td>${(s.items||[]).reduce((n,x)=>n+(Number(x.qty)||0),0)}</td><td>${money(s.total)}</td><td>${money(s.discount)}</td><td>${money(s.profit)}</td></tr>`),'لا توجد مبيعات مسجلة');$('movesTable').innerHTML=table(['التاريخ','الحركة','الصنف','الكمية','ملاحظة'],data.moves.slice().reverse().slice(0,100).map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.type)}</td><td>${esc(m.name)}</td><td>${m.qty>0?'+':''}${m.qty}</td><td>${esc(m.note||'—')}</td></tr>`),'لا توجد حركات مخزون')}
-function renderSettings(){$('shopName').value=data.settings.shopName||''}
+function applyTheme(t,notify){if(!THEMES.includes(t))t='dark';document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(THEME_KEY,t)}catch(e){}const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',t==='light'?'#f3f5f9':t==='navy'?'#0d1119':'#000000');document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.getAttribute('data-theme-option')===t));if(notify)toast(t==='light'?'تم تفعيل الوضع الفاتح ☀️':t==='navy'?'تم تفعيل الوضع الكحلي 🔵':'تم تفعيل الوضع الأسود ⚫')}
+document.querySelectorAll('[data-theme-option]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.getAttribute('data-theme-option'),true)));
+function renderSettings(){$('shopName').value=data.settings.shopName||'';applyTheme(localStorage.getItem(THEME_KEY)||document.documentElement.getAttribute('data-theme')||'dark')}
 $('settingsForm').addEventListener('submit',e=>{e.preventDefault();data.settings.shopName=$('shopName').value.trim()||'Vape Zone';save();toast('تم حفظ الإعدادات')});
 function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function exportBackup(){download(`Vape Zone-backup-${today()}.json`,JSON.stringify({...data,exportedAt:new Date().toISOString(),format:'Vape Zone backup v1'},null,2),'application/json');toast('تم تجهيز ملف النسخة الاحتياطية')}
