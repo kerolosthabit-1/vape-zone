@@ -183,6 +183,7 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shado
 <main>
 <section class="view active" id="view-dashboard">
   <div class="page-title"><div><h2>لوحة التحكم</h2><p id="todayLabel">ملخص المحل</p></div><button onclick="showView('products');openProductForm()">＋ إضافة صنف</button></div>
+  <div id="backupBanner"></div>
   <div class="stats">
     <div class="stat"><div class="label">مبيعات اليوم</div><div class="value" id="statSales">0 ج.م</div><div class="hint">إجمالي الفواتير المسجلة اليوم</div></div>
     <div class="stat"><div class="label">مكسب اليوم التقريبي</div><div class="value" id="statProfit">0 ج.م</div><div class="hint">حسب أسعار التكلفة المسجلة</div></div>
@@ -228,6 +229,7 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shado
     <button type="button" class="theme-option" data-theme-option="navy"><span class="tp"><span class="tp-main" style="background:#0d1119"></span><span class="tp-side" style="background:#151b26"></span><span class="tp-dot" style="background:#39d3a3"></span></span><b>🔵 كحلي</b><small>الوضع الأزرق الأصلي</small></button>
   </div></div>
   <div class="panel" style="margin-top:15px"><h3>نقل البيانات بين الكمبيوتر والموبايل</h3><p class="muted" style="line-height:1.9">مش محتاج تنقل حاجة يدويًا: سجّل دخول بنفس الإيميل وكلمة المرور على أي جهاز، وهتلاقي كل البيانات موجودة وبتتحدّث لحظيًا.<br>النسخة الاحتياطية اختيارية وبننصح بها كأمان إضافي (لو حصلت مشكلة في الحساب). الاستعادة تستبدل البيانات الموجودة على السحابة؛ استخدمها بحرص.</p><div class="form-actions"><button id="exportSettings">تنزيل نسخة احتياطية الآن</button><button class="secondary" id="importSettings">استعادة من ملف</button></div></div>
+  <div class="panel" style="margin-top:15px"><h3>النسخ الاحتياطية التلقائية</h3><p class="muted" style="margin:-6px 0 12px;line-height:1.9">البرنامج بيحفظ نسخة محلية تلقائيًا كل ٦ ساعات، وقبل العمليات الخطيرة زي حذف صنف أو مسح السجلات أو الاستعادة. بيتم الاحتفاظ بآخر ٥ نسخ حسب مساحة الجهاز، والنسخ دي على الجهاز ده فقط — نزّل ملف نسخة احتياطية كل فترة كأمان إضافي لو الجهاز نفسه حصلت له مشكلة.</p><div id="lastBackupInfo" class="muted" style="line-height:1.9;margin-bottom:4px"></div><div id="lastSnapInfo" class="muted" style="line-height:1.9;margin-bottom:10px"></div><div class="form-actions" style="margin-top:2px"><button type="button" id="snapNowBtn">حفظ نسخة محلية الآن</button><button type="button" class="secondary" id="snapDownloadBtn">تنزيل نسخة احتياطية (ملف)</button></div><div id="snapList" style="margin-top:6px"></div></div>
   <div class="panel" style="margin-top:15px"><h3>إعادة ضبط البيانات</h3><p class="muted">استخدم الاختيار ده فقط لو عايز تبدأ من الصفر. صدّر نسخة احتياطية أولًا. الحذف هيتزامن على كل الأجهزة.</p><button class="danger" id="resetBtn">حذف كل بيانات البرنامج</button></div>
   <p class="footnote">هذه نسخة أونلاين تعمل بحساب شخصي وقاعدة بيانات سحابية مجانية. لا تُدخل بيانات شخصية حساسة، وكلمة المرور مسؤوليتك — متشاركهاش مع حد مش موثوق.</p>
 </section>
@@ -257,6 +259,15 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shado
 const KEY='vapestock_local_v1';
 const THEME_KEY='vapestock_theme_v1';
 const PRODUCTS_VIEW_KEY='vapestock_products_view';
+const SNAP_KEY='vapestock_snapshots_v1';
+const LAST_BACKUP_KEY='vapestock_last_backup_v1';
+const BACKUP_SNOOZE_KEY='vapestock_backup_snooze_v1';
+const SNAP_MAX=5;
+const SNAP_MAX_BYTES=1500000;
+const SNAP_TOTAL_MAX=2200000;
+const SNAP_BUDGET=3800000;
+const SNAP_EVERY_HOURS=6;
+const BACKUP_REMIND_DAYS=7;
 const THEMES=['light','dark','navy'];
 const LEGACY_SHOP_ID='vape-zone-main';
 let SHOP_ID='';
@@ -278,6 +289,7 @@ const CAT_EMOJI={'أجهزة فيب':'💨','بودات وكويلات':'🔧','
 const CAT_ART={'أجهزة فيب':['#2dd4bf','#0f766e'],'بودات وكويلات':['#a78bfa','#5b21b6'],'ليكويد':['#fb923c','#c2410c'],'سجاير':['#fbbf24','#b45309'],'تبغ ومعسل':['#d6a26a','#7c4a1e'],'إكسسوارات':['#60a5fa','#1d4ed8'],'أخرى':['#94a3b8','#334155']};
 let sb=null,cloudReady=false,reloadTimer=null,serverRev=0;
 let saveTimer=null,lastPushed='',suppress=false,pendingUpload=false,currentUserId='',localOwner='',pushing=false,forceLocal=false;
+let lastSnapshotAt=0,snapBusy=false;
 let dirtyProducts=new Set();
 const $=id=>document.getElementById(id);
 const money=n=>`${Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} ج.م`;
@@ -289,7 +301,7 @@ function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('sho
 const payloadOf=d=>({products:d.products,sales:d.sales,moves:d.moves,settings:d.settings,nextId:d.nextId,customers});
 function markDirty(id){dirtyProducts.add(String(id))}
 function mirrorLocal(){try{localStorage.setItem(KEY,JSON.stringify({...payloadOf(data),rev:serverRev,owner:currentUserId,pending:pendingUpload,dirty:[...dirtyProducts],force:forceLocal}))}catch(e){}}
-function save(){if(suppress)return true;pendingUpload=true;mirrorLocal();if(!cloudReady)return false;clearTimeout(saveTimer);saveTimer=setTimeout(pushToCloud,250);return true}
+function save(){if(suppress)return true;maybeAutoSnapshot();pendingUpload=true;mirrorLocal();if(!cloudReady)return false;clearTimeout(saveTimer);saveTimer=setTimeout(pushToCloud,250);return true}
 async function pushToCloud(){if(!sb||!cloudReady||!SHOP_ID||pushing)return;pushing=true;let ok=true,guard=0;try{while(guard++<5){const payload=payloadOf(data);const str=JSON.stringify(payload);if(str===lastPushed){pendingUpload=false;mirrorLocal();break}const payloadRev=serverRev+1;const{error}=await sb.from('shops').upsert({id:SHOP_ID,data:payload,rev:payloadRev},{onConflict:'id'});if(error)throw error;lastPushed=str;serverRev=payloadRev;const now=JSON.stringify(payloadOf(data));if(now===str){pendingUpload=false;dirtyProducts.clear();forceLocal=false;mirrorLocal();break}}syncStatus('متزامن مع السحابة')}catch(e){ok=false;mirrorLocal();syncStatus('تعذر الرفع — هيعيد المحاولة');setTimeout(()=>{if(cloudReady&&pendingUpload)pushToCloud()},5000)}finally{pushing=false;if(ok&&pendingUpload){clearTimeout(saveTimer);saveTimer=setTimeout(pushToCloud,100)}}}
 function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'null');if(x&&Array.isArray(x.products)&&Array.isArray(x.sales)&&Array.isArray(x.moves)){data={products:x.products,sales:x.sales,moves:x.moves,settings:{...data.settings,...(x.settings||{})},nextId:Number(x.nextId)||1};pendingUpload=!!x.pending;localOwner=x.owner||'';dirtyProducts=new Set(Array.isArray(x.dirty)?x.dirty.map(String):[]);forceLocal=!!x.force}serverRev=Number(x&&x.rev)||0}catch(e){}}
 function uid(){return String(data.nextId++);}
@@ -313,6 +325,93 @@ function saveCustomers(){try{localStorage.setItem('vapestock_customers_v1',JSON.
 function saveReturns(){try{localStorage.setItem('vapestock_returns_v1',JSON.stringify(returns))}catch(e){}}
 function saveCounts(){try{localStorage.setItem('vapestock_counts_v1',JSON.stringify(counts))}catch(e){}}
 function saveLastSale(){try{localStorage.setItem('vapestock_last_sale_v1',JSON.stringify(lastSaleSnapshot))}catch(e){}}
+function sizeText(n){n=Number(n)||0;if(n<1024)return `${n} بايت`;if(n<1048576)return `${(n/1024).toFixed(1)} كيلو`;return `${(n/1048576).toFixed(2)} ميجا`}
+function whenText(iso){const d=new Date(iso);return isNaN(d.getTime())?'—':d.toLocaleString('ar-EG',{dateStyle:'short',timeStyle:'short'})}
+function getSnapshots(){try{const a=JSON.parse(localStorage.getItem(SNAP_KEY)||'[]');if(!Array.isArray(a))return[];return a.filter(s=>s&&s.payload&&Array.isArray(s.payload.products))}catch(e){return[]}}
+function lastSnapshotTime(){return getSnapshots().reduce((m,s)=>Math.max(m,Date.parse(s.at)||0),0)}
+function persistSnapshots(list){let arr=list.slice();if(!arr.length){try{localStorage.setItem(SNAP_KEY,'[]')}catch(e){}return[]}for(;;){try{localStorage.setItem(SNAP_KEY,JSON.stringify(arr));return arr}catch(e){if(arr.length<=1)return null;arr=arr.slice(0,-1)}}}
+function snapshotPayload(){return{...payloadOf(data),returns,counts,holdBills}}
+function snapshotById(id){return getSnapshots().find(s=>String(s.id)===String(id))}
+function takeSnapshot(reason,silent){
+  if(snapBusy)return null;
+  snapBusy=true;
+  try{
+    const payload=snapshotPayload();
+    const json=JSON.stringify(payload);
+    if(json.length>SNAP_MAX_BYTES){lastSnapshotAt=Date.now();if(!silent)toast('البيانات أكبر من مساحة النسخ المحلية — نزّل ملف نسخة احتياطية');return null}
+    const snap={id:`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,at:new Date().toISOString(),reason:reason||'يدوي',size:json.length,payload};
+    let arr=[snap,...getSnapshots()].slice(0,SNAP_MAX);
+    let total=arr.reduce((s,x)=>s+(Number(x.size)||0),0);
+    const localLen=(()=>{try{return(localStorage.getItem(KEY)||'').length}catch(e){return 0}})();
+    while(arr.length>1&&(total>SNAP_TOTAL_MAX||total+localLen>SNAP_BUDGET)){total-=Number(arr[arr.length-1].size)||0;arr=arr.slice(0,-1)}
+    const saved=persistSnapshots(arr);
+    if(!saved||!saved.some(x=>String(x.id)===String(snap.id))){lastSnapshotAt=Date.now();if(!silent)toast('مساحة الجهاز مش كافية لحفظ نسخة محلية — نزّل ملف نسخة احتياطية');return null}
+    lastSnapshotAt=Date.now();
+    renderSnapshots();
+    if(!silent)toast(`تم حفظ نسخة محلية ✅ (${saved.length} من ${SNAP_MAX})`);
+    return snap;
+  }catch(e){lastSnapshotAt=Date.now();if(!silent)toast('تعذر حفظ النسخة المحلية');return null}
+  finally{snapBusy=false}
+}
+function maybeAutoSnapshot(){
+  if(snapBusy||suppress)return;
+  const now=Date.now();
+  if(!lastSnapshotAt)lastSnapshotAt=lastSnapshotTime();
+  if(lastSnapshotAt&&now-lastSnapshotAt<SNAP_EVERY_HOURS*3600000)return;
+  const p=snapshotPayload();
+  if(!p.products.length&&!p.sales.length&&!p.moves.length&&!p.customers.length)return;
+  takeSnapshot('تلقائي',true);
+}
+function renderSnapshots(){
+  const box=$('snapList');if(!box)return;
+  let last=0;try{last=Number(localStorage.getItem(LAST_BACKUP_KEY))||0}catch(e){}
+  const info=$('lastBackupInfo');
+  if(info)info.innerHTML=last?`آخر نسخة احتياطية (ملف): <b>${esc(whenText(new Date(last).toISOString()))}</b> · منذ ${Math.max(0,Math.floor((Date.now()-last)/86400000))} يوم`:'لسه معملتش نسخة احتياطية كملف — نزّل واحدة دلوقتي.';
+  const list=getSnapshots();
+  const info2=$('lastSnapInfo');
+  if(info2)info2.innerHTML=list.length?`النسخ المحلية: <b>${list.length} من ${SNAP_MAX}</b> · آخر نسخة ${esc(whenText(list[0].at))}`:'لسه مفيش نسخ محلية — أول نسخة بتتعمل تلقائيًا بعد أول تعديل أو بضغطة من فوق.';
+  box.innerHTML=list.length?list.map(s=>`<div class="quick-row"><div style="min-width:0"><strong>${esc(s.reason||'نسخة')}</strong><small>${esc(whenText(s.at))} · ${sizeText(s.size)}</small></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button type="button" class="secondary small" onclick="restoreSnapshot('${esc(s.id)}')">استعادة</button><button type="button" class="secondary small" onclick="downloadSnapshot('${esc(s.id)}')">تنزيل</button><button type="button" class="danger small" onclick="deleteSnapshot('${esc(s.id)}')">حذف</button></div></div>`).join(''):'<div class="empty" style="padding:16px">مفيش نسخ محلية محفوظة</div>';
+  renderBackupReminder();
+}
+function renderBackupReminder(){
+  const el=$('backupBanner');if(!el)return;
+  let last=0,snooze='';try{last=Number(localStorage.getItem(LAST_BACKUP_KEY))||0;snooze=localStorage.getItem(BACKUP_SNOOZE_KEY)||''}catch(e){}
+  const days=last?Math.floor((Date.now()-last)/86400000):null;
+  if(last&&days<BACKUP_REMIND_DAYS){el.innerHTML='';return}
+  if(snooze===today()){el.innerHTML='';return}
+  const msg=last?`آخر نسخة احتياطية بملف كانت من ${days} يوم — نزّل نسخة جديدة عشان تقدر ترجع بياناتك لو حصلت مشكلة.`:'لسه معملتش نسخة احتياطية بملف. النسخ المحلية موجودة، لكن ملف على جهاز تاني بيحميك لو الجهاز نفسه حصلت له مشكلة.';
+  el.innerHTML=`<div class="notice" style="display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:15px"><div style="min-width:200px;flex:1">🔔 <b>تذكير النسخ الاحتياطي:</b> ${msg}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="small" onclick="downloadBackupNow()">تنزيل نسخة الآن</button><button type="button" class="secondary small" onclick="snoozeBackup()">تذكير بكرة</button></div></div>`;
+}
+window.restoreSnapshot=function(id){
+  const s=snapshotById(id);
+  if(!s){toast('النسخة غير موجودة');return}
+  if(!confirm(`استعادة نسخة «${s.reason||'محلية'}» من ${whenText(s.at)}؟\nسيتم استبدال البيانات الحالية على هذا الجهاز ثم تتزامن مع السحابة.`))return;
+  takeSnapshot('قبل الاستعادة',true);
+  const p=s.payload||{};
+  data={products:Array.isArray(p.products)?p.products:[],sales:Array.isArray(p.sales)?p.sales:[],moves:Array.isArray(p.moves)?p.moves:[],settings:{shopName:'Vape Zone',...(p.settings||{})},nextId:Number(p.nextId)||1};
+  customers=Array.isArray(p.customers)?p.customers:[];
+  returns=Array.isArray(p.returns)?p.returns:[];
+  counts=Array.isArray(p.counts)?p.counts:[];
+  holdBills=Array.isArray(p.holdBills)?p.holdBills:[];
+  saveCustomers();saveReturns();saveCounts();saveHold();
+  cart=[];dirtyProducts.clear();forceLocal=true;save();renderAll();showView('dashboard');
+  toast('تمت استعادة النسخة المحلية ✅');
+}
+window.downloadSnapshot=function(id){
+  const s=snapshotById(id);if(!s){toast('النسخة غير موجودة');return}
+  const p=s.payload||{};
+  download(`Vape Zone-snapshot-${String(s.at||new Date().toISOString()).slice(0,10)}.json`,JSON.stringify({...p,exportedAt:new Date().toISOString(),snapshotAt:s.at,reason:s.reason,format:'Vape Zone backup v1'},null,2),'application/json');
+  toast('تم تجهيز ملف النسخة');
+}
+window.deleteSnapshot=function(id){
+  const s=snapshotById(id);if(!s)return;
+  if(!confirm(`حذف النسخة المحلية «${s.reason||''}» من ${whenText(s.at)}؟`))return;
+  const saved=persistSnapshots(getSnapshots().filter(x=>String(x.id)!==String(id)));
+  if(!saved){toast('تعذر حذف النسخة');return}
+  renderSnapshots();toast('تم حذف النسخة المحلية');
+}
+window.downloadBackupNow=()=>exportBackup();
+window.snoozeBackup=()=>{try{localStorage.setItem(BACKUP_SNOOZE_KEY,today())}catch(e){}renderBackupReminder();toast('هنفكرك تاني بكرة')};
 function applyCompact(){document.body.classList.toggle('compact',compactMode)}
 function renderNav(){for(const id of ['sideNav','mobileNav'])$(id).innerHTML=navItems.map(([key,icon,label])=>`<button data-view="${key}" class="${key==='dashboard'?'active':''}"><span>${icon}</span>${label}</button>`).join('');document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)))}
 window.showView=function(view){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===`view-${view}`));document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));if(view==='dashboard')renderDashboard();if(view==='products')renderProducts();if(view==='sale')renderSale();if(view==='purchases')renderPurchases();if(view==='reports')renderReports();if(view==='settings')renderSettings();window.scrollTo({top:0,behavior:'smooth'})}
@@ -323,12 +422,13 @@ $('todayLabel').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long
 const todays=data.sales.filter(s=>s.day===today());$('statSales').textContent=money(todays.reduce((s,x)=>s+(Number(x.total)||0),0));$('statProfit').textContent=money(todays.reduce((s,x)=>s+(Number(x.profit)||0),0));$('statStock').textContent=money(stockValue());$('statProducts').textContent=data.products.length;$('statLow').textContent=`${lowProducts().length} صنف منخفض المخزون`;
 $('recentSales').innerHTML=table(['رقم الفاتورة','الوقت','المنتجات','الإجمالي','المكسب'],data.sales.slice(-5).reverse().map(s=>`<tr><td>#${esc(s.id)}</td><td>${esc(s.date)}</td><td><div style="white-space:normal;min-width:180px;max-width:320px;line-height:1.8" title="${esc(itemsSummary(s))}">${itemsSummary(s,3)}</div></td><td>${money(s.total)}</td><td>${money(s.profit)}</td></tr>`),'لسه مفيش مبيعات مسجلة');
 $('lowStockList').innerHTML=lowProducts().slice(0,7).map(p=>{const s=stockInfo(p);return `<div class="quick-row"><div class="quick-prod">${thumbOf(p,'sm')}<div><strong>${esc(p.name)}</strong><small>${esc(p.category)}</small></div></div><span class="badge ${s.cls}">${s.text}</span></div>`}).join('')||'<div class="empty">كل الأصناف فوق حد التنبيه 👍</div>';
+renderBackupReminder();
 }
 function normalizeArabic(s){return String(s||'').toLowerCase().replace(/[\u064B-\u065F\u0670]/g,'').replace(/[\u0622\u0623\u0625]/g,'\u0627').replace(/\u0649/g,'\u064A').replace(/\u0629/g,'\u0647')}
 window.openProductForm=function(id=''){const p=id?product(id):null;imageToken++;imageBusy=false;pendingImage=p?.img||'';$('productForm').reset();$('editProductId').value=p?.id||'';$('productFormTitle').textContent=p?'تعديل بيانات الصنف':'إضافة صنف جديد';$('pName').value=p?.name||'';$('pCode').value=p?.code||'';$('pCategory').value=p?.category||categories[0];$('pQty').value=p?.qty??0;$('pCost').value=p?.cost??0;$('pPrice').value=p?.price??0;$('pMin').value=p?.min??3;renderImagePreview();updateImageButtons();$('productDialog').showModal()}
 function catalogCard(p){const s=stockInfo(p);return `<div class="product-card catalog-card" role="button" tabindex="0" onclick="openProductForm('${p.id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openProductForm('${p.id}')}"><span class="pc-media">${artLayer(p)}${artImg(p)}<span class="pc-stock ${s.cls}">${s.text}</span><span class="pc-actions"><button type="button" class="secondary pc-del" onclick="event.stopPropagation();deleteProduct('${p.id}')" title="حذف الصنف" aria-label="حذف الصنف">🗑</button></span></span><span class="pc-body"><b class="pc-name">${esc(p.name)}</b><span class="pc-cat">${esc(p.category)}${p.code?' · '+esc(p.code):''}</span><span class="pc-foot"><strong class="pc-price">${money(p.price)}</strong><span class="pc-hint">تعديل ✎</span></span></span></div>`}
 function renderProducts(){const q=normalizeArabic($('productSearch').value.trim()),cat=$('categoryFilter').value;const arr=data.products.filter(p=>(!q||[p.name,p.code,p.category].some(v=>normalizeArabic(v).includes(q)))&&(!cat||p.category===cat));$('productsViewToggle').textContent=productsView==='grid'?'▤ عرض كجدول':'▦ عرض كمعرض';if(productsView==='grid'){$('productsTable').innerHTML=arr.length?`<div class="product-grid">${arr.map(p=>catalogCard(p)).join('')}</div>`:'<div class="empty">مفيش أصناف مطابقة. اضغط «إضافة صنف» للبدء.</div>';return}$('productsTable').innerHTML=table(['الصنف','القسم','الكمية','الشراء','البيع','قيمة المخزون','الحالة','إجراءات'],arr.map(p=>{const s=stockInfo(p);return `<tr><td><div class="prod-cell">${thumbOf(p)}<div class="prod-meta"><b>${esc(p.name)}</b><small class="muted">${esc(p.code||'بدون كود')}</small></div></div></td><td>${esc(p.category)}</td><td>${p.qty}</td><td>${money(p.cost)}</td><td>${money(p.price)}</td><td>${money(p.qty*p.cost)}</td><td><span class="badge ${s.cls}">${s.text}</span></td><td><div class="actions"><button class="secondary" onclick="openProductForm('${p.id}')">تعديل</button><button class="danger" onclick="deleteProduct('${p.id}')">حذف</button></div></td></tr>`}),'مفيش أصناف مطابقة. اضغط «إضافة صنف» للبدء.')}
-window.deleteProduct=function(id){const p=product(id);if(!p)return;if(!confirm(`حذف الصنف «${p.name}»؟ لن يمكن التراجع عن الحذف.`))return;data.products=data.products.filter(x=>x.id!==id);cart=cart.filter(x=>x.id!==id);markDirty(id);save();renderProducts();renderSale();toast('تم حذف الصنف')}
+window.deleteProduct=function(id){const p=product(id);if(!p)return;if(!confirm(`حذف الصنف «${p.name}»؟ لن يمكن التراجع عن الحذف.`))return;takeSnapshot('قبل حذف صنف',true);data.products=data.products.filter(x=>x.id!==id);cart=cart.filter(x=>x.id!==id);markDirty(id);save();renderProducts();renderSale();toast('تم حذف الصنف')}
 $('productForm').addEventListener('submit',e=>{e.preventDefault();if(imageBusy){toast('استنى لحظة، الصورة بتتجهز');return}const id=$('editProductId').value,code=$('pCode').value.trim();if(code&&data.products.some(p=>p.code===code&&p.id!==id)){toast('الكود مستخدم بالفعل لصنف آخر');return}const p={id:id||uid(),name:$('pName').value.trim(),code,category:$('pCategory').value,qty:num('pQty'),cost:num('pCost'),price:num('pPrice'),min:num('pMin'),img:pendingImage};if(!p.name||[p.qty,p.cost,p.price,p.min].some(n=>n<0)||!Number.isInteger(p.qty)||!Number.isInteger(p.min)){toast('راجع البيانات والكميات');return}if(id){const i=data.products.findIndex(x=>x.id===id);if(i>=0)data.products[i]=p}else{data.products.push(p);data.moves.push({id:uid(),date:dateTime(),day:today(),type:'رصيد افتتاحي',name:p.name,qty:p.qty,note:'إضافة صنف جديد'})}markDirty(p.id);save();$('productDialog').close();renderProducts();renderSale();toast('تم حفظ الصنف بنجاح')});
 $('closeProduct').onclick=$('cancelProduct').onclick=()=>$('productDialog').close();
 $('productSearch').addEventListener('input',renderProducts);$('categoryFilter').addEventListener('change',renderProducts); if($('saleSearch')){$('saleSearch').setAttribute('autocomplete','off');$('saleSearch').setAttribute('inputmode','search');} if($('productSearch')){$('productSearch').setAttribute('autocomplete','off');$('productSearch').setAttribute('inputmode','search');}
@@ -373,16 +473,16 @@ function applyTheme(t,notify){if(!THEMES.includes(t))t='dark';document.documentE
 document.querySelectorAll('[data-theme-option]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.getAttribute('data-theme-option'),true)));
 function setCompact(v){compactMode=!!v;try{localStorage.setItem('vapestock_compact_v1',compactMode?'1':'0')}catch(e){}applyCompact();document.querySelectorAll('#compactToggle,#compactToggleSet').forEach(el=>{el.checked=compactMode});toast(compactMode?'تم تفعيل الوضع المضغوط':'تم إيقاف الوضع المضغوط')}
 function bindCompactToggle(){document.querySelectorAll('#compactToggle,#compactToggleSet').forEach(el=>{el.checked=compactMode;el.onchange=()=>setCompact(el.checked)})}
-function renderSettings(){bindCompactToggle();$('shopName').value=data.settings.shopName||'';applyTheme(localStorage.getItem(THEME_KEY)||document.documentElement.getAttribute('data-theme')||'dark');const bytes=JSON.stringify(payloadOf(data)).length,mb=bytes/1048576;$('dataSize').textContent=mb<0.1?(Math.max(1,Math.round(bytes/1024))+' كيلو'):(mb.toFixed(2)+' ميجا');$('dataSize').style.color=mb>0.8?'var(--yellow)':'';$('imgCount').textContent=data.products.filter(p=>p.img).length;const hint=$('dataHint');if(hint){hint.textContent=mb>0.8?'البيانات قربت من حد المزامنة (1 ميجا) — قلل عدد الصور أو صدّر نسخة احتياطية':'الصور بتتصغّر تلقائيًا للمزامنة السريعة';hint.style.color=mb>0.8?'var(--yellow)':''}}
+function renderSettings(){bindCompactToggle();$('shopName').value=data.settings.shopName||'';applyTheme(localStorage.getItem(THEME_KEY)||document.documentElement.getAttribute('data-theme')||'dark');const bytes=JSON.stringify(payloadOf(data)).length,mb=bytes/1048576;$('dataSize').textContent=mb<0.1?(Math.max(1,Math.round(bytes/1024))+' كيلو'):(mb.toFixed(2)+' ميجا');$('dataSize').style.color=mb>0.8?'var(--yellow)':'';$('imgCount').textContent=data.products.filter(p=>p.img).length;const hint=$('dataHint');if(hint){hint.textContent=mb>0.8?'البيانات قربت من حد المزامنة (1 ميجا) — قلل عدد الصور أو صدّر نسخة احتياطية':'الصور بتتصغّر تلقائيًا للمزامنة السريعة';hint.style.color=mb>0.8?'var(--yellow)':''}renderSnapshots()}
 $('settingsForm').addEventListener('submit',e=>{e.preventDefault();data.settings.shopName=$('shopName').value.trim()||'Vape Zone';save();toast('تم حفظ الإعدادات')});
 function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}
-function exportBackup(){download(`Vape Zone-backup-${today()}.json`,JSON.stringify({...data,customers,exportedAt:new Date().toISOString(),format:'Vape Zone backup v1'},null,2),'application/json');toast('تم تجهيز ملف النسخة الاحتياطية')}
-function importBackup(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!x||!Array.isArray(x.products)||!Array.isArray(x.sales)||!Array.isArray(x.moves)||!x.settings)throw new Error('bad');if(!confirm('استعادة النسخة ستستبدل كل البيانات الحالية على هذا الجهاز. هل تريد المتابعة؟'))return;data={products:x.products,sales:x.sales,moves:x.moves,settings:{shopName:x.settings.shopName||'Vape Zone'},nextId:Number(x.nextId)||1};if(Array.isArray(x.customers)){customers=x.customers;saveCustomers()}cart=[];dirtyProducts.clear();forceLocal=true;save();renderAll();toast('تمت استعادة النسخة بنجاح')}catch(e){toast('الملف غير صالح أو ليس نسخة من Vape Zone')}};reader.readAsText(file)}
-$('exportBtn').onclick=exportBackup;$('exportSettings').onclick=exportBackup;$('importBtn').onclick=$('importSettings').onclick=()=>$('importFile').click();$('importFile').addEventListener('change',e=>{importBackup(e.target.files[0]);e.target.value=''});
+function exportBackup(){download(`Vape Zone-backup-${today()}.json`,JSON.stringify({...data,customers,returns,counts,holdBills,exportedAt:new Date().toISOString(),format:'Vape Zone backup v1'},null,2),'application/json');try{localStorage.setItem(LAST_BACKUP_KEY,String(Date.now()))}catch(e){}renderSnapshots();toast('تم تجهيز ملف النسخة الاحتياطية')}
+function importBackup(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const x=JSON.parse(reader.result);if(!x||!Array.isArray(x.products)||!Array.isArray(x.sales)||!Array.isArray(x.moves)||!x.settings)throw new Error('bad');if(!confirm('استعادة النسخة ستستبدل كل البيانات الحالية على هذا الجهاز. هل تريد المتابعة؟'))return;takeSnapshot('قبل الاستعادة من ملف',true);data={products:x.products,sales:x.sales,moves:x.moves,settings:{shopName:x.settings.shopName||'Vape Zone'},nextId:Number(x.nextId)||1};if(Array.isArray(x.customers)){customers=x.customers;saveCustomers()}if(Array.isArray(x.returns)){returns=x.returns;saveReturns()}if(Array.isArray(x.counts)){counts=x.counts;saveCounts()}if(Array.isArray(x.holdBills)){holdBills=x.holdBills;saveHold()}cart=[];dirtyProducts.clear();forceLocal=true;save();renderAll();toast('تمت استعادة النسخة بنجاح')}catch(e){toast('الملف غير صالح أو ليس نسخة من Vape Zone')}};reader.readAsText(file)}
+$('exportBtn').onclick=exportBackup;$('exportSettings').onclick=exportBackup;$('snapNowBtn').onclick=()=>takeSnapshot('يدوي',false);$('snapDownloadBtn').onclick=exportBackup;$('importBtn').onclick=$('importSettings').onclick=()=>$('importFile').click();$('importFile').addEventListener('change',e=>{importBackup(e.target.files[0]);e.target.value=''});
 $('csvBtn').onclick=()=>{const rows=[['الاسم','الكود','القسم','الكمية','سعر الشراء','سعر البيع','حد التنبيه'],...data.products.map(p=>[p.name,p.code,p.category,p.qty,p.cost,p.price,p.min])];const csv='\uFEFF'+rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');download(`Vape Zone-products-${today()}.csv`,csv,'text/csv;charset=utf-8')};
-$('clearSalesBtn').onclick=()=>{if(!confirm('مسح سجل المبيعات فقط؟ لن يرجع المخزون تلقائيًا.'))return;data.sales=[];forceLocal=true;save();renderReports();toast('تم مسح سجل المبيعات')};
-$('clearMovesBtn').onclick=()=>{if(!confirm('مسح سجل حركات المخزون؟'))return;data.moves=[];forceLocal=true;save();renderReports();toast('تم مسح سجل الحركات')};
-$('resetBtn').onclick=()=>{if(!confirm('تحذير: سيتم حذف كل الأصناف والمبيعات والحركات نهائيًا من كل الأجهزة. هل أنت متأكد؟'))return;if(!confirm('تأكيد أخير: صدّرت نسخة احتياطية أو متأكد أنك لا تحتاج البيانات؟'))return;data={products:[],sales:[],moves:[],settings:{shopName:'Vape Zone'},nextId:1};cart=[];holdBills=[];customers=[];saveCustomers();try{localStorage.removeItem('vapestock_hold_v1');localStorage.removeItem('vapestock_customers_v1')}catch(e){}dirtyProducts.clear();forceLocal=true;save();renderAll();showView('dashboard');toast('تمت إعادة ضبط البرنامج')};
+$('clearSalesBtn').onclick=()=>{if(!confirm('مسح سجل المبيعات فقط؟ لن يرجع المخزون تلقائيًا.'))return;takeSnapshot('قبل مسح سجل المبيعات',true);data.sales=[];forceLocal=true;save();renderReports();toast('تم مسح سجل المبيعات')};
+$('clearMovesBtn').onclick=()=>{if(!confirm('مسح سجل حركات المخزون؟'))return;takeSnapshot('قبل مسح سجل الحركات',true);data.moves=[];forceLocal=true;save();renderReports();toast('تم مسح سجل الحركات')};
+$('resetBtn').onclick=()=>{if(!confirm('تحذير: سيتم حذف كل الأصناف والمبيعات والحركات نهائيًا من كل الأجهزة. هل أنت متأكد؟'))return;if(!confirm('تأكيد أخير: صدّرت نسخة احتياطية أو متأكد أنك لا تحتاج البيانات؟'))return;takeSnapshot('قبل إعادة ضبط البيانات',true);data={products:[],sales:[],moves:[],settings:{shopName:'Vape Zone'},nextId:1};cart=[];holdBills=[];customers=[];returns=[];counts=[];saveCustomers();saveReturns();saveCounts();try{localStorage.removeItem('vapestock_hold_v1');localStorage.removeItem('vapestock_customers_v1')}catch(e){}dirtyProducts.clear();forceLocal=true;save();renderAll();showView('dashboard');toast('تمت إعادة ضبط البرنامج')};
 function renderAll(){renderDashboard();renderProducts();renderSale();renderPurchases();renderReports();renderSettings()}
 function gateMsg(text,kind){const el=$('gateMsg');el.textContent=text||'';el.className='gate-msg'+(kind?` ${kind}`:'')}
 function syncStatus(text){const el=$('accountInfo');if(el)el.textContent=text}
@@ -394,7 +494,7 @@ async function ensureShopRow(){const{data:own,error}=await sb.from('shops').sele
 async function fetchCloud(notify){if(!sb||!cloudReady||!SHOP_ID)return;try{const{data:r,error}=await sb.from('shops').select('rev,data').eq('id',SHOP_ID).maybeSingle();if(error)throw error;await applyRemote(r,notify)}catch(e){if(notify)toast('تعذر تحميل البيانات من السحابة. راجع الاتصال.')}}
 function subscribeCloud(){if(!sb||!cloudReady)return;try{sb.getChannels().forEach(c=>sb.removeChannel(c));sb.channel('shops-sync').on('postgres_changes',{event:'*',schema:'public',table:'shops',filter:`id=eq.${SHOP_ID}`},p=>{const row=p.new;if(!row)return;clearTimeout(reloadTimer);reloadTimer=setTimeout(()=>applyRemote(row,'تم تحديث البيانات من جهاز آخر'),350)}).subscribe(s=>{if(s==='SUBSCRIBED')syncStatus('متزامن مع السحابة');else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')syncStatus('الاتصال متعثر — إعادة محاولة')})}catch(e){}}
 function setLoggedIn(on){$('appRoot').hidden=!on;$('gate').hidden=on}
-async function afterLogin(session){currentUserId=(session&&session.user&&session.user.id)||'';accountEmail=(session&&session.user&&session.user.email)||'';SHOP_ID=currentUserId;if(localOwner&&currentUserId&&localOwner!==currentUserId){data={products:[],sales:[],moves:[],settings:{shopName:'Vape Zone'},nextId:1};serverRev=0;pendingUpload=false;lastPushed='';dirtyProducts.clear();forceLocal=false;customers=[];saveCustomers()}sb=window.supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true}});cloudReady=true;setLoggedIn(true);syncStatus(accountEmail||'متزامن');try{await ensureShopRow();const{data:row,error}=await sb.from('shops').select('rev,data').eq('id',SHOP_ID).maybeSingle();if(error)throw error;if(!row){pendingUpload=true;await pushToCloud()}else{await applyRemote(row,'تم تحميل بيانات المحل من السحابة')}if(!pendingUpload)lastPushed=JSON.stringify(payloadOf(data));mirrorLocal();subscribeCloud();renderAll()}catch(e){cloudReady=false;syncStatus('تعذر الاتصال بالسحابة');toast('تعذر الاتصال بقاعدة البيانات. راجع الاتصال أو إعدادات المشروع.')}}
+async function afterLogin(session){currentUserId=(session&&session.user&&session.user.id)||'';accountEmail=(session&&session.user&&session.user.email)||'';SHOP_ID=currentUserId;if(localOwner&&currentUserId&&localOwner!==currentUserId){data={products:[],sales:[],moves:[],settings:{shopName:'Vape Zone'},nextId:1};serverRev=0;pendingUpload=false;lastPushed='';dirtyProducts.clear();forceLocal=false;customers=[];saveCustomers()}sb=window.supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true}});cloudReady=true;setLoggedIn(true);syncStatus(accountEmail||'متزامن');try{await ensureShopRow();const{data:row,error}=await sb.from('shops').select('rev,data').eq('id',SHOP_ID).maybeSingle();if(error)throw error;if(!row){pendingUpload=true;await pushToCloud()}else{await applyRemote(row,'تم تحميل بيانات المحل من السحابة')}if(!pendingUpload)lastPushed=JSON.stringify(payloadOf(data));mirrorLocal();subscribeCloud();renderAll();maybeAutoSnapshot()}catch(e){cloudReady=false;syncStatus('تعذر الاتصال بالسحابة');toast('تعذر الاتصال بقاعدة البيانات. راجع الاتصال أو إعدادات المشروع.')}}
 async function doLogout(){if(pendingUpload&&cloudReady){try{await pushToCloud()}catch(e){}}try{await sb.auth.signOut()}catch(e){}cloudReady=false;window.location.reload()}
 async function initAuth(){if(!window.supabase){gateMsg('تعذر تحميل مكتبة الاتصال. راجع اتصال الإنترنت أو أعد تحميل الصفحة.','err');return}if(!SB_URL||SB_URL.indexOf('PASTE_')===0){gateMsg('لسه محتاج تضيف رابط مشروع Supabase ومفتاحه في أعلى السكربت (SB_URL و SB_ANON).','err');return}const probe=window.supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true}});const{data:{session}}=await probe.auth.getSession();if(session)await afterLogin(session)}
 let mode='login',accountEmail='';
@@ -404,8 +504,8 @@ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();const emai
 $('logoutBtn').onclick=doLogout;
 window.addEventListener('online',()=>{if(sb&&cloudReady){syncStatus(accountEmail||'متزامن');pushToCloud().then(()=>fetchCloud('تم استرجاع الاتصال'))}});
 window.addEventListener('offline',()=>syncStatus('بدون إنترنت — التعديلات هتُرفع عند الرجوع'));
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&sb&&cloudReady)fetchCloud(null)});
-load();renderNav();applyCompact();renderAll();initAuth();
+document.addEventListener('visibilitychange',()=>{if(document.hidden){try{maybeAutoSnapshot()}catch(e){}}else if(sb&&cloudReady)fetchCloud(null)});
+lastSnapshotAt=lastSnapshotTime();load();renderNav();applyCompact();renderAll();initAuth();
 })();
 </script>
 </body>
