@@ -173,6 +173,27 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shado
 .se-credit-note{border:1px solid color-mix(in srgb,var(--blue) 40%,var(--line));background:color-mix(in srgb,var(--blue) 8%,var(--panel));padding:10px 12px;border-radius:10px;font-size:12px;line-height:1.8;margin-top:10px}
 .se-warn{border-color:color-mix(in srgb,var(--yellow) 45%,var(--line));background:color-mix(in srgb,var(--yellow) 8%,var(--panel))}
 @media(max-width:700px){.se-row{grid-template-columns:repeat(2,minmax(0,1fr))}.se-row .se-prod{grid-column:1/-1}.se-sub{grid-column:1/-1;text-align:right;padding:0}.se-row .se-del{grid-column:2;justify-self:end}}
+/* ==== شارة معدّلة + مقارنة قبل/بعد ==== */
+.se-badge{display:inline-flex;align-items:center;gap:4px;margin-top:5px;background:color-mix(in srgb,var(--yellow) 16%,var(--panel));color:var(--yellow);border:1px solid color-mix(in srgb,var(--yellow) 40%,var(--line));border-radius:999px;padding:2px 9px;font-size:11px;font-weight:750;cursor:pointer;line-height:1.7}
+.se-badge:hover{background:color-mix(in srgb,var(--yellow) 26%,var(--panel))}
+.se-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0 4px}
+.se-cmp{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--panel2);min-width:0}
+.se-cmp.after{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
+.se-cmp-title{font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:750;display:flex;justify-content:space-between;gap:6px}
+.se-cmp-row{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:2px 0;line-height:1.7}
+.se-cmp-row b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.se-cmp-items{font-size:11px;color:var(--muted);line-height:1.9;margin-top:5px;white-space:normal}
+.se-delta{font-size:11px;font-weight:750;margin-inline-start:4px}
+.se-up{color:var(--accent)}.se-down{color:var(--red)}
+.se-old{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.65;white-space:normal}
+.se-old b{color:var(--text);font-weight:650}
+.se-new-tag{color:var(--accent);font-weight:700}
+.se-history{width:min(920px,100%)}
+.se-hist-card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;background:var(--panel2)}
+.se-hist-head{display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:12px;flex-wrap:wrap}
+.se-hist-head b{font-size:13px}
+.se-hist-list{font-size:12px;line-height:1.9;white-space:normal}
+@media(max-width:700px){.se-compare{grid-template-columns:1fr}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -302,6 +323,7 @@ let sb=null,cloudReady=false,reloadTimer=null,serverRev=0;
 let saveTimer=null,lastPushed='',suppress=false,pendingUpload=false,currentUserId='',localOwner='',pushing=false,forceLocal=false;
 let lastSnapshotAt=0,snapBusy=false;
 let saleEditSeq=0;
+let saleEditBase=null,saleEditOldRows=new Map();
 let dirtyProducts=new Set();
 const $=id=>document.getElementById(id);
 const money=n=>`${Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})} ج.م`;
@@ -432,7 +454,7 @@ function itemsSummary(s,max){const items=(s.items||[]);const shown=items.slice(0
 function renderDashboard(){
 $('todayLabel').textContent=new Date().toLocaleDateString('ar-EG',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 const todays=data.sales.filter(s=>s.day===today());$('statSales').textContent=money(todays.reduce((s,x)=>s+(Number(x.total)||0),0));$('statProfit').textContent=money(todays.reduce((s,x)=>s+(Number(x.profit)||0),0));$('statStock').textContent=money(stockValue());$('statProducts').textContent=data.products.length;$('statLow').textContent=`${lowProducts().length} صنف منخفض المخزون`;
-$('recentSales').innerHTML=table(['رقم الفاتورة','الوقت','المنتجات','الإجمالي','المكسب'],data.sales.slice(-5).reverse().map(s=>`<tr><td>#${esc(s.id)}</td><td>${esc(s.date)}</td><td><div style="white-space:normal;min-width:180px;max-width:320px;line-height:1.8" title="${esc(itemsSummary(s))}">${itemsSummary(s,3)}</div></td><td>${money(s.total)}</td><td>${money(s.profit)}</td></tr>`),'لسه مفيش مبيعات مسجلة');
+$('recentSales').innerHTML=table(['رقم الفاتورة','الوقت','المنتجات','الإجمالي','المكسب'],data.sales.slice(-5).reverse().map(s=>{const ec=Number(s.editCount)||((s.edits&&s.edits.length)||0);return `<tr><td><div>#${esc(s.id)}</div>${s.editedAt||ec?`<button type="button" class="se-badge" onclick="openSaleHistory('${esc(s.id)}')" title="آخر تعديل: ${esc(s.editedAt||'—')}">✏️ معدّلة${ec>1?' ×'+ec:''}</button>`:''}</td><td>${esc(s.date)}</td><td><div style="white-space:normal;min-width:180px;max-width:320px;line-height:1.8" title="${esc(itemsSummary(s))}">${itemsSummary(s,3)}</div></td><td>${money(s.total)}</td><td>${money(s.profit)}</td></tr>`}),'لسه مفيش مبيعات مسجلة');
 $('lowStockList').innerHTML=lowProducts().slice(0,7).map(p=>{const s=stockInfo(p);return `<div class="quick-row"><div class="quick-prod">${thumbOf(p,'sm')}<div><strong>${esc(p.name)}</strong><small>${esc(p.category)}</small></div></div><span class="badge ${s.cls}">${s.text}</span></div>`}).join('')||'<div class="empty">كل الأصناف فوق حد التنبيه 👍</div>';
 renderBackupReminder();
 }
@@ -467,6 +489,27 @@ window.applyCount=function(){let changes=0;for(const p of data.products){const v
 window.holdCurrentBill=function(){if(!cart.length){toast('الفاتورة فاضية مفيش حاجة نحطها');return}const t=cartTotals();const bill={id:Date.now().toString(),date:dateTime(),items:JSON.parse(JSON.stringify(cart)),subtotal:t.subtotal,discount:t.discount,total:t.total};holdBills.push(bill);saveHold();cart=[];if($('discountInput'))$('discountInput').value='0';if($('paidInput'))$('paidInput').value='';renderCart();toast('تم إيقاف الفاتورة مؤقتًا واستئنافها من «استئناف فاتورة معلّقة»')}
 window.showHoldBills=function(){if(!holdBills.length){toast('مفيش فواتير معلّقة');return}const msg=holdBills.map((b,i)=>`${i+1}. ${b.date} — ${money(b.total)} (${b.items.reduce((s,x)=>s+x.qty,0)} قطعة)`).join('\n');const ans=prompt('اختر رقم الفاتورة المعلّقة لاستئنافها:\n\n'+msg);if(ans===null)return;const idx=Number(ans)-1;if(!holdBills[idx]){toast('رقم غير صحيح');return}if(cart.length&&!confirm('في فاتورة حالية هتُستبدل بالفاتورة المعلّقة. هل تريد المتابعة؟'))return;cart=JSON.parse(JSON.stringify(holdBills[idx].items));const d=holdBills[idx].discount||0;if($('discountInput'))$('discountInput').value=d;if($('paidInput'))$('paidInput').value='';holdBills.splice(idx,1);saveHold();renderCart();renderSale();toast('تم استئناف الفاتورة المعلّقة')}
 window.undoLastSale=function(){const last=data.sales.slice(-1)[0];if(!last){toast('مفيش بيع تقدر ترجعه');return}if(!confirm(`تراجع عن فاتورة #${last.id} وإرجاع الأصناف للمخزون؟`))return;for(const it of (last.items||[])){const p=product(it.id);if(p)p.qty+=Number(it.qty)||0;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'تراجع بيع',name:it.name,qty:Number(it.qty)||0,note:`إرجاع لفاتورة #${last.id}`});if(p)markDirty(p.id)}data.sales=data.sales.filter(s=>s.id!==last.id);if(last.method==='credit'&&last.customer){const c=customers.find(x=>String(x.id)===String(last.customer.id));if(c){c.balance=Math.max(0,(Number(c.balance)||0)-Number(last.total||0));c.upd=Date.now();saveCustomers()}}save();renderAll();toast('تم تراجع الفاتورة وإرجاع الأصناف')};
+function saleSnapshot(sale){
+ return {
+  id:String(sale.id||''),date:sale.date||'',method:sale.method||'cash',
+  items:(sale.items||[]).map(it=>({id:String(it.id||''),name:it.name||'',qty:Number(it.qty)||0,price:Number(it.price)||0,cost:Number(it.cost)||0,subtotal:Number(it.subtotal)||0,profit:Number(it.profit)||0})),
+  subtotal:Number(sale.subtotal)||0,discount:Number(sale.discount)||0,total:Number(sale.total)||0,
+  profit:Number(sale.profit)||0,paid:Number(sale.paid)||0,change:Number(sale.change)||0
+ };
+}
+function saleQty(items){return (items||[]).reduce((n,x)=>n+(Number(x.qty)||0),0)}
+function editTimesText(n){n=Number(n)||0;return n===1?'مرة':n===2?'مرتين':`${n} مرات`}
+function saleItemsBrief(items){
+ return (items||[]).length?(items||[]).map(it=>`${esc(it.name)} <span class="muted">×${Number(it.qty)||0}</span>${Number(it.price)?` · ${money(it.price)}`:''}`).join('<br>'):'—';
+}
+function saleSummaryHTML(snap,title,isAfter){
+ const profitColor=Number(snap.profit)<0?'var(--red)':'';
+ return `<div class="se-cmp ${isAfter?'after':''}"><div class="se-cmp-title"><span>${esc(title)}</span><span>${(snap.items||[]).length} صنف · ${saleQty(snap.items)} قطعة</span></div><div class="se-cmp-row"><span>قبل الخصم</span><b>${money(snap.subtotal)}</b></div><div class="se-cmp-row"><span>الخصم</span><b>${money(snap.discount)}</b></div><div class="se-cmp-row"><span>الإجمالي</span><b>${money(snap.total)}</b></div><div class="se-cmp-row"><span>المكسب</span><b style="color:${profitColor}">${money(snap.profit)}</b></div>${snap.method==='credit'?'<div class="se-cmp-row"><span>الدفع</span><b>آجل على العميل</b></div>':`<div class="se-cmp-row"><span>المدفوع / الباقي</span><b>${money(snap.paid)} / ${money(snap.change)}</b></div>`}<div class="se-cmp-items">${saleItemsBrief(snap.items)}</div></div>`;
+}
+function saleEditCompareHTML(base){
+ const credit=base.method==='credit';
+ return `<div class="se-compare">${saleSummaryHTML(base,'الوضع الحالي قبل التعديل',false)}<div class="se-cmp after"><div class="se-cmp-title"><span>بعد التعديل (معاينة)</span><span id="seAfterCount"></span></div><div class="se-cmp-row"><span>قبل الخصم</span><b id="seAfterSubtotal">—</b></div><div class="se-cmp-row"><span>الخصم</span><b id="seAfterDiscount">—</b></div><div class="se-cmp-row"><span>الإجمالي</span><b><span id="seAfterTotal">—</span><span id="seAfterTotalDelta" class="se-delta"></span></b></div><div class="se-cmp-row"><span>المكسب</span><b><span id="seAfterProfit">—</span><span id="seAfterProfitDelta" class="se-delta"></span></b></div><div class="se-cmp-row" id="seAfterPayRow"${credit?' style="display:none"':''}><span>المدفوع / الباقي</span><b id="seAfterPay">—</b></div><div class="se-cmp-items" id="seAfterItems"></div></div></div>`;
+}
 function saleEditOptions(selectedId,oldItem){
  const opts=data.products.map(p=>`<option value="${esc(p.id)}" data-price="${Number(p.price)||0}" data-cost="${Number(p.cost)||0}"${String(p.id)===String(selectedId)?' selected':''}>${esc(p.name)} — متاح ${Number(p.qty)||0}</option>`);
  if(selectedId&&!data.products.some(p=>String(p.id)===String(selectedId)))opts.unshift(`<option value="${esc(selectedId)}" data-price="${Number(oldItem&&oldItem.price)||0}" data-cost="${Number(oldItem&&oldItem.cost)||0}" selected>${esc((oldItem&&oldItem.name)||'صنف محذوف')} (محذوف)</option>`);
@@ -474,23 +517,62 @@ function saleEditOptions(selectedId,oldItem){
 }
 function saleEditRowHTML(it,idx){
  const qty=Number(it&&it.qty)||1,price=Number(it&&it.price)||0,cost=Number(it&&it.cost)||0;
- return `<div class="se-row" data-idx="${idx}"><div class="se-cell se-prod"><label>الصنف</label><select id="se_prod_${idx}" onchange="saleEditProductChanged(${idx})">${saleEditOptions(it&&it.id,it)}</select></div><div class="se-cell"><label>الكمية</label><input id="se_qty_${idx}" type="number" min="1" step="1" value="${qty}" oninput="saleEditRecalc()"></div><div class="se-cell"><label>سعر البيع</label><input id="se_price_${idx}" type="number" min="0" step=".01" value="${price}" oninput="saleEditRecalc()"></div><div class="se-cell"><label>التكلفة</label><input id="se_cost_${idx}" type="number" min="0" step=".01" value="${cost}" oninput="saleEditRecalc()"></div><div class="se-cell"><label>الإجمالي</label><div class="se-sub">${money(qty*price)}</div></div><div class="se-cell se-del"><button type="button" class="secondary" onclick="saleEditRemoveRow(this)" title="حذف الصنف">✕</button></div></div>`;
+ return `<div class="se-row" data-idx="${idx}"><div class="se-cell se-prod"><label>الصنف</label><select id="se_prod_${idx}" onchange="saleEditProductChanged(${idx})">${saleEditOptions(it&&it.id,it)}</select><div class="se-old" id="se_old_${idx}"></div></div><div class="se-cell"><label>الكمية</label><input id="se_qty_${idx}" type="number" min="1" step="1" value="${qty}" oninput="saleEditRecalc()"></div><div class="se-cell"><label>سعر البيع</label><input id="se_price_${idx}" type="number" min="0" step=".01" value="${price}" oninput="saleEditRecalc()"></div><div class="se-cell"><label>التكلفة</label><input id="se_cost_${idx}" type="number" min="0" step=".01" value="${cost}" oninput="saleEditRecalc()"></div><div class="se-cell"><label>الإجمالي</label><div class="se-sub">${money(qty*price)}</div></div><div class="se-cell se-del"><button type="button" class="secondary" onclick="saleEditRemoveRow(this)" title="حذف الصنف">✕</button></div></div>`;
+}
+function updateSaleEditOldHints(){
+ document.querySelectorAll('#seItems .se-row').forEach(row=>{
+  const idx=row.dataset.idx,hint=$('se_old_'+idx);if(!hint)return;
+  const old=saleEditOldRows.get(idx);
+  const pid=$('se_prod_'+idx).value,qty=Number($('se_qty_'+idx).value)||0,price=Number($('se_price_'+idx).value)||0,cost=Number($('se_cost_'+idx).value)||0;
+  if(!old){hint.innerHTML=pid?'<span class="se-new-tag">＋ صنف جديد على الفاتورة</span>':'';return}
+  const changed=String(old.id)!==String(pid)||Number(old.qty)!==qty||Number(old.price)!==price||Number(old.cost)!==cost;
+  if(!changed){hint.innerHTML='';return}
+  const bits=[`<b>${esc(old.name)}</b> ×${Number(old.qty)||0}`,`${money(old.price)}`];
+  if(Number(old.cost)!==cost)bits.push(`تكلفة ${money(old.cost)}`);
+  hint.innerHTML=`قبل: ${bits.join(' · ')}`;
+ });
 }
 window.openSaleEdit=function(id){
  const sale=data.sales.find(s=>String(s.id)===String(id));
  if(!sale){toast('الفاتورة غير موجودة');return}
  $('saleEditModal')?.remove();
  saleEditSeq=0;
+ saleEditBase=saleSnapshot(sale);
+ saleEditOldRows=new Map();
  const items=(sale.items&&sale.items.length)?sale.items:[{id:'',name:'',qty:1,price:0,cost:0}];
- const rows=items.map(it=>saleEditRowHTML(it,++saleEditSeq)).join('');
+ const rows=items.map(it=>{
+  const idx=++saleEditSeq;
+  if(it&&it.id)saleEditOldRows.set(String(idx),{id:String(it.id),name:it.name||'',qty:Number(it.qty)||0,price:Number(it.price)||0,cost:Number(it.cost)||0});
+  return saleEditRowHTML(it,idx);
+ }).join('');
  const isCredit=sale.method==='credit';
  const hasReturns=returns.some(r=>String(r.saleId)===String(sale.id));
+ const editCount=Number(sale.editCount)||((sale.edits&&sale.edits.length)||0);
+ const historyNote=editCount?`<div class="se-credit-note"><b>✏️ الفاتورة دي معدّلة${editCount>1?' '+editTimesText(editCount):''}.</b> آخر تعديل: ${esc(sale.editedAt||'—')} — <button type="button" class="secondary small" onclick="openSaleHistory('${esc(sale.id)}')">عرض سجل قبل/بعد الأصلي</button></div>`:'';
  const note=[isCredit?`فاتورة آجل على ${esc(sale.customer&&sale.customer.name||'عميل')} — أي تغيير في الإجمالي هيعدّل مديونية العميل بنفس الفرق.`:'المدفوع لازم يكون أكبر من أو يساوي الإجمالي بعد التعديل.',hasReturns?'⚠️ الفاتورة دي اتعمل عليها مرتجع — تعديل الكميات أو الأصناف ممكن يسبب فرق في المخزون، راجع قبل الحفظ.':''].filter(Boolean).join('<br>');
- const html=`<div class="modal" id="saleEditModal"><div class="modal-card" style="width:min(920px,100%)"><div class="modal-head"><div><h3>تعديل الفاتورة #${esc(sale.id)}</h3><p class="muted" style="margin:4px 0 0">${esc(sale.date)}</p></div><button type="button" class="icon-btn" onclick="closeSaleEdit()">✕</button></div><div id="seItems">${rows}</div><div class="form-actions" style="margin-top:10px"><button type="button" class="secondary" onclick="saleEditAddRow()">＋ إضافة صنف</button></div><div class="form-grid" style="margin-top:14px"><div class="field"><label>الخصم (ج.م)</label><input id="seDiscount" type="number" min="0" step=".01" value="${Number(sale.discount)||0}" oninput="saleEditRecalc()"></div>${isCredit?`<div class="field"><label>طريقة الدفع</label><input value="آجل — على حساب العميل" disabled></div>`:`<div class="field"><label>المدفوع (ج.م)</label><input id="sePaid" type="number" min="0" step=".01" value="${Number(sale.paid)||0}" oninput="saleEditRecalc()"></div>`}</div><div class="total-line" style="margin-top:12px"><span>الإجمالي قبل الخصم</span><b id="seSubtotal">0 ج.م</b></div><div class="total-line final"><span>الإجمالي بعد الخصم</span><b id="seTotal">0 ج.م</b></div><div class="total-line"><span>المكسب بعد التعديل</span><b id="seProfit">0 ج.م</b></div>${isCredit?'':`<div class="total-line"><span>الباقي للعميل</span><b id="seChange">0 ج.م</b></div>`}<div class="se-credit-note ${hasReturns?'se-warn':''}">${note}</div><div class="modal-actions"><button type="button" class="secondary" onclick="closeSaleEdit()">إلغاء</button><button type="button" onclick="applySaleEdit('${esc(sale.id)}')">حفظ التعديل</button></div></div></div>`;
+ const html=`<div class="modal" id="saleEditModal"><div class="modal-card" style="width:min(920px,100%)"><div class="modal-head"><div><h3>تعديل الفاتورة #${esc(sale.id)}</h3><p class="muted" style="margin:4px 0 0">${esc(sale.date)}</p></div><button type="button" class="icon-btn" onclick="closeSaleEdit()">✕</button></div>${saleEditCompareHTML(saleEditBase)}${historyNote}<div id="seItems">${rows}</div><div class="form-actions" style="margin-top:10px"><button type="button" class="secondary" onclick="saleEditAddRow()">＋ إضافة صنف</button></div><div class="form-grid" style="margin-top:14px"><div class="field"><label>الخصم (ج.م)</label><input id="seDiscount" type="number" min="0" step=".01" value="${Number(sale.discount)||0}" oninput="saleEditRecalc()"></div>${isCredit?`<div class="field"><label>طريقة الدفع</label><input value="آجل — على حساب العميل" disabled></div>`:`<div class="field"><label>المدفوع (ج.م)</label><input id="sePaid" type="number" min="0" step=".01" value="${Number(sale.paid)||0}" oninput="saleEditRecalc()"></div>`}</div><div class="total-line" style="margin-top:12px"><span>الإجمالي قبل الخصم</span><b id="seSubtotal">0 ج.م</b></div><div class="total-line final"><span>الإجمالي بعد الخصم</span><b id="seTotal">0 ج.م</b></div><div class="total-line"><span>المكسب بعد التعديل</span><b id="seProfit">0 ج.م</b></div>${isCredit?'':`<div class="total-line"><span>الباقي للعميل</span><b id="seChange">0 ج.م</b></div>`}<div class="se-credit-note ${hasReturns?'se-warn':''}">${note}</div><div class="modal-actions"><button type="button" class="secondary" onclick="closeSaleEdit()">إلغاء</button><button type="button" onclick="applySaleEdit('${esc(sale.id)}')">حفظ التعديل</button></div></div></div>`;
  document.body.insertAdjacentHTML('beforeend',html);
  saleEditRecalc();
 }
-window.closeSaleEdit=function(){$('saleEditModal')?.remove()}
+window.closeSaleEdit=function(){$('saleEditModal')?.remove();saleEditBase=null;saleEditOldRows=new Map()}
+window.openSaleHistory=function(id){
+ const sale=data.sales.find(s=>String(s.id)===String(id));
+ if(!sale){toast('الفاتورة غير موجودة');return}
+ const edits=Array.isArray(sale.edits)?sale.edits:[];
+ if(!edits.length){toast('الفاتورة دي لسه متعدلتش');return}
+ $('saleHistoryModal')?.remove();
+ const original=sale.original||edits[0].before||saleSnapshot(sale);
+ const current=saleSnapshot(sale);
+ const totalEdits=Number(sale.editCount)||edits.length;
+ const editsLabel=totalEdits>edits.length?`آخر ${edits.length} من ${totalEdits}`:`${edits.length}`;
+ const cards=edits.slice().reverse().map((e,i)=>{
+  const n=edits.length-i;
+  return `<div class="se-hist-card"><div class="se-hist-head"><b>تعديل #${n}</b><span class="muted">${esc(e.at||'—')}</span></div><div class="se-compare">${saleSummaryHTML(e.before||{},'قبل',false)}${saleSummaryHTML(e.after||{},'بعد',true)}</div></div>`;
+ }).join('');
+ const html=`<div class="modal" id="saleHistoryModal"><div class="modal-card se-history"><div class="modal-head"><div><h3>الفاتورة #${esc(sale.id)} — قبل وبعد</h3><p class="muted" style="margin:4px 0 0">✏️ معدّلة ${editTimesText(totalEdits)} · آخر تعديل ${esc(sale.editedAt||'—')}</p></div><button type="button" class="icon-btn" onclick="closeSaleHistory()">✕</button></div><div class="se-compare">${saleSummaryHTML(original,'الفاتورة الأصلية قبل أي تعديل',false)}${saleSummaryHTML(current,'الوضع الحالي بعد التعديلات',true)}</div><div class="se-hist-card"><div class="se-hist-head"><b>سجل التعديلات (${editsLabel})</b><span class="muted">الأحدث أولاً</span></div></div>${cards}<div class="modal-actions"><button type="button" class="secondary" onclick="closeSaleHistory()">إغلاق</button><button type="button" onclick="closeSaleHistory();openSaleEdit('${esc(sale.id)}')">تعديل الفاتورة</button></div></div></div>`;
+ document.body.insertAdjacentHTML('beforeend',html);
+}
+window.closeSaleHistory=function(){$('saleHistoryModal')?.remove()}
 window.saleEditAddRow=function(){
  const idx=++saleEditSeq;
  $('seItems').insertAdjacentHTML('beforeend',saleEditRowHTML({id:'',name:'',qty:1,price:0,cost:0},idx));
@@ -499,7 +581,7 @@ window.saleEditAddRow=function(){
 window.saleEditRemoveRow=function(btn){
  const rows=document.querySelectorAll('#seItems .se-row');
  if(rows.length<=1){toast('لازم يفضل صنف واحد على الأقل');return}
- btn.closest('.se-row').remove();
+ const row=btn.closest('.se-row');saleEditOldRows.delete(String(row.dataset.idx));row.remove();
  saleEditRecalc();
 }
 window.saleEditProductChanged=function(idx){
@@ -531,6 +613,24 @@ window.saleEditRecalc=function(){
  if($('seTotal'))$('seTotal').textContent=money(t.total);
  if($('seProfit')){$('seProfit').textContent=money(t.profit);$('seProfit').style.color=t.profit<0?'var(--red)':''}
  if($('seChange'))$('seChange').textContent=money(t.change);
+ if(saleEditBase&&$('seAfterTotal')){
+  const dTotal=t.total-saleEditBase.total,dProfit=t.profit-saleEditBase.profit;
+  const fmtDelta=v=>v?`(${(v>0?'+':'')+money(v)})`:'';
+  const deltaEl=(id,v)=>{const el=$(id);if(!el)return;el.textContent=fmtDelta(v);el.className='se-delta '+(v>0?'se-up':v<0?'se-down':'')};
+  $('seAfterSubtotal').textContent=money(t.subtotal);
+  $('seAfterDiscount').textContent=money(t.discount);
+  $('seAfterTotal').textContent=money(t.total);
+  $('seAfterProfit').textContent=money(t.profit);
+  $('seAfterProfit').style.color=t.profit<0?'var(--red)':'';
+  deltaEl('seAfterTotalDelta',dTotal);deltaEl('seAfterProfitDelta',dProfit);
+  if($('seAfterPay'))$('seAfterPay').textContent=saleEditBase.method==='credit'?'آجل على العميل':`${money(t.paid)} / ${money(t.change)}`;
+  const rows=[...document.querySelectorAll('#seItems .se-row')];
+  let qty=0;const names=[];
+  rows.forEach(row=>{const idx=row.dataset.idx;const pid=$(`se_prod_${idx}`).value;const q=Math.max(0,Number($(`se_qty_${idx}`).value)||0);qty+=q;if(pid){const p=product(pid);names.push(`${esc(p?p.name:'صنف محذوف')} <span class="muted">×${q}</span>`)}});
+  $('seAfterCount').textContent=`${rows.length} صنف · ${qty} قطعة`;
+  $('seAfterItems').innerHTML=names.join('<br>')||'—';
+  updateSaleEditOldHints();
+ }
 }
 window.applySaleEdit=function(id){
  const sale=data.sales.find(s=>String(s.id)===String(id));
@@ -575,6 +675,7 @@ window.applySaleEdit=function(id){
  }
  const hasReturns=returns.some(r=>String(r.saleId)===String(sale.id));
  if(hasReturns&&!confirm('الفاتورة دي اتعمل عليها مرتجع. تعديل الكميات أو الأصناف ممكن يسبب فرق في المخزون. هل تريد المتابعة؟'))return;
+ const beforeSnap=saleSnapshot(sale);
  takeSnapshot('قبل تعديل فاتورة #'+sale.id,true);
  const touched=new Set([...oldMap.keys(),...newMap.keys()]);
  for(const pid of touched){
@@ -584,7 +685,7 @@ window.applySaleEdit=function(id){
   if(!delta)continue;
   p.qty-=delta;
   markDirty(p.id);
-  data.moves.push({id:uid(),date:dateTime(),day:today(),type:'تعديل فاتورة',name:p.name,qty:-delta,note:`تعديل فاتورة #${sale.id}`});
+  data.moves.push({id:uid(),date:dateTime(),day:today(),type:'تعديل فاتورة',name:p.name,qty:-delta,note:`تعديل فاتورة #${sale.id} — الإجمالي ${money(beforeSnap.total)} ← ${money(total)}`});
  }
  if(isCredit&&sale.customer){
   const c=customers.find(x=>String(x.id)===String(sale.customer.id));
@@ -596,8 +697,16 @@ window.applySaleEdit=function(id){
  sale.total=total;
  sale.profit=newItems.reduce((s,x)=>s+x.profit,0)-rawDiscount;
  if(isCredit){sale.paid=0;sale.change=0}else{sale.paid=paid;sale.change=change}
+ const afterSnap=saleSnapshot(sale);
+ if(!sale.original)sale.original=beforeSnap;
+ sale.editedTs=Date.now();
+ sale.editedAt=dateTime();
+ sale.editCount=(Number(sale.editCount)||0)+1;
+ sale.edits=Array.isArray(sale.edits)?sale.edits:[];
+ sale.edits.push({at:sale.editedAt,before:beforeSnap,after:afterSnap});
+ if(sale.edits.length>10)sale.edits=sale.edits.slice(-10);
  closeSaleEdit();save();renderAll();
- toast(`تم تعديل الفاتورة #${sale.id} — الإجمالي ${money(total)}`);
+ toast(`تم تعديل الفاتورة #${sale.id} — الإجمالي ${money(total)} (قبل ${money(beforeSnap.total)})`);
 }
 window.changeCart=function(id,delta){const row=cart.find(x=>x.id===id),p=product(id);if(!row||!p)return;row.qty+=delta;if(row.qty<=0)cart=cart.filter(x=>x.id!==id);else if(row.qty>p.qty){row.qty=p.qty;toast('وصلت للكمية المتاحة')}renderCart()}
 window.clearCart=function(){cart=[];if($('discountInput'))$('discountInput').value='0';if($('paidInput'))$('paidInput').value='';renderCart()}
@@ -612,7 +721,7 @@ window.creditSale=function(){if(!cart.length){toast('أضف صنف واحد عل
 window.settleCustomer=function(id){const c=customers.find(x=>String(x.id)===String(id));if(!c)return;const bal=Number(c.balance)||0;if(bal<=0){toast('مفيش مديونية على العميل ده');return}const ans=prompt(`تسديد مديونية ${c.name}\nالمديونية الحالية: ${money(bal)}\nاكتب المبلغ المدفوع:`,String(bal));if(ans===null)return;const amt=Math.min(Number(ans)||0,bal);if(!(amt>0)){toast('مبلغ غير صحيح');return}c.balance=bal-amt;c.upd=Date.now();(c.payments=c.payments||[]).push({date:dateTime(),amount:amt});saveCustomers();save();closeCustomersModal();openCustomersModal();renderCart();toast(`تم تسديد ${money(amt)} — الباقي ${money(c.balance)}`)}
 function renderPurchases(){const sel=$('purchaseProduct');const old=sel.value;sel.innerHTML='<option value="">اختر الصنف</option>'+data.products.map(p=>`<option value="${p.id}">${esc(p.name)} (المتاح ${p.qty})</option>`).join('');if(product(old))sel.value=old;$('purchasesTable').innerHTML=table(['التاريخ','الصنف','الكمية','التفاصيل'],data.moves.filter(m=>m.type==='شراء').slice(-30).reverse().map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.name)}</td><td>${m.qty}</td><td>${esc(m.note||'—')}</td></tr>`),'لا توجد حركات شراء مسجلة')}
 $('purchaseForm').addEventListener('submit',e=>{e.preventDefault();const p=product($('purchaseProduct').value),qty=num('purchaseQty'),cost=$('purchaseCost').value===''?null:num('purchaseCost');if(!p||!Number.isInteger(qty)||qty<=0||cost!==null&&cost<0){toast('راجع الصنف والكمية والتكلفة');return}p.qty+=qty;if(cost!==null)p.cost=cost;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'شراء',name:p.name,qty,note:$('purchaseNote').value.trim()});markDirty(p.id);save();$('purchaseForm').reset();renderPurchases();toast('تم تسجيل إضافة البضاعة')});
-function renderReports(){$('reportSales').textContent=money(allSales());$('reportProfit').textContent=money(allProfit());$('reportCount').textContent=data.sales.length;$('reportStock').textContent=money(stockValue());$('salesTable').innerHTML=table(['الفاتورة','التاريخ','المنتجات','العدد','الإجمالي','الخصم','المكسب','إجراءات'],data.sales.slice().reverse().map(s=>`<tr><td>#${esc(s.id)}${s.method==='credit'?' · آجل':''}</td><td>${esc(s.date)}</td><td><div style="white-space:normal;min-width:190px;max-width:340px;line-height:1.85">${(s.items||[]).map(it=>`<div>${esc(it.name)} <span class="muted">×${Number(it.qty)||0}</span></div>`).join('')||'—'}</div></td><td>${(s.items||[]).reduce((n,x)=>n+(Number(x.qty)||0),0)}</td><td>${money(s.total)}</td><td>${money(s.discount)}</td><td>${money(s.profit)}</td><td><button class="secondary small" onclick="openSaleEdit('${esc(s.id)}')">تعديل</button></td></tr>`),'لا توجد مبيعات مسجلة');$('movesTable').innerHTML=table(['التاريخ','الحركة','الصنف','الكمية','ملاحظة'],data.moves.slice().reverse().slice(0,100).map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.type)}</td><td>${esc(m.name)}</td><td>${m.qty>0?'+':''}${m.qty}</td><td>${esc(m.note||'—')}</td></tr>`),'لا توجد حركات مخزون')}
+function renderReports(){$('reportSales').textContent=money(allSales());$('reportProfit').textContent=money(allProfit());$('reportCount').textContent=data.sales.length;$('reportStock').textContent=money(stockValue());$('salesTable').innerHTML=table(['الفاتورة','التاريخ','المنتجات','العدد','الإجمالي','الخصم','المكسب','إجراءات'],data.sales.slice().reverse().map(s=>{const ec=Number(s.editCount)||((s.edits&&s.edits.length)||0),edited=!!(s.editedAt||ec),badge=edited?`<button type="button" class="se-badge" onclick="openSaleHistory('${esc(s.id)}')" title="آخر تعديل: ${esc(s.editedAt||'—')}">✏️ معدّلة${ec>1?' ×'+ec:''}</button>`:'';return `<tr><td><div>#${esc(s.id)}${s.method==='credit'?' · آجل':''}</div>${badge}</td><td>${esc(s.date)}</td><td><div style="white-space:normal;min-width:190px;max-width:340px;line-height:1.85">${(s.items||[]).map(it=>`<div>${esc(it.name)} <span class="muted">×${Number(it.qty)||0}</span></div>`).join('')||'—'}</div></td><td>${(s.items||[]).reduce((n,x)=>n+(Number(x.qty)||0),0)}</td><td>${money(s.total)}</td><td>${money(s.discount)}</td><td>${money(s.profit)}</td><td><div style="display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap"><button class="secondary small" onclick="openSaleEdit('${esc(s.id)}')">تعديل</button>${edited?`<button class="secondary small" onclick="openSaleHistory('${esc(s.id)}')">قبل/بعد</button>`:''}</div></td></tr>`}),'لا توجد مبيعات مسجلة');$('movesTable').innerHTML=table(['التاريخ','الحركة','الصنف','الكمية','ملاحظة'],data.moves.slice().reverse().slice(0,100).map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.type)}</td><td>${esc(m.name)}</td><td>${m.qty>0?'+':''}${m.qty}</td><td>${esc(m.note||'—')}</td></tr>`),'لا توجد حركات مخزون')}
 function applyTheme(t,notify){if(!THEMES.includes(t))t='dark';document.documentElement.setAttribute('data-theme',t);try{localStorage.setItem(THEME_KEY,t)}catch(e){}const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',t==='light'?'#f3f5f9':t==='navy'?'#0d1119':'#000000');document.querySelectorAll('[data-theme-option]').forEach(b=>b.classList.toggle('active',b.getAttribute('data-theme-option')===t));if(notify)toast(t==='light'?'تم تفعيل الوضع الفاتح ☀️':t==='navy'?'تم تفعيل الوضع الكحلي 🔵':'تم تفعيل الوضع الأسود ⚫')}
 document.querySelectorAll('[data-theme-option]').forEach(b=>b.addEventListener('click',()=>applyTheme(b.getAttribute('data-theme-option'),true)));
 function setCompact(v){compactMode=!!v;try{localStorage.setItem('vapestock_compact_v1',compactMode?'1':'0')}catch(e){}applyCompact();document.querySelectorAll('#compactToggle,#compactToggleSet').forEach(el=>{el.checked=compactMode});toast(compactMode?'تم تفعيل الوضع المضغوط':'تم إيقاف الوضع المضغوط')}
@@ -632,7 +741,8 @@ function gateMsg(text,kind){const el=$('gateMsg');el.textContent=text||'';el.cla
 function syncStatus(text){const el=$('accountInfo');if(el)el.textContent=text}
 function applyData(d){data={products:d.products||[],sales:d.sales||[],moves:d.moves||[],settings:{shopName:'Vape Zone',...(d.settings||{})},nextId:Number(d.nextId)||1};if(Array.isArray(d.customers)){customers=d.customers;saveCustomers()}cart=cart.filter(x=>product(x.id))}
 function mergeProducts(localArr,remoteArr){const rm=new Map(),lm=new Map();for(const p of(remoteArr||[]))rm.set(String(p.id),p);for(const p of(localArr||[]))lm.set(String(p.id),p);const out=[];for(const id of new Set([...rm.keys(),...lm.keys()])){if(dirtyProducts.has(id)){const l=lm.get(id);if(l)out.push(l)}else{const r=rm.get(id);if(r)out.push(r)}}return out}
-function mergeData(local,remote){const products=mergeProducts(local.products,remote.products);const union=(a,b)=>{const m=new Map();for(const x of(a||[]))m.set(String(x.id),x);for(const x of(b||[]))m.set(String(x.id),x);return[...m.values()]};const sales=union(remote.sales,local.sales);const moves=union(remote.moves,local.moves);const cm=new Map();for(const c of(customers||[]))cm.set(String(c.id),c);for(const c of(remote.customers||[])){const k=String(c.id),cur=cm.get(k);if(!cur||(Number(c.upd)||0)>(Number(cur.upd)||0))cm.set(k,c)}let nextId=Math.max(Number(local.nextId)||1,Number(remote.nextId)||1);for(const arr of[products,sales,moves])for(const x of arr){const n=Number(x.id);if(Number.isFinite(n)&&n>=nextId)nextId=n+1}return{products,sales,moves,customers:[...cm.values()],settings:{...(remote.settings||{}),...(local.settings||{})},nextId}}
+function mergeSales(remoteArr,localArr){const m=new Map();for(const x of(remoteArr||[]))m.set(String(x.id),x);for(const x of(localArr||[])){const k=String(x.id),cur=m.get(k);if(!cur){m.set(k,x);continue}const rt=Number(cur.editedTs)||0,lt=Number(x.editedTs)||0,rc=Number(cur.editCount)||((cur.edits&&cur.edits.length)||0),lc=Number(x.editCount)||((x.edits&&x.edits.length)||0);if(lt>rt||(lt===rt&&lc>rc))m.set(k,x)}return[...m.values()]}
+function mergeData(local,remote){const products=mergeProducts(local.products,remote.products);const union=(a,b)=>{const m=new Map();for(const x of(a||[]))m.set(String(x.id),x);for(const x of(b||[]))m.set(String(x.id),x);return[...m.values()]};const sales=mergeSales(remote.sales,local.sales);const moves=union(remote.moves,local.moves);const cm=new Map();for(const c of(customers||[]))cm.set(String(c.id),c);for(const c of(remote.customers||[])){const k=String(c.id),cur=cm.get(k);if(!cur||(Number(c.upd)||0)>(Number(cur.upd)||0))cm.set(k,c)}let nextId=Math.max(Number(local.nextId)||1,Number(remote.nextId)||1);for(const arr of[products,sales,moves])for(const x of arr){const n=Number(x.id);if(Number.isFinite(n)&&n>=nextId)nextId=n+1}return{products,sales,moves,customers:[...cm.values()],settings:{...(remote.settings||{}),...(local.settings||{})},nextId}}
 async function applyRemote(row,notify){if(!row||!row.data){if(pendingUpload)await pushToCloud();return}const remoteRev=Number(row.rev)||0;if(remoteRev<=serverRev){if(pendingUpload)await pushToCloud();return}if(forceLocal){serverRev=remoteRev;await pushToCloud();return}if(!pendingUpload){suppress=true;applyData(row.data);serverRev=remoteRev;lastPushed=JSON.stringify(payloadOf(data));dirtyProducts.clear();forceLocal=false;mirrorLocal();renderAll();suppress=false;if(!Array.isArray(row.data.customers)&&customers.length){lastPushed='';save()}if(notify)toast(notify);return}suppress=true;applyData(mergeData(data,row.data));serverRev=remoteRev;suppress=false;renderAll();if(notify)toast('تم دمج تعديلاتك مع آخر تحديث');await pushToCloud()}
 async function ensureShopRow(){const{data:own,error}=await sb.from('shops').select('id').eq('id',SHOP_ID).maybeSingle();if(error)throw error;if(own||SHOP_ID===LEGACY_SHOP_ID)return;const{data:legacy,error:le}=await sb.from('shops').select('rev,data').eq('id',LEGACY_SHOP_ID).maybeSingle();if(le)throw le;if(legacy&&legacy.data){const{error:ie}=await sb.from('shops').insert({id:SHOP_ID,data:legacy.data,rev:Number(legacy.rev)||0});if(ie&&ie.code!=='23505')throw ie;toast('تم ترحيل بياناتك القديمة لحسابك ✅')}}
 async function fetchCloud(notify){if(!sb||!cloudReady||!SHOP_ID)return;try{const{data:r,error}=await sb.from('shops').select('rev,data').eq('id',SHOP_ID).maybeSingle();if(error)throw error;await applyRemote(r,notify)}catch(e){if(notify)toast('تعذر تحميل البيانات من السحابة. راجع الاتصال.')}}
