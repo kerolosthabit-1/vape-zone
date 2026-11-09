@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#07110c">
 <title>Vape Zone Store — اطلب أونلاين</title>
 <meta name="description" content="اطلب منتجات الڤيب أونلاين — توصيل سريع لباب البيت أو استلام من الفرع. دفع عند الاستلام.">
+<script>
+try{var __vzT=localStorage.getItem('vz_theme');if(!__vzT)__vzT=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',__vzT==='dark'?'dark':'light')}catch(e){}
+</script>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -313,6 +316,81 @@ footer h4{color:#fff;font-size:12.5px;font-weight:900;margin:0 0 8px}
   .grid{grid-template-columns:1fr}
   .brand b{max-width:38vw}
 }
+
+/* ---------- theme toggle (creative) ---------- */
+.theme-toggle{position:relative;width:40px;height:40px;flex:0 0 auto;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;font-size:17px;transition:transform .25s,background .25s,border-color .25s;isolation:isolate}
+.theme-toggle:hover{background:rgba(23,185,120,.22);border-color:rgba(23,185,120,.55);transform:rotate(-12deg) scale(1.06)}
+.theme-toggle:active{transform:scale(.93)}
+.theme-toggle .tt-ico{position:relative;z-index:2;line-height:1;transition:transform .45s ease;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+html[data-theme="dark"] .theme-toggle .tt-ico{transform:rotate(180deg)}
+.theme-toggle .tt-ring{position:absolute;inset:-4px;z-index:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(91,227,168,0),rgba(91,227,168,.8),rgba(91,227,168,0) 62%);filter:blur(2px);opacity:0;transition:opacity .35s;animation:spin 4.6s linear infinite;pointer-events:none}
+html[data-theme="dark"] .theme-toggle .tt-ring{opacity:.95}
+@keyframes spin{to{transform:rotate(360deg)}}
+.theme-toggle.clicked{animation:tpop .45s ease}
+@keyframes tpop{0%{transform:scale(1) rotate(0)}45%{transform:scale(1.18) rotate(20deg)}100%{transform:scale(1) rotate(0)}}
+
+/* ---------- dark mode ---------- */
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --brand:#17b978;--brand-d:#6fe8b4;--brand-l:#0f2a20;--brand-2:#22d18f;
+  --ink:#e8f3ed;--muted:#93a89d;--line:#1d3128;--bg:#070f0b;--card:#0e1a14;
+  --dark:#030906;--dark-2:#081410;--red:#e26969;--red-l:#2a1515;
+  --shadow:0 10px 30px rgba(0,0,0,.5);--shadow-lg:0 24px 70px rgba(0,0,0,.65);
+}
+html[data-theme="dark"] .chip:hover{background:#12241b;border-color:#2b5b45}
+html[data-theme="dark"] .card:hover{border-color:#245740}
+html[data-theme="dark"] .card-img,
+html[data-theme="dark"] .cart-item .ci-img,
+html[data-theme="dark"] .product-top .pimg{background:linear-gradient(135deg,#10241b,#0a1712)}
+html[data-theme="dark"] .qty{background:#0a1410}
+html[data-theme="dark"] .qty button{background:#12241b;color:#7cf0bf}
+html[data-theme="dark"] .qty button:hover{background:#183326}
+html[data-theme="dark"] .x{background:#16261f;color:#cfe0d8}
+html[data-theme="dark"] .x:hover{background:#1d3229}
+html[data-theme="dark"] .sheet-head{background:rgba(14,26,20,.96)}
+html[data-theme="dark"] .sheet-foot{background:rgba(14,26,20,.97)}
+html[data-theme="dark"] .field label{color:#b9cdc3}
+html[data-theme="dark"] .field input,
+html[data-theme="dark"] .field select,
+html[data-theme="dark"] .field textarea{background:#0a1510;border-color:var(--line)}
+html[data-theme="dark"] .field input:focus,
+html[data-theme="dark"] .field select:focus,
+html[data-theme="dark"] .field textarea:focus{background:#0d1c15}
+html[data-theme="dark"] .seg{background:#0a1510}
+html[data-theme="dark"] .seg button{color:#9db3a8}
+html[data-theme="dark"] .seg button.on{background:#16281f;color:#7cf0bf;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+html[data-theme="dark"] .pay{background:#0a1510}
+html[data-theme="dark"] .pay:hover{border-color:#2e6b50}
+html[data-theme="dark"] .pay.on{background:var(--brand-l);border-color:var(--brand)}
+html[data-theme="dark"] .summary{background:#0a1510;border-color:#24483a}
+html[data-theme="dark"] .summary .cart-line.total{border-top-color:#1e3a2d}
+html[data-theme="dark"] .alert.warn{background:#241d0c;border-color:#4a3d17;color:#f0cf7a}
+html[data-theme="dark"] .alert.bad{background:#2a1515;border-color:#5a2a2a;color:#f0a3a3}
+html[data-theme="dark"] .alert.ok{background:#0f2a20;border-color:#1f4d3a;color:#8ff0c6}
+html[data-theme="dark"] .success .hintbox,
+html[data-theme="dark"] .track-status{background:#0a1510;border-color:#24483a;color:#b9cdc3}
+html[data-theme="dark"] .success .tick{border-color:#1f4d3a}
+html[data-theme="dark"] .tl .dot{background:#16261f;color:#7f948a}
+html[data-theme="dark"] .tl:not(:last-child)::before{background:#16261f}
+html[data-theme="dark"] .tl.on:not(:last-child)::before{background:#1e5c42}
+html[data-theme="dark"] .mobile-bar{background:rgba(8,17,12,.97)}
+html[data-theme="dark"] .skeleton{background:linear-gradient(100deg,#0d1a14 20%,#12241b 40%,#0d1a14 60%);background-size:200% 100%}
+html[data-theme="dark"] .add:disabled{background:#16241d;color:#4e6158}
+html[data-theme="dark"] .price s,
+html[data-theme="dark"] .product-top .pprice s{color:#6f8479}
+html[data-theme="dark"] .closed-banner{background:#241d0c;border-bottom-color:#4a3d17;color:#f0cf7a}
+html[data-theme="dark"] .badge.new{background:#3a2e0e;color:#f5d883}
+html[data-theme="dark"] .badge.confirmed{background:#122c46;color:#8cc4f5}
+html[data-theme="dark"] .badge.rejected,
+html[data-theme="dark"] .badge.cancelled{background:#2a1515;color:#f0a3a3}
+html[data-theme="dark"] .btn.soft{background:var(--brand-l);color:#7cf0bf;border-color:#1f4d3a}
+html[data-theme="dark"] .btn.soft:hover{background:#132f24}
+html[data-theme="dark"] .cart-btn b{background:#fff;color:#07110c}
+html[data-theme="dark"] .stockline{background:var(--brand-l);color:#7cf0bf}
+html[data-theme="dark"] .stockline.out{background:var(--red-l);color:#f0a3a3}
+html[data-theme="dark"] .search input::placeholder,
+html[data-theme="dark"] .field input::placeholder,
+html[data-theme="dark"] .field textarea::placeholder{color:#6f8479}
 </style>
 </head>
 <body>
@@ -330,6 +408,7 @@ footer h4{color:#fff;font-size:12.5px;font-weight:900;margin:0 0 8px}
       </div>
     </a>
     <div class="hdr-actions">
+      <button class="theme-toggle" id="themeBtn" type="button" aria-label="تبديل الوضع الليلي" title="الوضع الليلي"><span class="tt-ring" aria-hidden="true"></span><span class="tt-ico" id="themeIco" aria-hidden="true">🌙</span></button>
       <button class="icon-btn" id="trackBtn" title="تتبع أوردر">📦 <span class="hide-sm">أوردراتي</span></button>
       <button class="cart-btn" id="cartBtn" aria-label="السلة">🛒 <span class="hide-sm">السلة</span> <b id="cartCount">0</b></button>
     </div>
@@ -553,6 +632,7 @@ const SLUG=(PARAMS.get('s')||DEFAULT_SLUG).trim().toLowerCase();
 const CART_KEY='vz_cart_'+SLUG;
 const LAST_KEY='vz_last_'+SLUG;
 const CUST_KEY='vz_cust_'+SLUG;
+const THEME_KEY='vz_theme';
 
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
@@ -595,6 +675,28 @@ let lastOrder=null;
 let busy=false;
 
 function toast(msg,ms=2600){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),ms)}
+/* ---------------- dark mode ---------------- */
+function themeNow(){return document.documentElement.getAttribute('data-theme')==='dark'?'dark':'light'}
+function syncThemeUI(){
+  const dark=themeNow()==='dark';
+  const ico=document.getElementById('themeIco');if(ico)ico.textContent=dark?'☀️':'🌙';
+  const btn=document.getElementById('themeBtn');
+  if(btn){btn.setAttribute('aria-label',dark?'تبديل للوضع النهاري':'تبديل للوضع الليلي');btn.setAttribute('title',dark?'الوضع النهاري':'الوضع الليلي')}
+  const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',dark?'#070f0b':'#07110c');
+}
+function applyStoreTheme(t){
+  const dark=t==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'dark':'light');
+  try{localStorage.setItem(THEME_KEY,dark?'dark':'light')}catch(e){}
+  syncThemeUI();
+}
+function toggleTheme(){
+  const next=themeNow()==='dark'?'light':'dark';
+  applyStoreTheme(next);
+  const btn=document.getElementById('themeBtn');
+  if(btn){btn.classList.remove('clicked');void btn.offsetWidth;btn.classList.add('clicked')}
+  toast(next==='dark'?'الوضع الليلي اتفعّل 🌙':'الوضع النهاري اتفعّل ☀️');
+}
 function fmtDate(v){try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch(e){return ''}}
 function art(p,cls=''){
   const cat=p&&p.category||'أخرى';
@@ -640,6 +742,7 @@ async function boot(){
   $('#slugLabel').textContent=SLUG;
   loadCart();
   bindEvents();
+  syncThemeUI();
   if(!window.supabase){
     showFatal('تعذر تحميل مكتبة الاتصال', 'راجع اتصال الإنترنت أو أعد تحميل الصفحة.');
     return;
@@ -1175,6 +1278,7 @@ function bindEvents(){
   });
   $('#shopNow').onclick=()=>$('#catalog').scrollIntoView({behavior:'smooth',block:'start'});
   $('#cartBtn').onclick=openCart;
+  $('#themeBtn').onclick=toggleTheme;
   $('#mbCart').onclick=openCart;
   $('#closeCart').onclick=closeCart;
   $('#cartList').addEventListener('click',e=>{
