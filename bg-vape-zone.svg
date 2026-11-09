@@ -1,0 +1,235 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2560" viewBox="0 0 1440 2560" role="img" aria-label="Vape Zone - green, black and white vertical wallpaper">
+  <title>Vape Zone</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#000000"/>
+      <stop offset="0.38" stop-color="#04110c"/>
+      <stop offset="0.62" stop-color="#03100b"/>
+      <stop offset="0.82" stop-color="#010504"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+
+    <radialGradient id="glow1" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#39d3a3" stop-opacity="0.30"/>
+      <stop offset="0.38" stop-color="#1a9c72" stop-opacity="0.14"/>
+      <stop offset="0.72" stop-color="#0a4d38" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glow2" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#39d3a3" stop-opacity="0.18"/>
+      <stop offset="0.55" stop-color="#127a58" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="vig" cx="0.5" cy="0.46" r="0.78">
+      <stop offset="0.42" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="0.78" stop-color="#000000" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.94"/>
+    </radialGradient>
+
+    <linearGradient id="fadeTop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000000" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="fadeBottom" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.96"/>
+    </linearGradient>
+
+    <linearGradient id="whiteFill" x1="0" y1="0" x2="0.15" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#f2fffa"/>
+      <stop offset="1" stop-color="#c9f3e4"/>
+    </linearGradient>
+
+    <linearGradient id="greenFill" x1="0" y1="0" x2="0.1" y2="1">
+      <stop offset="0" stop-color="#c8ffe9"/>
+      <stop offset="0.34" stop-color="#5cf0c2"/>
+      <stop offset="0.62" stop-color="#39d3a3"/>
+      <stop offset="1" stop-color="#0d7255"/>
+    </linearGradient>
+
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+      <stop offset="0.3" stop-color="#ffffff" stop-opacity="0.5"/>
+      <stop offset="0.75" stop-color="#39d3a3" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#39d3a3" stop-opacity="0"/>
+    </linearGradient>
+
+    <pattern id="grid" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M120 0H0V120" fill="none" stroke="#ffffff" stroke-opacity="0.055" stroke-width="1"/>
+    </pattern>
+
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.4" fill="#39d3a3"/>
+    </pattern>
+
+    <filter id="blurBig" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="36"/>
+    </filter>
+    <filter id="blurSmall" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur stdDeviation="9"/>
+    </filter>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="48"/>
+    </filter>
+    <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="90"/>
+    </filter>
+    <filter id="wisp" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.2"/>
+    </filter>
+
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+
+  <!-- base -->
+  <rect width="1440" height="2560" fill="#000000"/>
+  <rect width="1440" height="2560" fill="url(#bg)"/>
+
+  <!-- atmosphere -->
+  <ellipse cx="720" cy="1240" rx="900" ry="1020" fill="url(#glow1)"/>
+  <ellipse cx="720" cy="2180" rx="760" ry="620" fill="url(#glow2)"/>
+  <ellipse cx="180" cy="760" rx="520" ry="520" fill="url(#glow2)" opacity="0.5"/>
+
+  <!-- grid -->
+  <rect width="1440" height="2560" fill="url(#grid)" opacity="0.45"/>
+
+  <!-- light beam -->
+  <g style="mix-blend-mode:screen">
+    <polygon points="1010,-120 1260,-120 470,2680 210,2680" fill="url(#beam)" opacity="0.30" filter="url(#soft2)"/>
+    <polygon points="560,-120 640,-120 70,2680 -10,2680" fill="#39d3a3" opacity="0.05" filter="url(#soft2)"/>
+  </g>
+
+  <!-- orbit rings -->
+  <g fill="none" stroke="#39d3a3">
+    <circle cx="720" cy="1290" r="480" stroke-opacity="0.08"/>
+    <circle cx="720" cy="1290" r="660" stroke-opacity="0.10" stroke-width="3" stroke-dasharray="1 20" stroke-linecap="round"/>
+    <circle cx="720" cy="1290" r="840" stroke-opacity="0.06"/>
+  </g>
+  <g fill="#b6ffe6">
+    <circle cx="166" cy="960" r="5" opacity="0.85"/>
+    <circle cx="166" cy="960" r="16" opacity="0.18"/>
+    <circle cx="1321" cy="1519" r="4" opacity="0.7"/>
+    <circle cx="1321" cy="1519" r="14" opacity="0.15"/>
+  </g>
+
+  <!-- smoke: back layer -->
+  <g fill="none" stroke-linecap="round" filter="url(#soft)">
+    <path d="M-140 2080 C 190 1970 250 1710 520 1625 C 800 1535 940 1330 900 1030" stroke="#ffffff" stroke-opacity="0.13" stroke-width="150"/>
+    <path d="M-180 2300 C 220 2170 360 1905 660 1815 C 980 1720 1110 1480 1045 1170" stroke="#39d3a3" stroke-opacity="0.16" stroke-width="120"/>
+    <path d="M330 2660 C 355 2310 300 2105 565 1945 C 825 1785 905 1600 862 1410" stroke="#ffffff" stroke-opacity="0.08" stroke-width="180"/>
+    <path d="M1190 2580 C 1120 2290 1225 2085 1045 1905 C 905 1765 845 1605 902 1400" stroke="#39d3a3" stroke-opacity="0.10" stroke-width="140"/>
+    <path d="M-60 900 C 190 940 320 1090 330 1270 C 340 1430 260 1570 300 1740" stroke="#ffffff" stroke-opacity="0.05" stroke-width="120"/>
+  </g>
+
+  <!-- smoke: fine vapour trails -->
+  <g fill="none" stroke-linecap="round" filter="url(#wisp)">
+    <g stroke="#baffea" stroke-opacity="0.14" stroke-width="1.6">
+      <path d="M300 2560 C 250 2360 380 2240 340 2070 C 305 1915 420 1810 470 1660 C 520 1510 470 1380 520 1250"/>
+      <path d="M400 2560 C 380 2380 500 2260 470 2100 C 445 1955 560 1840 600 1700 C 640 1560 600 1440 650 1330"/>
+      <path d="M520 2560 C 500 2420 610 2300 590 2160 C 570 2030 680 1920 710 1800 C 742 1675 710 1580 750 1490"/>
+      <path d="M1180 2560 C 1200 2380 1080 2250 1120 2080 C 1155 1930 1050 1820 1010 1670 C 970 1520 1010 1400 970 1290"/>
+      <path d="M1060 2560 C 1090 2400 980 2280 1010 2120 C 1035 1980 930 1860 890 1720 C 855 1590 895 1470 860 1360"/>
+      <path d="M1260 2560 C 1250 2420 1350 2300 1320 2160 C 1295 2035 1380 1920 1350 1810"/>
+    </g>
+    <g stroke="#ffffff" stroke-opacity="0.08" stroke-width="1.2">
+      <path d="M650 2560 C 640 2400 760 2290 740 2150 C 722 2020 820 1900 840 1780 C 858 1670 830 1590 860 1510"/>
+      <path d="M940 2560 C 960 2410 850 2300 880 2160 C 905 2040 820 1930 800 1810"/>
+      <path d="M180 2400 C 230 2300 190 2210 250 2120 C 305 2035 280 1930 330 1840"/>
+      <path d="M1380 2260 C 1330 2160 1370 2070 1310 1980"/>
+    </g>
+  </g>
+
+  <!-- smoke: front wisps -->
+  <g fill="none" stroke-linecap="round" filter="url(#soft)">
+    <path d="M-80 1850 C 200 1800 340 1880 560 1815 C 780 1750 900 1660 1120 1690 C 1260 1708 1360 1770 1500 1740" stroke="#ffffff" stroke-opacity="0.05" stroke-width="90"/>
+    <path d="M-60 2450 C 240 2380 420 2440 700 2380 C 980 2320 1180 2360 1500 2290" stroke="#39d3a3" stroke-opacity="0.06" stroke-width="110"/>
+  </g>
+
+  <!-- vignette -->
+  <rect width="1440" height="2560" fill="url(#vig)"/>
+  <rect width="1440" height="420" fill="url(#fadeTop)"/>
+  <rect y="2040" width="1440" height="520" fill="url(#fadeBottom)"/>
+
+  <!-- top emblem -->
+  <g>
+    <path d="M720 196 L 772 226 L 772 288 L 720 318 L 668 288 L 668 226 Z"
+          fill="none" stroke="#39d3a3" stroke-opacity="0.55" stroke-width="1.6"/>
+    <path d="M720 210 L 759 233 L 759 281 L 720 304 L 681 281 L 681 233 Z"
+          fill="none" stroke="#39d3a3" stroke-opacity="0.16" stroke-width="1"/>
+    <text x="720" y="269" text-anchor="middle" font-family="Impact, Arial Narrow, sans-serif"
+          font-size="40" letter-spacing="2" fill="#dffff4">VZ</text>
+  </g>
+
+  <g stroke="#39d3a3" stroke-opacity="0.32" stroke-width="1">
+    <line x1="404" y1="392" x2="556" y2="392"/>
+    <line x1="884" y1="392" x2="1036" y2="392"/>
+  </g>
+  <text x="720" y="403" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+        font-size="24" font-weight="600" letter-spacing="12" fill="#a7b9b3">CLOUD CULTURE &#183; EST. 2026</text>
+
+  <!-- ===== main wordmark ===== -->
+  <g font-family="Impact, Arial Narrow, sans-serif" font-size="560" text-anchor="middle" letter-spacing="4">
+    <!-- green halo -->
+    <g fill="#39d3a3" filter="url(#blurBig)" opacity="0.55">
+      <text x="720" y="1250">VAPE</text>
+      <text x="720" y="1750">ZONE</text>
+    </g>
+    <g fill="#39d3a3" filter="url(#blurSmall)" opacity="0.55">
+      <text x="720" y="1250">VAPE</text>
+      <text x="720" y="1750">ZONE</text>
+    </g>
+    <!-- sharp lettering -->
+    <text x="720" y="1250" fill="url(#whiteFill)" stroke="#e9fff8" stroke-width="1.1" stroke-opacity="0.55">VAPE</text>
+    <text x="720" y="1750" fill="url(#greenFill)" stroke="#d6fff0" stroke-width="1.1" stroke-opacity="0.45">ZONE</text>
+    <!-- tube highlight -->
+    <text x="720" y="1250" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-opacity="0.10">VAPE</text>
+    <text x="720" y="1750" fill="none" stroke="#ffffff" stroke-width="2.4" stroke-opacity="0.14">ZONE</text>
+  </g>
+
+  <!-- divider -->
+  <g>
+    <line x1="545" y1="1848" x2="686" y2="1848" stroke="#39d3a3" stroke-opacity="0.55" stroke-width="1.4"/>
+    <line x1="754" y1="1848" x2="895" y2="1848" stroke="#39d3a3" stroke-opacity="0.55" stroke-width="1.4"/>
+    <rect x="711" y="1839" width="18" height="18" transform="rotate(45 720 1848)" fill="#39d3a3"/>
+    <rect x="714" y="1842" width="12" height="12" transform="rotate(45 720 1848)" fill="#02120d"/>
+  </g>
+
+  <text x="720" y="1928" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+        font-size="35" font-weight="600" letter-spacing="14" fill="#eaf6f2" fill-opacity="0.9">THE CLOUD STARTS HERE</text>
+  <text x="720" y="1992" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+        font-size="21" font-weight="500" letter-spacing="7" fill="#7f918b">PREMIUM DEVICES &#183; E-LIQUIDS &#183; ACCESSORIES</text>
+
+  <!-- side captions -->
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="19" letter-spacing="16" fill="#6d7f79" fill-opacity="0.85">
+    <text transform="translate(96 1520) rotate(-90)" text-anchor="middle">VAPE ZONE</text>
+    <text transform="translate(1346 1520) rotate(90)" text-anchor="middle">PREMIUM VAPING</text>
+  </g>
+
+  <!-- bottom badge -->
+  <g>
+    <rect x="615" y="2310" width="210" height="62" rx="31" fill="none" stroke="#39d3a3" stroke-opacity="0.5" stroke-width="1.4"/>
+    <text x="720" y="2351" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+          font-size="24" font-weight="700" letter-spacing="6" fill="#b9ffe8">18+ ONLY</text>
+  </g>
+  <text x="720" y="2426" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+        font-size="17" font-weight="500" letter-spacing="4" fill="#61716c" fill-opacity="0.9">NICOTINE IS AN ADDICTIVE CHEMICAL</text>
+
+  <!-- corner brackets + frame -->
+  <g stroke="#39d3a3" stroke-width="2" stroke-opacity="0.45" fill="none">
+    <path d="M60 170 V60 H170"/>
+    <path d="M1270 60 H1380 V170"/>
+    <path d="M60 2390 V2500 H170"/>
+    <path d="M1270 2500 H1380 V2390"/>
+  </g>
+  <rect x="60" y="60" width="1320" height="2440" fill="none" stroke="#39d3a3" stroke-opacity="0.10"/>
+
+  <!-- film grain -->
+  <rect width="1440" height="2560" filter="url(#grain)" opacity="0.06" style="mix-blend-mode:overlay"/>
+</svg>

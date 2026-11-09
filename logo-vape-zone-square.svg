@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080" role="img" aria-label="Vape Zone square logo">
+  <title>Vape Zone</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#000000"/>
+      <stop offset="0.45" stop-color="#04110c"/>
+      <stop offset="1" stop-color="#000000"/>
+    </linearGradient>
+
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#39d3a3" stop-opacity="0.30"/>
+      <stop offset="0.45" stop-color="#168a64" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="glowSmall" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#39d3a3" stop-opacity="0.20"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="vig" cx="0.5" cy="0.5" r="0.72">
+      <stop offset="0.48" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000000" stop-opacity="0.92"/>
+    </radialGradient>
+
+    <linearGradient id="hexFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a2a20" stop-opacity="0.85"/>
+      <stop offset="0.55" stop-color="#04120d" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#010504" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <linearGradient id="whiteFill" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.6" stop-color="#f2fffa"/>
+      <stop offset="1" stop-color="#ccf6e6"/>
+    </linearGradient>
+
+    <linearGradient id="greenFill" x1="0" y1="0" x2="0.1" y2="1">
+      <stop offset="0" stop-color="#c8ffe9"/>
+      <stop offset="0.35" stop-color="#5cf0c2"/>
+      <stop offset="0.65" stop-color="#39d3a3"/>
+      <stop offset="1" stop-color="#17a37a"/>
+    </linearGradient>
+
+    <linearGradient id="wordFill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.34" stop-color="#ffffff"/>
+      <stop offset="0.45" stop-color="#eafff8"/>
+      <stop offset="0.47" stop-color="#6ff5cb"/>
+      <stop offset="0.78" stop-color="#39d3a3"/>
+      <stop offset="1" stop-color="#16a37a"/>
+    </linearGradient>
+
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="0.6" stop-color="#39d3a3" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#39d3a3" stop-opacity="0"/>
+    </linearGradient>
+
+    <pattern id="grid" width="90" height="90" patternUnits="userSpaceOnUse">
+      <path d="M90 0H0V90" fill="none" stroke="#ffffff" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+
+    <clipPath id="hexClip">
+      <path d="M540 225 L717.5 327.5 L717.5 532.5 L540 635 L362.5 532.5 L362.5 327.5 Z"/>
+    </clipPath>
+
+    <filter id="blurBig" x="-45%" y="-45%" width="190%" height="190%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+    <filter id="blurMid" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="42"/>
+    </filter>
+    <filter id="soft2" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="68"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="1" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+
+  <!-- base -->
+  <rect width="1080" height="1080" fill="#000000"/>
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <ellipse cx="540" cy="440" rx="600" ry="560" fill="url(#glow)"/>
+  <ellipse cx="900" cy="880" rx="420" ry="360" fill="url(#glowSmall)"/>
+  <rect width="1080" height="1080" fill="url(#grid)" opacity="0.4"/>
+
+  <!-- beam -->
+  <g style="mix-blend-mode:screen">
+    <polygon points="905,-80 995,-80 320,1160 230,1160" fill="url(#beam)" opacity="0.22" filter="url(#soft2)"/>
+  </g>
+
+  <!-- smoke -->
+  <g fill="none" stroke-linecap="round" filter="url(#soft)">
+    <path d="M-100 820 C 130 800 220 680 400 645 C 540 618 590 540 600 440" stroke="#ffffff" stroke-opacity="0.07" stroke-width="110"/>
+    <path d="M1160 300 C 980 330 900 440 770 470" stroke="#39d3a3" stroke-opacity="0.10" stroke-width="95"/>
+    <path d="M-80 1070 C 230 1010 420 1050 650 985 C 850 930 980 955 1180 905" stroke="#ffffff" stroke-opacity="0.05" stroke-width="120"/>
+  </g>
+
+  <!-- atmosphere rings -->
+  <g fill="none" stroke="#39d3a3">
+    <circle cx="540" cy="540" r="447" stroke-opacity="0.18" stroke-width="1.4" stroke-dasharray="220 1204"/>
+    <circle cx="540" cy="540" r="470" stroke-opacity="0.07"/>
+  </g>
+
+  <!-- hexagon badge -->
+  <g>
+    <path d="M540 225 L717.5 327.5 L717.5 532.5 L540 635 L362.5 532.5 L362.5 327.5 Z"
+          fill="url(#hexFill)"/>
+    <g clip-path="url(#hexClip)">
+      <ellipse cx="540" cy="430" rx="210" ry="220" fill="url(#glowSmall)"/>
+    </g>
+    <path d="M540 225 L717.5 327.5 L717.5 532.5 L540 635 L362.5 532.5 L362.5 327.5 Z"
+          fill="none" stroke="#39d3a3" stroke-width="12" stroke-opacity="0.35" filter="url(#blurMid)"/>
+    <path d="M540 225 L717.5 327.5 L717.5 532.5 L540 635 L362.5 532.5 L362.5 327.5 Z"
+          fill="none" stroke="#39d3a3" stroke-opacity="0.85" stroke-width="2.4"/>
+    <path d="M540 248 L698.5 339.5 L698.5 520.5 L540 612 L381.5 520.5 L381.5 339.5 Z"
+          fill="none" stroke="#39d3a3" stroke-opacity="0.16" stroke-width="1"/>
+    <circle cx="540" cy="225" r="4.5" fill="#b6ffe6"/>
+    <circle cx="540" cy="635" r="3.5" fill="#39d3a3" opacity="0.8"/>
+  </g>
+
+  <!-- monogram VZ -->
+  <g>
+    <g font-family="Impact, Arial Narrow, sans-serif" font-size="310" text-anchor="start">
+      <text x="397" y="541" fill="#39d3a3" opacity="0.55" filter="url(#blurBig)">VZ</text>
+      <text x="397" y="541" fill="#39d3a3" opacity="0.5" filter="url(#blurMid)">VZ</text>
+    </g>
+    <text x="397" y="541" font-family="Impact, Arial Narrow, sans-serif" font-size="310"
+          fill="url(#whiteFill)" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.2">V</text>
+    <text x="555" y="541" font-family="Impact, Arial Narrow, sans-serif" font-size="310"
+          fill="url(#greenFill)" stroke="#d6fff0" stroke-opacity="0.35" stroke-width="1.2">Z</text>
+  </g>
+
+  <!-- top label -->
+  <g stroke="#39d3a3" stroke-opacity="0.3" stroke-width="1">
+    <line x1="352" y1="151" x2="424" y2="151"/>
+    <line x1="656" y1="151" x2="728" y2="151"/>
+  </g>
+  <text x="540" y="159" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+        font-size="23" font-weight="600" letter-spacing="11" fill="#a7b9b3">EST. 2026</text>
+
+  <!-- divider -->
+  <g>
+    <line x1="420" y1="710" x2="521" y2="710" stroke="#39d3a3" stroke-opacity="0.5" stroke-width="1.3"/>
+    <line x1="559" y1="710" x2="660" y2="710" stroke="#39d3a3" stroke-opacity="0.5" stroke-width="1.3"/>
+    <rect x="532" y="702" width="16" height="16" transform="rotate(45 540 710)" fill="#39d3a3"/>
+    <rect x="535" y="705" width="10" height="10" transform="rotate(45 540 710)" fill="#02120d"/>
+  </g>
+
+  <!-- wordmark -->
+  <g font-family="Impact, Arial Narrow, sans-serif" font-size="134" text-anchor="middle" letter-spacing="8">
+    <text x="540" y="838" fill="#39d3a3" opacity="0.5" filter="url(#blurBig)">VAPE ZONE</text>
+    <text x="540" y="838" fill="#39d3a3" opacity="0.45" filter="url(#blurMid)">VAPE ZONE</text>
+    <text x="540" y="838" fill="url(#wordFill)" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1">VAPE ZONE</text>
+  </g>
+
+  <!-- tagline -->
+  <text x="540" y="918" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+        font-size="23" font-weight="500" letter-spacing="9" fill="#7f918b">PREMIUM VAPE STORE</text>
+
+  <!-- frame -->
+  <rect x="44" y="44" width="992" height="992" rx="132" fill="none"
+        stroke="#39d3a3" stroke-opacity="0.13" stroke-width="1.5"/>
+
+  <!-- grain -->
+  <rect width="1080" height="1080" filter="url(#grain)" opacity="0.055" style="mix-blend-mode:overlay"/>
+</svg>

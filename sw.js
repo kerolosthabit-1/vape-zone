@@ -1,7 +1,8 @@
-const CACHE_NAME = 'vape-zone-v2';
+const CACHE_NAME = 'vape-zone-v3';
 const ASSETS = [
   './',
   './index.html',
+  './store.html',
   './manifest.webmanifest',
   './logo.png',
   './favicon.png',
