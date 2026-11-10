@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://kerolosthabit-1.github.io/vape-zone/sitemap.xml

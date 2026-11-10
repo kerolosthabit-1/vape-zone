@@ -1,9 +1,11 @@
-const CACHE_NAME = 'vape-zone-v4';
+const CACHE_NAME = 'vape-zone-v5';
 const ASSETS = [
   './',
   './index.html',
   './store.html',
   './manifest.webmanifest',
+  './sitemap.xml',
+  './robots.txt',
   './logo.png',
   './favicon.png',
   './apple-touch-icon.png',

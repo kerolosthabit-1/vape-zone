@@ -6,6 +6,18 @@
 <meta name="theme-color" content="#07110c">
 <title>Vape Zone Store — اطلب أونلاين</title>
 <meta name="description" content="اطلب منتجات الڤيب أونلاين — توصيل سريع لباب البيت أو استلام من الفرع. دفع عند الاستلام.">
+<link rel="canonical" id="canonicalLink" href="./store.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vape Zone Store">
+<meta property="og:title" id="ogTitle" content="Vape Zone Store — اطلب أونلاين">
+<meta property="og:description" id="ogDesc" content="توصيل سريع لباب البيت أو استلام من الفرع — دفع عند الاستلام.">
+<meta property="og:url" id="ogUrl" content="./store.html">
+<meta property="og:image" id="ogImage" content="./logo.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" id="twTitle" content="Vape Zone Store — اطلب أونلاين">
+<meta name="twitter:description" id="twDesc" content="توصيل سريع لباب البيت أو استلام من الفرع — دفع عند الاستلام.">
+<meta name="twitter:image" id="twImage" content="./logo.png">
+<script type="application/ld+json" id="ldStore">{"@context":"https://schema.org","@type":"Store","name":"Vape Zone Store"}</script>
 <script>
 try{var __vzT=localStorage.getItem('vz_theme');if(!__vzT)__vzT=(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',__vzT==='dark'?'dark':'light')}catch(e){}
 </script>
@@ -240,6 +252,8 @@ footer h4{color:#fff;font-size:12.5px;font-weight:900;margin:0 0 8px}
 .badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:4px 10px;font-size:10.5px;font-weight:900}
 .badge.new{background:#fff3d6;color:#8a6411}
 .badge.confirmed{background:#e3f0ff;color:#1f5c9e}
+.badge.ready{background:#e6f7ee;color:#0a6b45}
+.badge.out_for_delivery{background:#f1e8ff;color:#6b3fa0}
 .badge.done{background:var(--brand-l);color:var(--brand-d)}
 .badge.rejected,.badge.cancelled{background:var(--red-l);color:#8d2626}
 .timeline{display:grid;gap:0;margin:12px 0}
@@ -266,6 +280,19 @@ footer h4{color:#fff;font-size:12.5px;font-weight:900;margin:0 0 8px}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .closed-banner{background:#fff8e6;border-bottom:1px solid #f3dfa8;color:#7a5a10;text-align:center;font-size:12px;font-weight:800;padding:9px 14px}
 .closed-cat{opacity:.62;pointer-events:none;filter:grayscale(.35)}
+
+/* ---------- payment proof ---------- */
+.proof-box{margin-top:4px;border:1.5px dashed color-mix(in srgb,var(--brand) 38%,var(--line));border-radius:14px;padding:12px;background:color-mix(in srgb,var(--brand-l) 55%,var(--card))}
+.proof-hint{display:block;font-size:11px;line-height:1.8;color:var(--muted);font-weight:700}
+.proof-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.proof-row .btn{padding:9px 13px;font-size:12px}
+.proof-box input[type="text"]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:12.5px;font-weight:700}
+.proof-box input[type="text"]:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px rgba(23,185,120,.15)}
+.proof-preview{width:76px;height:76px;border-radius:12px;object-fit:cover;border:1px solid var(--line);margin-top:9px;background:#fff;box-shadow:var(--shadow)}
+.proof-state{font-size:11px;font-weight:800;color:var(--brand-d)}
+.proof-state.bad{color:var(--red)}
+.zone-fee{font-size:11px;color:var(--muted);font-weight:700;margin-top:4px}
+.free-tag{display:inline-flex;align-items:center;gap:4px;background:var(--brand-l);color:var(--brand-d);border-radius:999px;padding:2px 8px;font-size:10px;font-weight:900;margin-inline-start:4px}
 
 /* ---------- responsive ---------- */
 @media(max-width:900px){
@@ -381,6 +408,11 @@ html[data-theme="dark"] .product-top .pprice s{color:#6f8479}
 html[data-theme="dark"] .closed-banner{background:#241d0c;border-bottom-color:#4a3d17;color:#f0cf7a}
 html[data-theme="dark"] .badge.new{background:#3a2e0e;color:#f5d883}
 html[data-theme="dark"] .badge.confirmed{background:#122c46;color:#8cc4f5}
+html[data-theme="dark"] .badge.ready{background:#0f2a20;color:#8ff0c6}
+html[data-theme="dark"] .badge.out_for_delivery{background:#241a3a;color:#c9a9ff}
+html[data-theme="dark"] .proof-box{background:#0a1510;border-color:#245740}
+html[data-theme="dark"] .proof-preview{background:#0a1510}
+html[data-theme="dark"] .proof-box input[type="text"]{background:#0a1510;border-color:var(--line);color:var(--ink)}
 html[data-theme="dark"] .badge.rejected,
 html[data-theme="dark"] .badge.cancelled{background:#2a1515;color:#f0a3a3}
 html[data-theme="dark"] .btn.soft{background:var(--brand-l);color:#7cf0bf;border-color:#1f4d3a}
@@ -391,6 +423,44 @@ html[data-theme="dark"] .stockline.out{background:var(--red-l);color:#f0a3a3}
 html[data-theme="dark"] .search input::placeholder,
 html[data-theme="dark"] .field input::placeholder,
 html[data-theme="dark"] .field textarea::placeholder{color:#6f8479}
+
+/* ---------- my orders + reviews + share ---------- */
+.rating-line{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;color:#b8860b;background:#fff7e2;border:1px solid #f3e0ae;border-radius:999px;padding:2px 8px}
+html[data-theme="dark"] .rating-line{background:#2a2314;border-color:#4a3c1e;color:var(--gold)}
+.stars{color:var(--gold);letter-spacing:2px;font-size:15px;direction:ltr;display:inline-block}
+.stars .off{color:#c9d2cd;opacity:.55}
+html[data-theme="dark"] .stars .off{color:#40544a}
+.myord{border:1px solid var(--line);border-radius:16px;padding:13px 14px;background:var(--card);margin-bottom:10px;box-shadow:0 3px 14px rgba(9,35,24,.04)}
+.myord-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.myord-code{font-weight:900;direction:ltr;letter-spacing:.6px;font-size:15px}
+.myord small{display:block;color:var(--muted);font-size:11px;font-weight:700;margin-top:2px}
+.myord-total{font-weight:900;color:var(--brand-d);white-space:nowrap}
+html[data-theme="dark"] .myord-total{color:#7cf0bf}
+.myord-items{margin-top:9px;display:flex;flex-wrap:wrap;gap:5px}
+.myord-items span{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:11px;font-weight:700}
+.myord-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line)}
+.myord-actions .btn{padding:7px 12px;font-size:12px;border-radius:9px}
+.myord-actions .btn.soft{border:1px solid #cfeee2}
+.review-box{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+.review-box h5{margin:0 0 7px;font-size:12.5px;font-weight:900}
+.review-item{border:1px solid var(--line);border-radius:12px;padding:9px 11px;margin-bottom:8px;background:var(--bg)}
+.review-item:last-child{margin-bottom:0}
+.review-item .head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.review-item b{font-size:12px}
+.review-item p{margin:5px 0 0;font-size:12px;color:var(--ink);line-height:1.75;opacity:.9}
+.review-item small{color:var(--muted);font-size:10.5px;font-weight:700}
+.rate-row{display:flex;align-items:center;gap:3px;direction:ltr}
+.rate-row button{font-size:20px;line-height:1;color:#c9d2cd;transition:transform .15s,color .15s;padding:2px}
+html[data-theme="dark"] .rate-row button{color:#40544a}
+.rate-row button.on{color:var(--gold)}
+.rate-row button:hover{transform:scale(1.16)}
+.review-form{margin-top:8px;display:grid;gap:7px}
+.review-form textarea{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--card);font-size:12px;resize:vertical;min-height:52px;width:100%}
+.review-form .btn{padding:7px 12px;font-size:12px;border-radius:9px;justify-self:start}
+.pm-reviews{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.pm-reviews h5{margin:0 0 8px;font-size:13px;font-weight:900;display:flex;align-items:center;gap:6px}
+.share-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.muted-note{font-size:11.5px;color:var(--muted);font-weight:700;line-height:1.8}
 </style>
 </head>
 <body>
@@ -409,7 +479,8 @@ html[data-theme="dark"] .field textarea::placeholder{color:#6f8479}
     </a>
     <div class="hdr-actions">
       <button class="theme-toggle" id="themeBtn" type="button" aria-label="تبديل الوضع الليلي" title="الوضع الليلي"><span class="tt-ring" aria-hidden="true"></span><span class="tt-ico" id="themeIco" aria-hidden="true">🌙</span></button>
-      <button class="icon-btn" id="trackBtn" title="تتبع أوردر">📦 <span class="hide-sm">أوردراتي</span></button>
+      <button class="icon-btn" id="shareBtn" type="button" title="شارك المتجر">🔗 <span class="hide-sm">مشاركة</span></button>
+      <button class="icon-btn" id="trackBtn" title="أوردراتي">📦 <span class="hide-sm">أوردراتي</span></button>
       <button class="cart-btn" id="cartBtn" aria-label="السلة">🛒 <span class="hide-sm">السلة</span> <b id="cartCount">0</b></button>
     </div>
   </div>
@@ -572,7 +643,7 @@ html[data-theme="dark"] .field textarea::placeholder{color:#6f8479}
 
       <div id="deliveryFields">
         <div class="two">
-          <div class="field"><label>المنطقة <em>*</em></label><input id="coArea" maxlength="60" placeholder="مثال: مدينة نصر"></div>
+          <div class="field"><label>المنطقة <em>*</em></label><select id="coZone" hidden></select><input id="coArea" maxlength="60" placeholder="مثال: مدينة نصر"><span class="zone-fee" id="zoneFeeHint"></span></div>
           <div class="field"><label>العنوان بالتفصيل <em>*</em></label><input id="coAddress" maxlength="160" placeholder="شارع، رقم عمارة، الدور، علامة مميزة"></div>
         </div>
       </div>
@@ -580,6 +651,20 @@ html[data-theme="dark"] .field textarea::placeholder{color:#6f8479}
       <div id="pickupBox" class="alert ok" hidden></div>
 
       <div class="field"><label>طريقة الدفع</label><div class="pays" id="payList"></div></div>
+      <div class="field" id="payProofWrap" hidden>
+        <label>إثبات التحويل (إنستاباي) <em>*</em></label>
+        <div class="proof-box">
+          <div class="proof-hint" id="payProofInfo">حوّل المبلغ على إنستاباي وارفع صورة التحويل أو اكتب رقم العملية.</div>
+          <div style="margin-top:8px"><input type="text" id="coPayRef" maxlength="40" placeholder="رقم العملية / المرجع (اختياري لو رفعت صورة)" autocomplete="off" dir="ltr" style="text-align:left"></div>
+          <div class="proof-row" style="margin-top:9px">
+            <input type="file" id="coProofFile" accept="image/*" hidden>
+            <button type="button" class="btn soft" id="coProofBtn">📷 ارفع صورة التحويل</button>
+            <button type="button" class="btn ghost" id="coProofClear" hidden>🗑 حذف</button>
+          </div>
+          <span class="proof-state" id="coProofState">لم يتم رفع صورة</span>
+          <img class="proof-preview" id="coProofImg" alt="إثبات التحويل" hidden>
+        </div>
+      </div>
       <div class="field"><label>ملاحظات على الأوردر (اختياري)</label><textarea id="coNote" maxlength="300" placeholder="أي تفاصيل تحب تضيفها..."></textarea></div>
 
       <div class="summary" id="coSummary"></div>
@@ -616,6 +701,22 @@ html[data-theme="dark"] .field textarea::placeholder{color:#6f8479}
   </div>
 </div>
 
+<div class="modal" id="myOrdersModal" hidden>
+  <div class="sheet wide" role="dialog" aria-modal="true" aria-label="أوردراتي">
+    <div class="sheet-head">
+      <div><h3>📦 أوردراتي</h3><p>كل أوردراتك على الجهاز ده — تابع الحالة، اطلب تاني، أو قيّم بعد التسليم.</p></div>
+      <button class="x" data-close="myOrdersModal" aria-label="إغلاق">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div id="myOrdersList"><div class="alert ok">⏳ بندور على أوردراتك...</div></div>
+      <div class="share-row" style="justify-content:center;margin-top:14px">
+        <button class="btn soft" type="button" id="myOrdersTrackBtn">🔎 تتبع بكود وموبايل</button>
+      </div>
+      <div class="muted-note" style="text-align:center;margin-top:8px">لو غيّرت جهاز، استخدم كود الأوردر ورقم الموبايل عشان تتابع.</div>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -632,7 +733,10 @@ const SLUG=(PARAMS.get('s')||DEFAULT_SLUG).trim().toLowerCase();
 const CART_KEY='vz_cart_'+SLUG;
 const LAST_KEY='vz_last_'+SLUG;
 const CUST_KEY='vz_cust_'+SLUG;
+const MY_KEY='vz_orders_'+SLUG;
+const REVIEW_KEY='vz_reviews_'+SLUG;
 const THEME_KEY='vz_theme';
+const BASE_URL=location.origin+location.pathname.replace(/[^/]*$/,'');
 
 const $=s=>document.querySelector(s);
 const $$=s=>[...document.querySelectorAll(s)];
@@ -655,6 +759,8 @@ const PAY_SHORT={cod:'عند الاستلام',instapay:'إنستاباي',walle
 const STATUS_LABEL={
   new:{t:'تم استلام الأوردر',c:'new'},
   confirmed:{t:'جاري التجهيز',c:'confirmed'},
+  ready:{t:'جاهز',c:'ready'},
+  out_for_delivery:{t:'خرج للتوصيل',c:'out_for_delivery'},
   done:{t:'تم التسليم',c:'done'},
   rejected:{t:'الأوردر مرفوض',c:'rejected'},
   cancelled:{t:'الأوردر ملغي',c:'cancelled'}
@@ -669,6 +775,8 @@ let query='';
 let sortBy='default';
 let fulfillment='delivery';
 let payment='cod';
+let selectedZone='';
+let payProof='';
 let currentProduct=null;
 let pmQty=1;
 let lastOrder=null;
@@ -719,6 +827,245 @@ function waLink(text){
   const n=waNumber();
   return n?`https://wa.me/${n}?text=${encodeURIComponent(text||'')}`:'';
 }
+/* ---------------- my orders (local device) ---------------- */
+let myOrders=[];
+function loadMyOrders(){
+  try{const x=JSON.parse(localStorage.getItem(MY_KEY)||'[]');myOrders=Array.isArray(x)?x.filter(o=>o&&o.code):[]}catch(e){myOrders=[]}
+  return myOrders;
+}
+function saveMyOrders(){try{localStorage.setItem(MY_KEY,JSON.stringify(myOrders.slice(0,40)))}catch(e){}}
+function rememberOrder(o){
+  loadMyOrders();
+  myOrders=[o,...myOrders.filter(x=>String(x.code)!==String(o.code))].slice(0,40);
+  saveMyOrders();
+}
+function reviewedSet(){
+  try{const x=JSON.parse(localStorage.getItem(REVIEW_KEY)||'[]');return new Set(Array.isArray(x)?x:[])}catch(e){return new Set()}
+}
+function markReviewed(key){
+  const s=reviewedSet();s.add(key);
+  try{localStorage.setItem(REVIEW_KEY,JSON.stringify([...s].slice(-300)))}catch(e){}
+}
+function starsHTML(n){
+  n=Math.max(0,Math.min(5,Math.round(Number(n)||0)));
+  return `<span class="stars">${'★'.repeat(n)}<span class="off">${'★'.repeat(5-n)}</span></span>`;
+}
+function statusChip(status){
+  const st=STATUS_LABEL[status]||{t:status||'—',c:'new'};
+  return `<span class="badge ${st.c}">${esc(st.t)}</span>`;
+}
+function openMyOrders(){
+  loadMyOrders();
+  const box=$('#myOrdersList');
+  if(box)box.innerHTML='<div class="alert ok">⏳ بندور على أوردراتك...</div>';
+  openModal('myOrdersModal');
+  renderMyOrders();
+}
+async function renderMyOrders(){
+  const box=$('#myOrdersList');
+  if(!box)return;
+  loadMyOrders();
+  if(!myOrders.length){
+    box.innerHTML='<div class="empty" style="padding:26px 10px"><span class="big">📦</span>مفيش أوردرات محفوظة على الجهاز ده<br><small style="font-weight:600">أول ما تعمل أوردر هيظهر هنا تلقائيًا.</small></div>';
+    return;
+  }
+  const items=myOrders.slice(0,20);
+  await Promise.all(items.map(async o=>{
+    if(!o.phone)return;
+    try{
+      const {data}=await sb.rpc('store_track_order',{p_code:o.code,p_phone:o.phone});
+      if(data&&data.ok&&data.order){o.status=data.order.status;o.live=data.order}
+    }catch(e){}
+  }));
+  saveMyOrders();
+  const seen=reviewedSet();
+  box.innerHTML=items.map(o=>{
+    const live=o.live||null;
+    const list=(live&&Array.isArray(live.items)&&live.items.length?live.items:o.items)||[];
+    const status=live?live.status:o.status||'new';
+    const done=status==='done';
+    const when=o.at?fmtDate(o.at):'';
+    const reviewItems=done?list.map(it=>{
+      const key=o.code+'|'+String(it.id);
+      if(seen.has(key))return `<div class="review-item"><div class="head"><b>${esc(it.name)}</b><small>✅ تم تقييم الصنف</small></div></div>`;
+      return `<div class="review-item"><div class="head"><b>${esc(it.name)}</b><span class="muted-note">قيّم من 5 نجوم</span></div>
+        <div class="rate-row" data-pid="${esc(it.id)}" data-rating="0">
+          ${[1,2,3,4,5].map(n=>`<button type="button" onclick="window.setReviewStar(this,${n})" aria-label="${n} نجوم">★</button>`).join('')}
+        </div>
+        <div class="review-form"><textarea maxlength="300" placeholder="اكتب رأيك في الصنف (اختياري)"></textarea><button class="btn soft" type="button" onclick="window.submitReview(this)">إرسال التقييم</button></div>
+      </div>`;
+    }).join(''):'';
+    return `<div class="myord" data-code="${esc(o.code)}">
+      <div class="myord-head"><div><div class="myord-code">${esc(o.code)}</div><small>${esc(when)}${o.payment?' · '+(PAY_SHORT[o.payment]||o.payment):''}</small></div><div style="text-align:left">${statusChip(status)}<div class="myord-total">${money(live?live.total:o.total)}</div></div></div>
+      <div class="myord-items">${list.map(it=>`<span>${esc(it.name)} ×${Number(it.qty)||0}</span>`).join('')}</div>
+      <div class="myord-actions">
+        <button class="btn soft" type="button" onclick="window.trackMyOrder('${esc(o.code)}')">📦 تتبع</button>
+        <button class="btn soft" type="button" onclick="window.reorderMyOrder('${esc(o.code)}')">🔁 اطلب تاني</button>
+        ${done&&reviewItems?'':''}
+      </div>
+      ${reviewItems?`<div class="review-box"><h5>⭐ قيّم أصناف الأوردر</h5>${reviewItems}</div>`:''}
+    </div>`;
+  }).join('');
+}
+window.trackMyOrder=function(code){
+  const o=myOrders.find(x=>String(x.code)===String(code));
+  closeModal('myOrdersModal');
+  openTrack(code);
+  if(o&&o.phone&&$('#trPhone'))$('#trPhone').value=o.phone;
+};
+window.reorderMyOrder=function(code){
+  const o=myOrders.find(x=>String(x.code)===String(code));
+  if(!o)return;
+  const list=(o.live&&Array.isArray(o.live.items)&&o.live.items.length?o.live.items:o.items)||[];
+  let added=0,missing=0;
+  for(const it of list){
+    const p=productById(it.id);
+    if(!p||p.qty<=0){missing++;continue}
+    const qty=Math.min(Math.max(1,Number(it.qty)||1),p.qty,99);
+    const ex=cart.find(x=>x.id===p.id);
+    if(ex)ex.qty=Math.min(ex.qty+qty,p.qty,99);else cart.push({id:p.id,qty});
+    added++;
+  }
+  saveCart();renderCart();renderMobileBar();
+  closeModal('myOrdersModal');
+  if(added){toast(`تمت إضافة ${added} صنف للسلة${missing?` — ${missing} صنف مش متاح حاليًا`:''}`);openCart()}
+  else toast('الأصناف دي مش متاحة حاليًا — جرّب تختار بديل');
+};
+window.setReviewStar=function(btn,n){
+  const row=btn.closest('.rate-row');if(!row)return;
+  row.dataset.rating=String(n);
+  [...row.querySelectorAll('button')].forEach((b,i)=>b.classList.toggle('on',i<n));
+};
+window.submitReview=async function(btn){
+  const item=btn.closest('.review-item');
+  const wrap=btn.closest('.review-box');
+  const host=btn.closest('.myord');
+  if(!item||!wrap||!host)return;
+  const row=item.querySelector('.rate-row');
+  const rating=Number(row&&row.dataset.rating)||0;
+  if(!rating){toast('اختار عدد النجوم الأول ⭐');return}
+  const pid=row.dataset.pid;
+  const code=host.dataset.code;
+  const o=myOrders.find(x=>String(x.code)===String(code));
+  const phone=o&&o.phone;
+  if(!phone){toast('محتاج رقم الموبايل اللي طلبت بيه');return}
+  const comment=(item.querySelector('textarea')||{}).value||'';
+  btn.disabled=true;btn.textContent='⏳ بنبعت...';
+  try{
+    const {data,error}=await sb.rpc('store_submit_review',{p_slug:SLUG,p_code:code,p_phone:phone,p_product_id:pid,p_rating:rating,p_comment:comment.trim()});
+    if(error||!data||!data.ok){
+      const err=data&&data.error;
+      if(err==='already'){markReviewed(code+'|'+pid);toast('انت قيّمت الصنف ده قبل كده ⭐')}
+      else if(err==='not_done')toast('التقييم بيتاح بعد تسليم الأوردر بس');
+      else toast('تعذر إرسال التقييم — جرّب تاني');
+      btn.disabled=false;btn.textContent='إرسال التقييم';
+      if(err==='already')renderMyOrders();
+      return;
+    }
+    markReviewed(code+'|'+pid);
+    const name=(item.querySelector('b')||{}).textContent||'الصنف';
+    item.innerHTML=`<div class="head"><b>${esc(name)}</b><small>✅ شكرًا لتقييمك ${starsHTML(rating)}</small></div>`;
+    toast('تم إرسال تقييمك ✅ شكرًا ليك ❤️');
+    const p=productById(pid);if(p){p.reviews=(p.reviews||0)+1;renderGrid()}
+  }catch(e){btn.disabled=false;btn.textContent='إرسال التقييم';toast('تعذر الاتصال — جرّب تاني')}
+};
+async function loadProductReviews(id){
+  const box=$('#pmReviews');
+  if(!box)return;
+  box.innerHTML='<h5>⭐ تقييمات العملاء</h5><div class="muted-note">⏳ بتحميل التقييمات...</div>';
+  try{
+    const {data,error}=await sb.rpc('store_product_reviews',{p_slug:SLUG,p_product_id:String(id)});
+    if(error||!data||!data.ok){box.innerHTML='';return}
+    const count=Number(data.count)||0;
+    const avg=Number(data.avg)||0;
+    const p=productById(id);
+    if(p&&count){p.rating=avg;p.reviews=count;renderGrid()}
+    const list=Array.isArray(data.reviews)?data.reviews:[];
+    box.innerHTML=`<h5>⭐ تقييمات العملاء ${count?`<span class="rating-line">${avg.toFixed(1)} ★ · ${count} تقييم</span>`:''}</h5>`+
+      (count?list.map(r=>`<div class="review-item"><div class="head"><b>${esc(r.name||'عميل')}</b><small>${esc(fmtDate(r.createdAt))}</small></div><div>${starsHTML(r.rating)}</div>${r.comment?`<p>${esc(r.comment)}</p>`:''}</div>`).join(''):'<div class="muted-note">مفيش تقييمات لسه — كن أول واحد يقيّم بعد استلام أوردرك.</div>');
+  }catch(e){box.innerHTML=''}
+}
+/* ---------------- share + SEO ---------------- */
+function shareUrlFor(pid){
+  const u=new URL(BASE_URL+'store.html');
+  u.searchParams.set('s',SLUG);
+  if(pid)u.searchParams.set('p',String(pid));
+  return u.toString();
+}
+async function doShare(url,title,text){
+  if(navigator.share){
+    try{await navigator.share({title,text,url});return}catch(e){if(e&&e.name==='AbortError')return}
+  }
+  try{await navigator.clipboard.writeText(url);toast('تم نسخ اللينك ✅ شاركه مع أصحابك')}
+  catch(e){prompt('انسخ اللينك وشاركه:',url)}
+}
+function shareStore(){
+  const name=(store&&store.name)||'Vape Zone Store';
+  doShare(shareUrlFor(),name,'اطلب من '+name+' أونلاين — توصيل سريع أو استلام من الفرع 🛍');
+}
+function shareProduct(){
+  if(!currentProduct){shareStore();return}
+  doShare(shareUrlFor(currentProduct.id),currentProduct.name+' — '+((store&&store.name)||'Vape Zone Store'),'شوف '+currentProduct.name+' على المتجر 🛍');
+}
+function syncDeepLink(pid){
+  try{
+    const u=new URL(location.href);
+    if(pid)u.searchParams.set('p',String(pid));else u.searchParams.delete('p');
+    history.replaceState(null,'',u.pathname+u.search);
+  }catch(e){}
+}
+function updateProductSeo(p){
+  if(!p)return;
+  const name=(store&&store.name)||'Vape Zone Store';
+  const url=shareUrlFor(p.id);
+  const img=p.img&&/^https?:/i.test(p.img)?p.img:new URL('logo.png',BASE_URL).href;
+  const desc=(p.desc||p.name)+' — '+(p.price?money(p.price)+' · ':'')+'اطلب أونلاين من '+name+'.';
+  document.title=p.name+' — '+name;
+  const set=(sel,attr,val)=>{const el=document.querySelector(sel);if(el&&val)el.setAttribute(attr,val)};
+  set('meta[name="description"]','content',desc);
+  set('#ogTitle','content',p.name+' — '+name);set('#ogDesc','content',desc);
+  set('#ogUrl','content',url);set('#ogImage','content',img);
+  set('#twTitle','content',p.name+' — '+name);set('#twDesc','content',desc);set('#twImage','content',img);
+  set('#canonicalLink','href',url);
+}
+function updateSeo(){
+  const name=(store&&store.name)||'Vape Zone Store';
+  const fee=Number(store&&store.deliveryFee)||0;
+  const zs=storeZones();
+  const url=shareUrlFor();
+  const img=new URL('logo.png',BASE_URL).href;
+  const firstImg=(products.find(p=>p.img)||{}).img;
+  const desc=`${name} — اطلب أونلاين${zs.length?' وتوصيل حسب منطقتك':' وتوصيل سريع'} أو استلام من الفرع.${fee>0?' رسوم توصيل '+money(fee)+'.':''}${store&&store.phone?' للتواصل: '+store.phone:''}`;
+  document.title=name+' — اطلب أونلاين';
+  const set=(sel,attr,val)=>{const el=document.querySelector(sel);if(el&&val)el.setAttribute(attr,val)};
+  set('meta[name="description"]','content',desc);
+  set('#ogTitle','content',name+' — اطلب أونلاين');set('#ogDesc','content',desc);
+  set('#ogUrl','content',url);set('#ogImage','content',(firstImg&&/^https?:/i.test(firstImg)?firstImg:img));
+  set('#twTitle','content',name+' — اطلب أونلاين');set('#twDesc','content',desc);
+  set('#twImage','content',(firstImg&&/^https?:/i.test(firstImg)?firstImg:img));
+  set('#canonicalLink','href',url);
+  const ld={
+    '@context':'https://schema.org','@type':'Store',
+    name,url,image:img,
+    description:desc,
+    telephone:(store&&store.phone)||undefined,
+    address:(store&&store.address)?{'@type':'PostalAddress','streetAddress':store.address,'addressCountry':'EG'}:undefined,
+    openingHours:(store&&store.hours)||undefined,
+    currenciesAccepted:'EGP',
+    paymentAccepted:'Cash on delivery, InstaPay, E-wallet',
+    priceRange:'EGP',
+    hasOfferCatalog:products.length?{
+      '@type':'OfferCatalog',name:'منتجات المتجر',
+      itemListElement:products.slice(0,40).map(p=>({
+        '@type':'Offer',itemOffered:{'@type':'Product',name:p.name,image:p.img||undefined,category:p.category},
+        price:p.price,priceCurrency:'EGP',
+        availability:p.qty>0?'https://schema.org/InStock':'https://schema.org/OutOfStock'
+      }))
+    }:undefined
+  };
+  const el=document.getElementById('ldStore');
+  if(el)el.textContent=JSON.stringify(ld);
+}
 function loadCart(){try{const x=JSON.parse(localStorage.getItem(CART_KEY)||'[]');cart=Array.isArray(x)?x.filter(i=>i&&i.id&&Number(i.qty)>0).map(i=>({id:String(i.id),qty:Math.max(1,Number(i.qty)||1)})):[]}catch(e){cart=[]}}
 function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify(cart))}catch(e){}}
 function productById(id){return products.find(p=>String(p.id)===String(id))||null}
@@ -733,7 +1080,34 @@ function cartLines(){
 }
 function cartSubtotal(){return cartLines().reduce((s,x)=>s+x.p.price*x.qty,0)}
 function cartCount(){return cart.reduce((s,x)=>s+(productById(x.id)?x.qty:0),0)}
-function deliveryFee(){return fulfillment==='pickup'?0:Number(store&&store.deliveryFee)||0}
+function storeZones(){
+  if(!store||!Array.isArray(store.zones))return [];
+  return store.zones
+    .filter(z=>z&&String(z.name||'').trim())
+    .map(z=>({name:String(z.name).trim(),fee:Number(z.fee)||0}));
+}
+function activeZone(){
+  const zs=storeZones();
+  if(!zs.length)return '';
+  const el=document.getElementById('coZone');
+  return String(selectedZone||(el&&el.value)||'').trim();
+}
+function zoneFee(name){
+  const z=storeZones().find(x=>x.name===name);
+  return z?z.fee:null;
+}
+function deliveryFee(){
+  if(fulfillment==='pickup')return 0;
+  const zs=storeZones();
+  let fee=Number(store&&store.deliveryFee)||0;
+  if(zs.length){
+    const zf=zoneFee(activeZone());
+    if(zf!=null)fee=zf;
+  }
+  const free=Number(store&&store.freeOver)||0;
+  if(free>0&&cartSubtotal()>=free)fee=0;
+  return fee;
+}
 function cartGrand(){return cartSubtotal()+deliveryFee()}
 
 /* ---------------- boot ---------------- */
@@ -788,7 +1162,9 @@ async function loadCatalog(){
       desc:p.desc||'',
       img:p.img||'',
       qty:Math.max(0,Number(p.qty)||0),
-      min:Number(p.min)||0
+      min:Number(p.min)||0,
+      rating:Number(p.rating)||0,
+      reviews:Number(p.reviews)||0
     }));
     hydrateStore();
     pruneCart();
@@ -796,6 +1172,8 @@ async function loadCatalog(){
     renderGrid();
     renderCart();
     renderMobileBar();
+    const deep=PARAMS.get('p');
+    if(deep&&productById(deep))openProduct(deep);
   }catch(e){
     showFatal('تعذر تحميل المتجر','راجع اتصال الإنترنت وجرّب تحديث الصفحة.');
   }
@@ -807,7 +1185,10 @@ function hydrateStore(){
   $('#storeName').textContent=name;
   $('#footName').textContent=name;
   $('#footName2').textContent=name;
-  const tag=store.deliveryFee>0?('توصيل '+money(store.deliveryFee)+' · استلام من الفرع'):'توصيل واستلام من الفرع';
+  const zs=storeZones();
+  const free=Number(store.freeOver)||0;
+  const feeTag=zs.length?(free>0?`توصيل حسب المنطقة · مجاني فوق ${money(free)}`:'توصيل حسب المنطقة'):(store.deliveryFee>0?('توصيل '+money(store.deliveryFee)+' · استلام من الفرع'):'توصيل واستلام من الفرع');
+  const tag=free>0&&!zs.length?('توصيل '+money(store.deliveryFee)+' · مجاني فوق '+money(free)):feeTag;
   const tagEl=document.querySelector('.brand small');
   if(tagEl)tagEl.textContent=tag;
 
@@ -841,11 +1222,14 @@ function hydrateStore(){
   const payKeys=(store.payments&&store.payments.length)?store.payments:['cod'];
   const payLabels=payKeys.map(k=>PAY_SHORT[k]||k).join(' · ');
   $('#infoDeliveryList').innerHTML=[
-    store.deliveryFee>0?`<span>🚚 <b>رسوم التوصيل:</b> ${money(store.deliveryFee)}</span>`:'<span>🚚 <b>التوصيل:</b> حسب المنطقة (بيتحدد عند التأكيد)</span>',
+    zs.length
+      ? `<span>🚚 <b>مناطق التوصيل:</b> ${zs.length} منطقة — السعر بيتحدد حسب المنطقة</span>`
+      : (store.deliveryFee>0?`<span>🚚 <b>رسوم التوصيل:</b> ${money(store.deliveryFee)}</span>`:'<span>🚚 <b>التوصيل:</b> حسب المنطقة (بيتحدد عند التأكيد)</span>'),
+    free>0?`<span>🎁 <b>توصيل مجاني</b> للأوردرات فوق ${money(free)}</span>`:'',
     Number(store.minOrder)>0?`<span>🛒 <b>أقل قيمة أوردر:</b> ${money(store.minOrder)}</span>`:'',
     `<span>💵 <b>الدفع:</b> ${esc(payLabels)}</span>`
   ].filter(Boolean).join('');
-  if($('#cartNote'))$('#cartNote').textContent='رسوم التوصيل بتتحسب في الخطوة الجاية. طرق الدفع: '+payLabels;
+  if($('#cartNote'))$('#cartNote').textContent=(zs.length?'رسوم التوصيل بتتحسب حسب منطقتك في الخطوة الجاية. ':'رسوم التوصيل بتتحسب في الخطوة الجاية. ')+'طرق الدفع: '+payLabels;
   $('#infoPickupList').innerHTML=[
     store.address?`<span>📍 <b>العنوان:</b> ${esc(store.address)}</span>`:'',
     store.hours?`<span>🕒 <b>المواعيد:</b> ${esc(store.hours)}</span>`:'',
@@ -854,6 +1238,7 @@ function hydrateStore(){
 
   const heroSub=store.deliveryNote||'اطلب أونلاين دلوقتي — توصيل لباب البيت أو استلام من الفرع. أصناف أصلية وأسعار واضحة.';
   $('#heroSub').textContent=store.active===false?'المتجر مقفول مؤقتًا — تقدر تتصفح وتشوف الأصناف، والطلب هيتاح أول ما نفتح.':heroSub;
+  updateSeo();
 }
 
 function showFatal(title,sub){
@@ -908,6 +1293,7 @@ function renderGrid(){
         <span class="cat">${CAT_EMOJI[p.category]||'📦'} ${esc(p.category)}</span>
         <h3 data-open="${esc(p.id)}" style="cursor:pointer">${esc(p.name)}</h3>
         ${p.desc?`<p>${esc(p.desc)}</p>`:''}
+        ${p.reviews>0?`<div class="rating-line" style="align-self:flex-start;margin-bottom:6px">⭐ ${Number(p.rating||0).toFixed(1)} <span style="opacity:.72">(${p.reviews})</span></div>`:''}
         <div class="card-foot">
           <div class="price">${money(p.price)} ${old}</div>
           <button class="add" data-add="${esc(p.id)}" ${out?'disabled':''} aria-label="أضف ${esc(p.name)} للسلة">＋</button>
@@ -1005,6 +1391,7 @@ function openProduct(id){
       ${p.desc?`<div class="pdesc">${esc(p.desc)}</div>`:''}
       <div class="pprice">${money(p.price)} ${old}</div>
       <div class="stockline ${out?'out':''}">${out?'نفد حاليًا':`متاح ${p.qty} قطعة`}</div>
+      ${p.reviews>0?`<div style="margin-top:8px"><span class="rating-line">⭐ ${Number(p.rating||0).toFixed(1)} · ${p.reviews} تقييم</span></div>`:''}
     </div>
   </div>
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
@@ -1014,12 +1401,18 @@ function openProduct(id){
       <span id="pmQty">1</span>
       <button type="button" id="pmPlus" aria-label="زيادة">＋</button>
     </div>
-  </div>`;
+  </div>
+  <div class="share-row"><button class="btn soft" type="button" id="pmShare">🔗 شارك المنتج</button></div>
+  <div class="pm-reviews" id="pmReviews"></div>`;
+  $('#pmShare').onclick=shareProduct;
   $('#pmAdd').disabled=out;
   $('#pmAdd').textContent=out?'نفد حاليًا':'أضف للسلة · '+money(p.price);
   $('#pmMinus').onclick=()=>{pmQty=Math.max(1,pmQty-1);$('#pmQty').textContent=pmQty};
   $('#pmPlus').onclick=()=>{pmQty=Math.min(p.qty,99,pmQty+1);$('#pmQty').textContent=pmQty};
   openModal('productModal');
+  syncDeepLink(p.id);
+  updateProductSeo(p);
+  loadProductReviews(p.id);
 }
 function addCurrentProduct(){
   if(!currentProduct)return;
@@ -1030,12 +1423,97 @@ function addCurrentProduct(){
 
 /* ---------------- modals / drawer ---------------- */
 function openModal(id){$('#overlay').hidden=false;$('#'+id).hidden=false;document.body.style.overflow='hidden'}
-function closeModal(id){$('#'+id).hidden=true;if($$('.modal:not([hidden])').length===0&&$('#cartDrawer').hidden){$('#overlay').hidden=true;document.body.style.overflow=''}}
-function closeAllModals(){$$('.modal').forEach(m=>m.hidden=true);$('#cartDrawer').hidden=true;$('#overlay').hidden=true;document.body.style.overflow='';renderMobileBar()}
+function closeModal(id){$('#'+id).hidden=true;if(id==='productModal'){syncDeepLink('');updateSeo();}if($$('.modal:not([hidden])').length===0&&$('#cartDrawer').hidden){$('#overlay').hidden=true;document.body.style.overflow=''}}
+function closeAllModals(){$$('.modal').forEach(m=>m.hidden=true);$('#cartDrawer').hidden=true;$('#overlay').hidden=true;document.body.style.overflow='';syncDeepLink('');if(store)updateSeo();renderMobileBar()}
 function openCart(){if(!$('#cartDrawer').hidden)return;$('#overlay').hidden=false;$('#cartDrawer').hidden=false;document.body.style.overflow='hidden';renderCart();renderMobileBar()}
 function closeCart(){$('#cartDrawer').hidden=true;if($$('.modal:not([hidden])').length===0){$('#overlay').hidden=true;document.body.style.overflow=''}renderMobileBar()}
 
 /* ---------------- checkout ---------------- */
+function renderZones(preferred){
+  const zs=storeZones();
+  const sel=$('#coZone'), inp=$('#coArea');
+  if(!sel||!inp)return;
+  if(zs.length){
+    sel.innerHTML='<option value="">اختار المنطقة</option>'+zs.map(z=>`<option value="${esc(z.name)}">${esc(z.name)} — ${z.fee>0?money(z.fee):'مجانًا'}</option>`).join('');
+    sel.hidden=false;inp.hidden=true;
+    if(!selectedZone&&preferred&&zs.some(z=>z.name===preferred))selectedZone=preferred;
+    sel.value=zs.some(z=>z.name===selectedZone)?selectedZone:'';
+    selectedZone=sel.value;
+  }else{
+    sel.hidden=true;sel.innerHTML='';inp.hidden=false;
+    if(preferred&&!inp.value)inp.value=preferred;
+  }
+  const hint=$('#zoneFeeHint');
+  if(hint){
+    if(!zs.length)hint.textContent='';
+    else if(selectedZone){
+      const zf=zoneFee(selectedZone);
+      const free=Number(store&&store.freeOver)||0;
+      const isFree=free>0&&cartSubtotal()>=free;
+      hint.textContent='رسوم التوصيل: '+(isFree?'مجانًا 🎉':(zf>0?money(zf):'مجانًا'));
+    }
+    else hint.textContent='اختار منطقتك عشان نحدد رسوم التوصيل.';
+  }
+}
+function renderProof(){
+  const img=$('#coProofImg'),state=$('#coProofState'),clear=$('#coProofClear');
+  if(!img)return;
+  if(payProof){
+    img.src=payProof;img.hidden=false;
+    state.textContent='✓ تم رفع الصورة ('+Math.max(1,Math.round(payProof.length*0.75/1024))+' ك.ب)';
+    state.classList.remove('bad');
+    clear.hidden=false;
+  }else{
+    img.removeAttribute('src');img.hidden=true;
+    state.textContent='لم يتم رفع صورة';
+    state.classList.remove('bad');
+    clear.hidden=true;
+  }
+}
+function compressProof(file){
+  return new Promise((resolve,reject)=>{
+    if(!file){reject(new Error('nofile'));return}
+    if(!/^image\//i.test(file.type||'')){reject(new Error('type'));return}
+    if(file.size>8*1024*1024){reject(new Error('big'));return}
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error('read'));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error('img'));
+      img.onload=()=>{
+        try{
+          let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+          if(!w||!h){reject(new Error('img'));return}
+          const max=1200;
+          const k=Math.min(1,max/Math.max(w,h));
+          w=Math.max(1,Math.round(w*k));h=Math.max(1,Math.round(h*k));
+          const c=document.createElement('canvas');c.width=w;c.height=h;
+          const ctx=c.getContext('2d');
+          ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+          ctx.drawImage(img,0,0,w,h);
+          resolve(c.toDataURL('image/jpeg',0.72));
+        }catch(e){reject(e)}
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+async function pickProof(file){
+  const state=$('#coProofState');
+  if(!file)return;
+  if(state){state.textContent='⏳ بنجهّز الصورة...';state.classList.remove('bad')}
+  try{
+    payProof=await compressProof(file);
+    renderProof();
+    toast('تم رفع صورة إثبات التحويل ✅');
+  }catch(e){
+    payProof='';
+    renderProof();
+    const m=String(e&&e.message||'');
+    if(state){state.textContent=m==='big'?'الصورة كبيرة — الحد 8 ميجا':'مش قادر يقرا الصورة — جرّب صورة تانية';state.classList.add('bad')}
+  }
+}
 function openCheckout(){
   const lines=cartLines();
   if(!lines.length){toast('السلة فاضية');return}
@@ -1046,13 +1524,20 @@ function openCheckout(){
   closeCart();
   $('#checkoutAlert').innerHTML='';
   $('#coNote').value='';
+  $('#coPayRef').value='';
+  payProof='';
+  let savedArea='';
   try{
     const c=JSON.parse(localStorage.getItem(CUST_KEY)||'null')||{};
     $('#coName').value=c.name||'';
     $('#coPhone').value=c.phone||'';
-    $('#coArea').value=c.area||'';
+    savedArea=c.area||'';
+    $('#coArea').value=savedArea;
     $('#coAddress').value=c.address||'';
   }catch(e){}
+  selectedZone=storeZones().some(z=>z.name===savedArea)?savedArea:'';
+  renderZones(savedArea);
+  renderProof();
   setFulfillment(fulfillment,true);
   renderPayments();
   renderCheckoutSummary();
@@ -1076,34 +1561,52 @@ function renderPayments(){
   const list=Array.isArray(store&&store.payments)&&store.payments.length?store.payments:['cod'];
   if(!list.includes(payment))payment=list[0];
   $('#payList').innerHTML=list.map(k=>`<label class="pay ${payment===k?'on':''}"><input type="radio" name="pay" value="${esc(k)}" ${payment===k?'checked':''}> ${PAY_LABEL[k]||esc(k)}</label>`).join('');
-  $$('#payList input').forEach(r=>r.onchange=()=>{payment=r.value;$$('#payList .pay').forEach(l=>l.classList.toggle('on',l.querySelector('input').value===payment));renderCheckoutSummary()});
+  const proofWrap=$('#payProofWrap');
+  if(proofWrap)proofWrap.hidden=payment!=='instapay';
+  const info=$('#payProofInfo');
+  if(info){
+    const pre=store&&store.paymentInfo?'💳 <b>'+esc(store.paymentInfo)+'</b><br>':'';
+    info.innerHTML=pre+'حوّل المبلغ على إنستاباي وارفع صورة التحويل أو اكتب رقم العملية.';
+  }
+  $$('#payList input').forEach(r=>r.onchange=()=>{payment=r.value;$$('#payList .pay').forEach(l=>l.classList.toggle('on',l.querySelector('input').value===payment));renderPayments();renderCheckoutSummary()});
 }
 function renderCheckoutSummary(){
   const sub=cartSubtotal();
   const fee=deliveryFee();
   const total=sub+fee;
   const lines=cartLines();
+  const zs=storeZones();
+  const zone=activeZone();
+  const free=Number(store&&store.freeOver)||0;
+  const freeTag=(fulfillment!=='pickup'&&free>0&&sub>=free)?' <span class="free-tag">مجاني 🎉</span>':'';
+  const payRef=($('#coPayRef')&&$('#coPayRef').value.trim())||'';
   $('#coSummary').innerHTML=`
     ${lines.map(x=>`<div class="cart-line"><span>${esc(x.p.name)} ×${x.qty}</span><b>${money(x.p.price*x.qty)}</b></div>`).join('')}
     <div class="cart-line" style="margin-top:7px;border-top:1px solid #d9e9e1;padding-top:7px"><span>الإجمالي</span><b>${money(sub)}</b></div>
-    <div class="cart-line"><span>${fulfillment==='pickup'?'الاستلام من الفرع':'التوصيل'}</span><b>${fee?money(fee):'مجانًا'}</b></div>
-    <div class="cart-line total"><span>المطلوب</span><b>${money(total)}</b></div>\n    ${payment!=='cod'?`<div class="alert warn" style=\"margin:9px 0 0\">💳 هنتواصل معاك لتأكيد الدفع عبر ${PAY_LABEL[payment]||payment}.</div>`:''}`;
+    <div class="cart-line"><span>${fulfillment==='pickup'?'الاستلام من الفرع':'التوصيل'+(zone?' — '+esc(zone):'')}</span><b>${fee?money(fee)+freeTag:'مجانًا'}</b></div>
+    <div class="cart-line total"><span>المطلوب</span><b>${money(total)}</b></div>\n    ${payment!=='cod'?`<div class="alert warn" style=\"margin:9px 0 0\">${payment==='instapay'?((payProof||payRef)?'✅ إثبات التحويل وصل — هنراجعه ونأكد طلبك.':'📎 ارفع صورة التحويل أو اكتب رقم العملية عشان نأكد طلبك بسرعة.'):'💳 هنتواصل معاك لتأكيد الدفع عبر '+(PAY_LABEL[payment]||payment)+'.'}</div>`:''}`;
   const min=Number(store&&store.minOrder)||0;
+  const needZone=fulfillment==='delivery'&&zs.length>0&&!zone;
   $('#coFine').textContent=min>0&&sub<min
     ?`أقل قيمة للأوردر ${money(min)} — ناقص ${money(min-sub)}`
-    :'بالضغط على «تأكيد الأوردر» أنت موافق على بيانات الأوردر.';
-  $('#placeOrderBtn').disabled=!!busy||(min>0&&sub<min)||!lines.length;
+    :(needZone?'اختار منطقة التوصيل عشان نكمل.':'بالضغط على «تأكيد الأوردر» أنت موافق على بيانات الأوردر.');
+  $('#placeOrderBtn').disabled=!!busy||(min>0&&sub<min)||!lines.length||needZone;
 }
 function validateCheckout(){
   const name=$('#coName').value.trim();
   const phone=digits($('#coPhone').value);
-  const area=$('#coArea').value.trim();
+  const zs=storeZones();
+  const zone=zs.length?String($('#coZone').value||'').trim():'';
+  const area=zs.length?zone:$('#coArea').value.trim();
   const address=$('#coAddress').value.trim();
   if(name.length<2)return {err:'اكتب اسمك بالكامل.'};
   if(phone.length<10||phone.length>15)return {err:'رقم الموبايل مش صحيح.'};
+  if(fulfillment==='delivery'&&zs.length&&!zone)return {err:'اختار منطقة التوصيل.'};
   if(fulfillment==='delivery'&&area.length<2)return {err:'اكتب المنطقة.'};
   if(fulfillment==='delivery'&&address.length<5)return {err:'اكتب عنوان التوصيل بالتفصيل.'};
-  return {name,phone,area,address};
+  const payRef=String($('#coPayRef').value||'').trim();
+  if(payment==='instapay'&&!payProof&&payRef.length<4)return {err:'ارفع صورة إثبات التحويل أو اكتب رقم العملية (4 أرقام على الأقل).'};
+  return {name,phone,area,address,zone,payRef};
 }
 async function placeOrder(){
   if(busy)return;
@@ -1119,7 +1622,15 @@ async function placeOrder(){
   try{
     const {data,error}=await sb.rpc('store_place_order',{
       p_slug:SLUG,
-      p_customer:{name:v.name,phone:v.phone,address:fulfillment==='delivery'?v.address:'',area:fulfillment==='delivery'?v.area:''},
+      p_customer:{
+        name:v.name,
+        phone:v.phone,
+        address:fulfillment==='delivery'?v.address:'',
+        area:fulfillment==='delivery'?v.area:'',
+        zone:fulfillment==='delivery'?v.zone:'',
+        paymentRef:payment==='instapay'?v.payRef:'',
+        paymentProof:payment==='instapay'?payProof:''
+      },
       p_items:lines.map(x=>({id:x.p.id,qty:x.qty})),
       p_fulfillment:fulfillment,
       p_payment:payment,
@@ -1139,13 +1650,25 @@ async function placeOrder(){
       if(data&&data.error==='out_of_stock')loadCatalog();
       return;
     }
-    const order={code:data.code,total:Number(data.total)||0,subtotal:Number(data.subtotal)||0,deliveryFee:Number(data.deliveryFee)||0,fulfillment};
-    lastOrder={...order,phone:v.phone,at:Date.now()};
+    const snapshotItems=lines.map(x=>({id:x.p.id,name:x.p.name,qty:x.qty,price:x.p.price}));
+    const order={
+      code:data.code,total:Number(data.total)||0,subtotal:Number(data.subtotal)||0,deliveryFee:Number(data.deliveryFee)||0,
+      fulfillment,payment,items:snapshotItems,status:'new',
+      name:v.name,phone:v.phone,
+      zone:fulfillment==='delivery'?(v.zone||v.area):'',
+      address:fulfillment==='delivery'?v.address:'',
+      at:Date.now()
+    };
+    lastOrder={...order};
+    rememberOrder(order);
     try{
       localStorage.setItem(LAST_KEY,JSON.stringify(lastOrder));
       localStorage.setItem(CUST_KEY,JSON.stringify({name:v.name,phone:v.phone,area:v.area,address:v.address}));
     }catch(e){}
     cart=[];saveCart();
+    payProof='';
+    if($('#coPayRef'))$('#coPayRef').value='';
+    renderProof();
     renderCart();renderMobileBar();
     closeModal('checkoutModal');
     showSuccess(lastOrder);
@@ -1164,6 +1687,7 @@ function orderError(d){
     case 'name':return 'اكتب اسمك بالكامل.';
     case 'phone':return 'رقم الموبايل مش صحيح.';
     case 'address':return 'اكتب عنوان التوصيل بالتفصيل.';
+    case 'zone':return 'منطقة التوصيل اتغيّرت — اقفل الصفحة وافتحها تاني واختار منطقتك.';
     case 'empty':return 'السلة فاضية.';
     case 'out_of_stock':return `«${d.item||'صنف'}» خلص أو الكمية المتبقية ${d.available||0}. عدّل السلة وجرّب تاني.`;
     case 'min_order':return `أقل قيمة للأوردر ${money(d.min)}.`;
@@ -1190,6 +1714,7 @@ function showSuccess(o){
       : '🚚 <b>توصيل:</b> '+esc(store.deliveryNote||'هنكلمك لتأكيد العنوان ووقت التوصيل.')}</div>
     <div class="acts">
       <button class="btn primary block" onclick="openTrack('${esc(o.code)}')">📦 تتبع الأوردر</button>
+      <button class="btn soft block" onclick="closeAllModals();openMyOrders()">🗂️ أوردراتي</button>
       ${wa?`<a class="btn soft block" href="${esc(wa)}" target="_blank" rel="noopener">💬 تواصل واتساب</a>`:''}
       <button class="btn ghost block" style="color:var(--ink);border-color:var(--line);background:#f4f7f5" onclick="closeAllModals()">متابعة التسوق</button>
     </div>
@@ -1220,30 +1745,42 @@ async function trackOrder(e){
       return;
     }
     const o=data.order;
+    try{rememberOrder({code:o.code,phone,items:o.items||[],total:o.total,subtotal:o.subtotal,deliveryFee:o.deliveryFee,status:o.status,fulfillment:o.fulfillment,payment:o.payment,zone:o.area,at:Date.now()})}catch(e){}
     const st=STATUS_LABEL[o.status]||{t:o.status,c:'new'};
     const pickup=o.fulfillment==='pickup';
     const done=o.status==='done';
     const bad=o.status==='rejected'||o.status==='cancelled';
-    const steps=[
+    const stLabel=o.status==='ready'?(pickup?'جاهز للاستلام':'جاهز للتوصيل'):st.t;
+    const steps=pickup?[
       {k:'new',t:'تم استلام الأوردر',s:'وصلنا طلبك بنجاح'},
       {k:'confirmed',t:'جاري التجهيز',s:'بنجهّز الأوردر'},
-      {k:'done',t:pickup?'تم الاستلام':'تم التسليم',s:'الأوردر خلص'}
+      {k:'ready',t:'جاهز للاستلام',s:'الأوردر مستني وصولك للفرع'},
+      {k:'done',t:'تم الاستلام',s:'الأوردر خلص'}
+    ]:[
+      {k:'new',t:'تم استلام الأوردر',s:'وصلنا طلبك بنجاح'},
+      {k:'confirmed',t:'جاري التجهيز',s:'بنجهّز الأوردر'},
+      {k:'ready',t:'جاهز للتوصيل',s:'بنجهّز الشحنة للتوصيل'},
+      {k:'out_for_delivery',t:'خرج للتوصيل',s:'الكابتن في الطريق ليك'},
+      {k:'done',t:'تم التسليم',s:'الأوردر خلص'}
     ];
-    const activeIndex=o.status==='new'?0:o.status==='confirmed'?1:o.status==='done'?2:-1;
+    const activeIndex=steps.findIndex(s=>s.k===o.status);
     const timeline=bad?`<div class="timeline"><div class="tl bad on"><div class="dot">✕</div><div><b>${esc(st.t)}</b><small>${esc(o.rejectReason||'')}</small></div></div></div>`:
       `<div class="timeline">${steps.map((s,i)=>`<div class="tl ${i<=activeIndex?'on':''}"><div class="dot">${i<=activeIndex?'✓':i+1}</div><div><b>${s.t}</b><small>${s.s}</small></div></div>`).join('')}</div>`;
     box.innerHTML=`<div class="track-status">
         <div><b>${esc(o.code)}</b><br><small>${esc(fmtDate(o.createdAt))}</small></div>
-        <span class="badge ${st.c}">${esc(st.t)}</span>
+        <span class="badge ${st.c}">${esc(stLabel)}</span>
       </div>
       ${timeline}
       <div class="items-mini">
+        ${o.area?`<div><span>📍 ${pickup?'الاستلام':'المنطقة'}</span><b>${esc(o.area)}</b></div>`:''}
         ${(o.items||[]).map(it=>`<div><span>${esc(it.name)} ×${Number(it.qty)||0}</span><b>${money(it.subtotal)}</b></div>`).join('')}
         <div><span>${pickup?'الاستلام من الفرع':'التوصيل'}</span><b>${Number(o.deliveryFee)?money(o.deliveryFee):'مجانًا'}</b></div>
         <div><span>الإجمالي</span><b style="color:var(--brand-d)">${money(o.total)}</b></div>
       </div>
+      ${o.payment==='instapay'?`<div class="alert ${o.hasProof||o.paymentRef?'ok':'warn'}">🏦 <b>إنستاباي:</b> ${o.hasProof?'تم رفع إثبات التحويل ✅':'مفيش صورة إثبات'+(o.paymentRef?'':' — ابعت الصورة للمحل')}${o.paymentRef?' · رقم العملية: '+esc(o.paymentRef):''}</div>`:''}
       ${o.note?`<div class="alert warn">📝 ${esc(o.note)}</div>`:''}
-      ${o.status==='new'?`<button class="btn soft block" id="cancelOrderBtn" style="color:#8d2626;background:#fdeeee;border-color:#f3c7c7">إلغاء الأوردر</button>`:''}`;
+      ${o.status==='new'?`<button class="btn soft block" id="cancelOrderBtn" style="color:#8d2626;background:#fdeeee;border-color:#f3c7c7">إلغاء الأوردر</button>`:''}
+      ${done?`<button class="btn soft block" onclick="closeAllModals();openMyOrders()">⭐ قيّم أصناف أوردرك</button>`:''}`;
     const cbtn=$('#cancelOrderBtn');
     if(cbtn)cbtn.onclick=()=>cancelOrder(o.code,phone);
   }catch(e2){
@@ -1291,7 +1828,14 @@ function bindEvents(){
   $('#placeOrderBtn').onclick=placeOrder;
   $('#pmAdd').onclick=addCurrentProduct;
   $$('#fulfillmentSeg button').forEach(b=>b.onclick=()=>setFulfillment(b.dataset.ful));
-  $('#trackBtn').onclick=()=>openTrack();
+  $('#coZone').addEventListener('change',()=>{selectedZone=$('#coZone').value;renderZones();renderCheckoutSummary()});
+  $('#coPayRef').addEventListener('input',()=>renderCheckoutSummary());
+  $('#coProofBtn').onclick=()=>$('#coProofFile').click();
+  $('#coProofFile').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];e.target.value='';pickProof(f)});
+  $('#coProofClear').onclick=()=>{payProof='';renderProof();renderCheckoutSummary()};
+  $('#trackBtn').onclick=openMyOrders;
+  $('#shareBtn').onclick=shareStore;
+  $('#myOrdersTrackBtn').onclick=()=>{closeModal('myOrdersModal');openTrack()};
   $('#trackBtn2').onclick=()=>openTrack();
   $('#footTrack').onclick=()=>openTrack();
   $('#trackForm').addEventListener('submit',trackOrder);
@@ -1306,6 +1850,8 @@ function bindEvents(){
 /* expose for inline onclick in success modal */
 window.openTrack=openTrack;
 window.closeAllModals=closeAllModals;
+window.openMyOrders=openMyOrders;
+window.shareStore=shareStore;
 
 boot();
 </script>

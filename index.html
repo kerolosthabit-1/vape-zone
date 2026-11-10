@@ -354,7 +354,7 @@ tbody tr:nth-child(10){animation-delay:.27s}
 .nav button,.mobile-nav button{position:relative}
 .nav-badge{position:absolute;top:5px;inset-inline-end:7px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#e5484d;color:#fff;font-size:10px;font-weight:900;display:inline-grid;place-items:center;line-height:1;box-shadow:0 0 0 2px var(--panel);z-index:2}
 .mobile-nav .nav-badge{top:2px;inset-inline-end:auto;inset-inline-start:50%;transform:translateX(-50%)}
-.order-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.order-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-bottom:14px}
 .order-stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
 .order-stat small{display:block;font-size:11px;color:var(--muted);font-weight:800;margin-bottom:3px}
 .order-stat b{font-size:19px;font-weight:900}
@@ -364,6 +364,8 @@ tbody tr:nth-child(10){animation-delay:.27s}
 .order-card:hover{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));box-shadow:0 8px 24px rgba(0,0,0,.10)}
 .order-card.is-new{border-inline-start:4px solid var(--yellow)}
 .order-card.is-confirmed{border-inline-start:4px solid var(--accent)}
+.order-card.is-ready{border-inline-start:4px solid #7c6cf5}
+.order-card.is-out_for_delivery{border-inline-start:4px solid #2aa7ff}
 .order-card.is-done{border-inline-start:4px solid var(--accent2);opacity:.82}
 .order-card.is-rejected,.order-card.is-cancelled{border-inline-start:4px solid #d64545;opacity:.72}
 .order-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -372,6 +374,8 @@ tbody tr:nth-child(10){animation-delay:.27s}
 .order-code small{color:var(--muted);font-size:11px;font-weight:700}
 .order-code .badge.new{background:color-mix(in srgb,var(--yellow) 15%,transparent);color:var(--yellow)}
 .order-code .badge.confirmed{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent2)}
+.order-code .badge.ready{background:color-mix(in srgb,#7c6cf5 18%,transparent);color:#b3a9ff}
+.order-code .badge.out{background:color-mix(in srgb,#2aa7ff 18%,transparent);color:#8fd2ff}
 .order-code .badge.done{background:color-mix(in srgb,var(--accent2) 16%,transparent);color:var(--accent2)}
 .order-code .badge.rejected,.order-code .badge.cancelled{background:color-mix(in srgb,#d64545 16%,transparent);color:#ff8a8a}
 .order-total{font-size:17px;font-weight:900;color:var(--accent2);white-space:nowrap}
@@ -467,12 +471,13 @@ tbody tr:nth-child(10){animation-delay:.27s}
   <div class="page-title"><div><h2>الطلبات الأونلاين</h2><p>أوردرات العملاء من المتجر — بتظهر لحظيًا أول ما توصل.</p></div><div class="page-actions"><button class="secondary" type="button" id="ordersSoundBtn">🔔 تفعيل الصوت والإشعارات</button><a class="secondary" id="openStoreLink" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:var(--text);text-decoration:none;font-size:12px;font-weight:800">فتح المتجر ↗</a><button class="secondary" type="button" id="ordersRefreshBtn">⟳ تحديث</button></div></div>
   <div class="order-stats" id="orderStats"></div>
   <div id="ordersSetupNotice"></div>
-  <div class="panel"><div class="toolbar"><input id="ordersSearch" placeholder="ابحث بكود الأوردر أو اسم/رقم العميل..."><select id="ordersFilter"><option value="active">الجارية (جديد + جاري التجهيز)</option><option value="new">جديد</option><option value="confirmed">جاري التجهيز</option><option value="done">مكتمل</option><option value="rejected">مرفوض</option><option value="cancelled">ملغي</option><option value="all">كل الطلبات</option></select></div><div id="ordersList"></div></div>
+  <div class="panel"><div class="toolbar"><input id="ordersSearch" placeholder="ابحث بكود الأوردر أو اسم/رقم العميل..."><select id="ordersFilter"><option value="active">الجارية (جديد + تجهيز + جاهز + توصيل)</option><option value="new">جديد</option><option value="confirmed">جاري التجهيز</option><option value="ready">جاهز للاستلام/التوصيل</option><option value="out_for_delivery">خرج للتوصيل</option><option value="done">مكتمل</option><option value="rejected">مرفوض</option><option value="cancelled">ملغي</option><option value="all">كل الطلبات</option></select></div><div id="ordersList"></div></div>
+  <div class="panel" style="margin-top:15px" id="reviewsPanel"><div class="panel-head"><h3>⭐ تقييمات العملاء</h3><span class="badge" id="reviewsCount">0</span></div><p class="muted" style="margin:-6px 0 12px;line-height:1.8">التقييمات بتظهر للعميل فورًا بعد تسليم الأوردر. تقدر تخفي تقييم مش مناسب أو تحذفه خالص.</p><div id="reviewsList"></div></div>
 </section>
 <section class="view" id="view-settings">
   <div class="page-title"><div><h2>الإعدادات والنسخ الاحتياطي</h2><p>حافظ على بيانات المحل وانقلها بين الأجهزة.</p></div></div>
   <div class="panel"><h3>بيانات المحل</h3><form id="settingsForm"><div class="form-grid"><div class="field"><label>اسم المحل</label><input id="shopName" placeholder="اسم المحل"></div><div class="field"><label>العملة</label><input value="جنيه مصري (ج.م)" disabled></div></div><div class="form-actions"><button type="submit">حفظ الإعدادات</button></div></form><div class="data-meter"><span>حجم البيانات: <b id="dataSize">0</b></span><span>صور الأصناف: <b id="imgCount">0</b></span><span id="dataHint">الصور بتتصغّر تلقائيًا للمزامنة السريعة</span></div></div>
-  <div class="panel store-panel" style="margin-top:15px"><div class="panel-head"><h3>🛒 المتجر الإلكتروني</h3><span class="badge" id="storeStatusBadge">موقوف</span></div><p class="muted" style="margin:-6px 0 12px;line-height:1.9">خلّي عملاءك يطلبوا بنفسهم من لينك المتجر. الأوردر بيوصلك في تاب «الطلبات الأونلاين» مع تنبيه صوتي، وتقدر تحوّله فاتورة بضغطة.</p><div class="store-help" style="margin-bottom:10px;line-height:1.9">🧩 <b>أصناف المتجر هي نفس أصناف البرنامج تلقائيًا:</b> مفيش نسخ ولا إدخال تاني. أي صنف تضيفه من «المخزون والأصناف» بيظهر في المتجر، وأي تغيير في السعر أو الصورة أو الكمية بيتحدّث فورًا. السعر المستخدم هو <b>سعر البيع</b> إلا لو كتبت «سعر المتجر». لو مش عايز صنف يظهر، شيل علامة «ظاهر في المتجر» من بيانات الصنف.</div><div class="store-help" id="storeVisibleCount" style="margin-bottom:12px">🛍️ —</div><div class="form-grid"><div class="field"><label>اسم المتجر</label><input id="storeName" maxlength="60" placeholder="Vape Zone Store"></div><div class="field"><label>لينك المتجر (Slug)</label><input id="storeSlug" maxlength="50" dir="ltr" style="text-align:left" placeholder="vape-zone-store"></div><div class="field"><label>رقم الموبايل</label><input id="storePhone" inputmode="tel" maxlength="15" placeholder="01xxxxxxxxx"></div><div class="field"><label>واتساب</label><input id="storeWhatsapp" inputmode="tel" maxlength="15" placeholder="لو مختلف عن الموبايل"></div><div class="field wide"><label>عنوان الفرع</label><input id="storeAddress" maxlength="120" placeholder="المحافظة - المنطقة - الشارع"></div><div class="field"><label>مواعيد العمل</label><input id="storeHours" maxlength="80" placeholder="يوميًا من 2 م لـ 2 ص"></div><div class="field"><label>رسوم التوصيل (ج.م)</label><input id="storeDeliveryFee" type="number" min="0" step=".01" value="0"></div><div class="field"><label>أقل قيمة أوردر (ج.م)</label><input id="storeMinOrder" type="number" min="0" step=".01" value="0"></div><div class="field wide"><label>ملاحظة/تعليمات التوصيل</label><input id="storeDeliveryNote" maxlength="160" placeholder="التوصيل خلال 24-48 ساعة داخل المدينة"></div><div class="field wide"><label>تعليمات الاستلام من الفرع</label><input id="storePickupNote" maxlength="160" placeholder="الاستلام من الفرع خلال ساعة من التأكيد"></div><div class="field wide"><label>إعلان أعلى المتجر (اختياري)</label><input id="storeAnnouncement" maxlength="120" placeholder="توصيل مجاني للأوردرات فوق 500 ج.م"></div></div><div class="field" style="margin-top:4px"><label>طرق الدفع</label><div style="display:flex;gap:14px;flex-wrap:wrap"><label class="compact-toggle"><input type="checkbox" data-store-pay="cod" checked> الدفع عند الاستلام</label><label class="compact-toggle"><input type="checkbox" data-store-pay="instapay"> إنستاباي</label><label class="compact-toggle"><input type="checkbox" data-store-pay="wallet"> محفظة إلكترونية</label></div></div><div class="form-actions" style="align-items:center;gap:8px"><label class="store-switch"><input type="checkbox" id="storeActive" checked> المتجر مفتوح</label><button type="button" id="saveStoreBtn">💾 حفظ ونشر المتجر</button><button type="button" class="secondary" id="copyStoreBtn">📋 نسخ لينك المتجر</button></div><div class="store-link-box"><code id="storeLink">—</code><button type="button" id="openStoreBtn">فتح ↗</button><button type="button" id="qrStoreBtn">QR</button><img class="store-qr" id="storeQr" alt="QR المتجر" hidden></div><div class="store-help">اللينك لازم يكون حروف إنجليزي صغيرة وأرقام وشرطات (-) — مثال: <b dir="ltr">vape-zone-store</b>. بعد الحفظ، شارك اللينك مع عملائك. المتجر بيشتغل 24 ساعة حتى لو البرنامج مقفول.</div></div>
+  <div class="panel store-panel" style="margin-top:15px"><div class="panel-head"><h3>🛒 المتجر الإلكتروني</h3><span class="badge" id="storeStatusBadge">موقوف</span></div><p class="muted" style="margin:-6px 0 12px;line-height:1.9">خلّي عملاءك يطلبوا بنفسهم من لينك المتجر. الأوردر بيوصلك في تاب «الطلبات الأونلاين» مع تنبيه صوتي، وتقدر تحوّله فاتورة بضغطة.</p><div class="store-help" style="margin-bottom:10px;line-height:1.9">🧩 <b>أصناف المتجر هي نفس أصناف البرنامج تلقائيًا:</b> مفيش نسخ ولا إدخال تاني. أي صنف تضيفه من «المخزون والأصناف» بيظهر في المتجر، وأي تغيير في السعر أو الصورة أو الكمية بيتحدّث فورًا. السعر المستخدم هو <b>سعر البيع</b> إلا لو كتبت «سعر المتجر». لو مش عايز صنف يظهر، شيل علامة «ظاهر في المتجر» من بيانات الصنف.</div><div class="store-help" id="storeVisibleCount" style="margin-bottom:12px">🛍️ —</div><div class="form-grid"><div class="field"><label>اسم المتجر</label><input id="storeName" maxlength="60" placeholder="Vape Zone Store"></div><div class="field"><label>لينك المتجر (Slug)</label><input id="storeSlug" maxlength="50" dir="ltr" style="text-align:left" placeholder="vape-zone-store"></div><div class="field"><label>رقم الموبايل</label><input id="storePhone" inputmode="tel" maxlength="15" placeholder="01xxxxxxxxx"></div><div class="field"><label>واتساب</label><input id="storeWhatsapp" inputmode="tel" maxlength="15" placeholder="لو مختلف عن الموبايل"></div><div class="field wide"><label>عنوان الفرع</label><input id="storeAddress" maxlength="120" placeholder="المحافظة - المنطقة - الشارع"></div><div class="field"><label>مواعيد العمل</label><input id="storeHours" maxlength="80" placeholder="يوميًا من 2 م لـ 2 ص"></div><div class="field"><label>رسوم التوصيل (ج.م)</label><input id="storeDeliveryFee" type="number" min="0" step=".01" value="0"></div><div class="field"><label>توصيل مجاني فوق (ج.م)</label><input id="storeFreeOver" type="number" min="0" step=".01" value="0"></div><div class="field"><label>أقل قيمة أوردر (ج.م)</label><input id="storeMinOrder" type="number" min="0" step=".01" value="0"></div><div class="field wide"><label>مناطق التوصيل وأسعارها</label><div id="storeZones" style="display:grid;gap:7px"></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px"><button type="button" class="secondary small" id="addZoneBtn">＋ إضافة منطقة</button><span class="muted" style="font-size:11px">لو أضفت مناطق، العميل لازم يختار منطقته والسعر بيتحدد تلقائي.</span></div></div><div class="field wide"><label>ملاحظة/تعليمات التوصيل</label><input id="storeDeliveryNote" maxlength="160" placeholder="التوصيل خلال 24-48 ساعة داخل المدينة"></div><div class="field wide"><label>تعليمات الاستلام من الفرع</label><input id="storePickupNote" maxlength="160" placeholder="الاستلام من الفرع خلال ساعة من التأكيد"></div><div class="field wide"><label>إعلان أعلى المتجر (اختياري)</label><input id="storeAnnouncement" maxlength="120" placeholder="توصيل مجاني للأوردرات فوق 500 ج.م"></div><div class="field wide"><label>تعليمات الدفع (تظهر للعميل مع إنستاباي/المحفظة)</label><input id="storePaymentInfo" maxlength="140" placeholder="مثال: حوّل على إنستاباي 010xxxxxxxx ثم ارفع صورة التحويل"></div></div><div class="store-help" style="margin-top:10px">🔔 <b>تنبيه تيليجرام فوري:</b> اعمل بوت من <b>@BotFather</b>، وخد الـ Token، وابعت للبوت رسالة، وبعدين هات الـ Chat ID من <b>@userinfobot</b>. التنبيه بيتبعت مرة واحدة لكل أوردر جديد.</div><div class="form-grid"><div class="field"><label>Telegram Bot Token</label><input id="storeTgToken" dir="ltr" style="text-align:left" maxlength="120" placeholder="123456:ABC-DEF..."></div><div class="field"><label>Chat ID</label><input id="storeTgChat" dir="ltr" style="text-align:left" maxlength="40" placeholder="123456789"></div></div><div class="form-actions" style="margin-top:6px;align-items:center"><button type="button" class="secondary" id="testTgBtn">📨 إرسال رسالة تجربة</button><span class="muted" style="font-size:11px;line-height:1.8">لو مش عارف تجيب البيانات دي، ابعتلي وأنا أعملك الخطوات بالصور.</span></div><div class="field" style="margin-top:4px"><label>طرق الدفع</label><div style="display:flex;gap:14px;flex-wrap:wrap"><label class="compact-toggle"><input type="checkbox" data-store-pay="cod" checked> الدفع عند الاستلام</label><label class="compact-toggle"><input type="checkbox" data-store-pay="instapay"> إنستاباي</label><label class="compact-toggle"><input type="checkbox" data-store-pay="wallet"> محفظة إلكترونية</label></div></div><div class="form-actions" style="align-items:center;gap:8px"><label class="store-switch"><input type="checkbox" id="storeActive" checked> المتجر مفتوح</label><button type="button" id="saveStoreBtn">💾 حفظ ونشر المتجر</button><button type="button" class="secondary" id="copyStoreBtn">📋 نسخ لينك المتجر</button></div><div class="store-link-box"><code id="storeLink">—</code><button type="button" id="openStoreBtn">فتح ↗</button><button type="button" id="qrStoreBtn">QR</button><img class="store-qr" id="storeQr" alt="QR المتجر" hidden></div><div class="store-help">اللينك لازم يكون حروف إنجليزي صغيرة وأرقام وشرطات (-) — مثال: <b dir="ltr">vape-zone-store</b>. بعد الحفظ، شارك اللينك مع عملائك. المتجر بيشتغل 24 ساعة حتى لو البرنامج مقفول.</div></div>
   <div class="panel" style="margin-top:15px"><h3>أدوات الكاشير</h3><p class="muted" style="margin:-6px 0 12px;line-height:1.8">مرتجع / استبدال، العملاء والحساب الآجل، والجرد الفعلي وتسوية الفروقات.</p><div class="form-actions"><button class="secondary" type="button" onclick="openReturnModal()">↩️ مرتجع / استبدال</button><button class="secondary" type="button" onclick="openCustomersModal()">👥 العملاء والحساب الآجل</button><button class="secondary" type="button" onclick="openCountModal()">📋 جرد فعلي وتسوية الفروقات</button><button class="secondary" type="button" onclick="openIntegrity()">🩺 فحص سلامة البيانات</button></div></div>
   <div class="panel" style="margin-top:15px"><h3>مظهر البرنامج</h3><p class="muted" style="margin:-6px 0 12px;line-height:1.8">اختار الوضع اللي يريحك. الاختيار بيتحفظ على الجهاز ده، وتقدر تغيّره في أي وقت.</p><div style="margin-bottom:10px"><label class="compact-toggle"><input type="checkbox" id="compactToggle"> وضع مضغوط (أصناف أصغر على الشاشة)</label></div><div style="margin-bottom:10px"><label class="compact-toggle"><input type="checkbox" id="bgToggle"> خلفية الصورة (blur + حركة خفيفة)</label></div><div class="theme-grid">
     <button type="button" class="theme-option" data-theme-option="light"><span class="tp"><span class="tp-main" style="background:#f3f5f9"></span><span class="tp-side" style="background:#ffffff"></span><span class="tp-dot" style="background:#0e7a5a"></span></span><b>☀️ فاتح</b><small>أبيض مريح للنهار</small></button>
@@ -1691,7 +1696,8 @@ let ordersFilter='active';
 let ordersQuery='';
 let ordersSoundReady=false;
 
-const ORDER_STATUS={new:{t:'جديد',cls:'new'},confirmed:{t:'جاري التجهيز',cls:'confirmed'},done:{t:'مكتمل',cls:'done'},rejected:{t:'مرفوض',cls:'rejected'},cancelled:{t:'ملغي',cls:'cancelled'}};
+const ORDER_STATUS={new:{t:'جديد',cls:'new'},confirmed:{t:'جاري التجهيز',cls:'confirmed'},ready:{t:'جاهز للتوصيل',cls:'ready'},out_for_delivery:{t:'خرج للتوصيل',cls:'out'},done:{t:'مكتمل',cls:'done'},rejected:{t:'مرفوض',cls:'rejected'},cancelled:{t:'ملغي',cls:'cancelled'}};
+const ACTIVE_ORDER_STATUS=['new','confirmed','ready','out_for_delivery'];
 const PAY_LABEL_ADMIN={cod:'الدفع عند الاستلام',instapay:'إنستاباي',wallet:'محفظة إلكترونية'};
 
 function storeCfg(){
@@ -1706,9 +1712,14 @@ function storeCfg(){
     hours:s.hours||'',
     announcement:s.announcement||'',
     deliveryFee:Number(s.deliveryFee)||0,
+    freeOver:Number(s.freeOver)||0,
+    zones:Array.isArray(s.zones)?s.zones.filter(z=>z&&String(z.name||'').trim()).map(z=>({name:String(z.name).trim(),fee:Math.max(0,Number(z.fee)||0)})):[],
     minOrder:Number(s.minOrder)||0,
     deliveryNote:s.deliveryNote||'',
     pickupNote:s.pickupNote||'',
+    paymentInfo:s.paymentInfo||'',
+    telegramToken:s.telegramToken||'',
+    telegramChat:s.telegramChat||'',
     payments:Array.isArray(s.payments)&&s.payments.length?s.payments:['cod']
   };
 }
@@ -1723,6 +1734,18 @@ function storeUrl(slug){
 function cleanSlug(v){
   return String(v||'').toLowerCase().trim().replace(/[^a-z0-9-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,50);
 }
+function renderStoreZones(zones){
+  const box=$('storeZones');
+  if(!box)return;
+  const list=Array.isArray(zones)?zones.filter(z=>z&&typeof z==='object'):[];
+  box.innerHTML=list.map(z=>`<div data-zone-row style="display:grid;grid-template-columns:1fr 120px auto;gap:7px;align-items:center"><input class="zone-name" maxlength="40" placeholder="اسم المنطقة (مثال: المعادي)" value="${esc(z.name||'')}"><input class="zone-fee" type="number" min="0" step=".01" placeholder="الرسوم" value="${z.fee!=null?Number(z.fee):''}"><button type="button" class="danger small" data-zone-del title="حذف المنطقة">✕</button></div>`).join('')||'<div class="muted" style="font-size:11.5px">مفيش مناطق مضافة — التوصيل هيكون بسعر واحد من فوق.</div>';
+}
+function readStoreZones(){
+  return [...document.querySelectorAll('#storeZones [data-zone-row]')].map(r=>({
+    name:String((r.querySelector('.zone-name')||{}).value||'').trim(),
+    fee:Math.max(0,Number((r.querySelector('.zone-fee')||{}).value)||0)
+  })).filter(z=>z.name);
+}
 function renderStoreSettings(){
   if(!$('storeName'))return;
   const s=storeCfg();
@@ -1733,10 +1756,15 @@ function renderStoreSettings(){
   $('storeAddress').value=s.address;
   $('storeHours').value=s.hours;
   $('storeDeliveryFee').value=s.deliveryFee;
+  $('storeFreeOver').value=s.freeOver;
   $('storeMinOrder').value=s.minOrder;
   $('storeDeliveryNote').value=s.deliveryNote;
   $('storePickupNote').value=s.pickupNote;
   $('storeAnnouncement').value=s.announcement;
+  $('storePaymentInfo').value=s.paymentInfo;
+  $('storeTgToken').value=s.telegramToken;
+  $('storeTgChat').value=s.telegramChat;
+  renderStoreZones(s.zones);
   $('storeActive').checked=s.active;
   document.querySelectorAll('[data-store-pay]').forEach(cb=>{cb.checked=s.payments.includes(cb.dataset.storePay)});
   const badge=$('storeStatusBadge');
@@ -1770,9 +1798,14 @@ async function saveStoreSettings(){
     hours:$('storeHours').value.trim(),
     announcement:$('storeAnnouncement').value.trim(),
     deliveryFee:Math.max(0,Number($('storeDeliveryFee').value)||0),
+    freeOver:Math.max(0,Number($('storeFreeOver').value)||0),
+    zones:readStoreZones(),
     minOrder:Math.max(0,Number($('storeMinOrder').value)||0),
     deliveryNote:$('storeDeliveryNote').value.trim(),
     pickupNote:$('storePickupNote').value.trim(),
+    paymentInfo:$('storePaymentInfo').value.trim(),
+    telegramToken:$('storeTgToken').value.trim(),
+    telegramChat:$('storeTgChat').value.trim(),
     payments:payments.length?payments:['cod']
   };
   data.settings.store=cfg;
@@ -1842,6 +1875,7 @@ async function loadOrders(silent){
     ordersLoaded=true;ordersSetupMissing=false;
     updateOrderBadge();
     if($('view-orders')&&$('view-orders').classList.contains('active'))renderOrders();
+    loadReviews();
   }catch(e){
     const msg=String(e&&e.message||'');
     if(/does not exist|relation|schema cache|42P01/i.test(msg)){
@@ -1857,18 +1891,20 @@ function renderOrders(){
   if(!$('orderStats'))return;
   const nw=orders.filter(o=>o.status==='new').length;
   const cf=orders.filter(o=>o.status==='confirmed').length;
+  const flow=orders.filter(o=>o.status==='ready'||o.status==='out_for_delivery').length;
   const todayDone=orders.filter(o=>o.status==='done'&&orderDay(o)===today()).filter(o=>{const s=orderSale(o);return !s||!s.voided});
   const todayRevenue=todayDone.reduce((s,o)=>s+(Number(o.total)||0),0);
   $('orderStats').innerHTML=`
     <div class="order-stat hot"><small>طلبات جديدة</small><b>${nw}</b></div>
     <div class="order-stat"><small>جاري التجهيز</small><b>${cf}</b></div>
+    <div class="order-stat"><small>جاهز / في الطريق</small><b>${flow}</b></div>
     <div class="order-stat ok"><small>مكتملة اليوم</small><b>${todayDone.length}</b></div>
     <div class="order-stat"><small>مبيعات أونلاين اليوم</small><b>${money(todayRevenue)}</b></div>`;
   $('ordersSetupNotice').innerHTML=ordersSetupMissing?'<div class="order-setup">⚙️ <b>الطلبات لسه مش متفعّلة:</b> افتح Supabase → SQL Editor ونفّذ ملف <code>supabase-store.sql</code> مرة واحدة. بعدها الطلبات هتظهر هنا لحظيًا.</div>':'';
   const list=$('ordersList');
   if(!ordersLoaded){list.innerHTML='<div class="order-empty"><span class="e">⏳</span>جاري تحميل الطلبات...</div>';return}
   let arr=orders;
-  if(ordersFilter==='active')arr=orders.filter(o=>o.status==='new'||o.status==='confirmed');
+  if(ordersFilter==='active')arr=orders.filter(o=>ACTIVE_ORDER_STATUS.includes(o.status));
   else if(ordersFilter!=='all')arr=orders.filter(o=>o.status===ordersFilter);
   if(ordersQuery){
     const q=normalizeArabic(ordersQuery);
@@ -1887,24 +1923,45 @@ function orderCard(o){
   const pickup=o.fulfillment==='pickup';
   const phone=String(c.phone||'');
   const wa=waPhone(phone);
-  const canAct=o.status==='new'||o.status==='confirmed';
+  const canAct=ACTIVE_ORDER_STATUS.includes(o.status);
+  const zone=String(c.zone||c.area||'');
+  const payLabel=PAY_LABEL_ADMIN[o.payment]||o.payment||'';
+  const needsProof=o.payment==='instapay'||o.payment==='wallet';
   const actions=[
     o.status==='new'?`<button type="button" onclick="acceptOrder('${esc(o.id)}')">✅ قبول</button>`:'',
-    canAct?`<button type="button" class="go" onclick="convertOrder('${esc(o.id)}')">🧾 تحويل لفاتورة</button>`:'',
+    o.status==='confirmed'?`<button type="button" onclick="markOrderReady('${esc(o.id)}')">📦 جاهز</button>`:'',
+    (o.status==='confirmed'||o.status==='ready')&&!pickup?`<button type="button" onclick="markOrderOut('${esc(o.id)}')">🛵 خرج للتوصيل</button>`:'',
+    canAct?`<button type="button" class="go" onclick="convertOrder('${esc(o.id)}')">🧾 ${pickup?'تسليم وتحويل لفاتورة':'تحويل لفاتورة'}</button>`:'',
+    canAct?`<button type="button" onclick="printOrderSlip('${esc(o.id)}')">🖨️ بوليصة</button>`:'',
     canAct?`<button type="button" class="deny" onclick="rejectOrder('${esc(o.id)}')">✕ رفض</button>`:'',
     phone?`<a href="tel:${esc(phone)}">📞 اتصال</a>`:'',
-    wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent('بخصوص أوردر '+o.code)}" target="_blank" rel="noopener">💬 واتساب</a>`:'',
-    o.sale_id?`<button type="button" onclick="showOrderInvoice('${esc(o.sale_id)}')">📄 عرض الفاتورة</button>`:''
+    wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent(orderWaText(o))}" target="_blank" rel="noopener">💬 واتساب</a>`:'',
+    o.sale_id?`<button type="button" onclick="showOrderInvoice('${esc(o.sale_id)}')">📄 عرض الفاتورة</button>`:'',
+    o.status==='done'?`<button type="button" onclick="printOrderSlip('${esc(o.id)}')">🖨️ طباعة</button>`:''
   ].filter(Boolean).join('');
+  const proofBtn=needsProof&&o.payment_proof?`<button type="button" onclick="showPaymentProof('${esc(o.id)}')">🖼️ صورة التحويل</button>`:'';
   return `<div class="order-card is-${esc(o.status)}">
     <div class="order-head"><div class="order-code"><b>${esc(o.code)}</b><span class="badge ${st.cls}">${esc(st.t)}</span><small>${esc(orderTime(o))}</small></div><div class="order-total">${money(o.total)}</div></div>
-    <div class="order-cust"><span>👤 ${esc(c.name||'عميل')}</span>${phone?`<a href="tel:${esc(phone)}">${esc(phone)}</a>`:''}<span class="ord-tag ${pickup?'pick':'del'}">${pickup?'🏬 استلام من الفرع':'🚚 توصيل'}</span><span style="font-size:11px;color:var(--muted)">${esc(PAY_LABEL_ADMIN[o.payment]||o.payment||'')}</span></div>
-    ${!pickup&&c.address?`<div class="order-cust" style="color:var(--muted);font-size:11.5px">📍 ${esc([c.area,c.address].filter(Boolean).join(' — '))}</div>`:''}
+    <div class="order-cust"><span>👤 ${esc(c.name||'عميل')}</span>${phone?`<a href="tel:${esc(phone)}">${esc(phone)}</a>`:''}<span class="ord-tag ${pickup?'pick':'del'}">${pickup?'🏬 استلام من الفرع':'🚚 توصيل'}</span><span style="font-size:11px;color:var(--muted)">${esc(payLabel)}</span></div>
+    ${!pickup&&(zone||c.address)?`<div class="order-cust" style="color:var(--muted);font-size:11.5px">📍 ${esc([zone,c.address].filter(Boolean).join(' — '))}</div>`:''}
+    ${needsProof&&(o.payment_ref||o.payment_proof)?`<div class="order-note" style="background:color-mix(in srgb,#2aa7ff 8%,transparent);border-color:color-mix(in srgb,#2aa7ff 30%,var(--line))">💳 إثبات الدفع${o.payment_ref?` · رقم العملية: <b dir="ltr">${esc(o.payment_ref)}</b>`:''}${o.payment_proof?' · صورة مرفقة ✅':' · مفيش صورة'}</div>`:''}
     <div class="order-items">${items.map(it=>`<span>${esc(it.name)} ×${Number(it.qty)||0} · ${money(it.subtotal)}</span>`).join('')}</div>
     ${o.note?`<div class="order-note">📝 ${esc(o.note)}</div>`:''}
     ${o.reject_reason?`<div class="order-note">✕ سبب الرفض: ${esc(o.reject_reason)}</div>`:''}
-    <div class="order-actions">${actions}</div>
+    <div class="order-actions">${proofBtn}${actions}</div>
   </div>`;
+}
+function orderWaText(o){
+  const c=o.customer||{};
+  const st=ORDER_STATUS[o.status]||{t:''};
+  const lines=[`أهلاً ${c.name||''} 👋`,`بخصوص أوردرك ${o.code} من ${storeCfg().name||'Vape Zone Store'}`,`الحالة: ${st.t||o.status}`];
+  if(o.total!=null)lines.push(`الإجمالي: ${money(o.total)}`);
+  if(o.fulfillment==='pickup')lines.push('الاستلام من الفرع 🏬');
+  else if(c.zone||c.address)lines.push('التوصيل: '+[c.zone,c.address].filter(Boolean).join(' — '));
+  if(o.status==='ready')lines.push(o.fulfillment==='pickup'?'أوردرك جاهز للاستلام من الفرع 🎉':'أوردرك جاهز وهيتحرك مع الكابتن قريب 🎉');
+  if(o.status==='out_for_delivery')lines.push('الكابتن في الطريق ليك 🛵');
+  if(o.status==='done')lines.push('شكرًا ليك ❤️ لو حبيت تقيّم تجربتك من صفحة المتجر هنسعد بيك.');
+  return lines.join('\n');
 }
 window.showOrderInvoice=function(id){
   const s=data.sales.find(x=>String(x.id)===String(id));
@@ -1915,6 +1972,167 @@ window.showOrderInvoice=function(id){
   document.body.insertAdjacentHTML('beforeend',html);
 }
 window.closeOrderInvoice=function(){$('orderInvoiceModal')?.remove()}
+window.showPaymentProof=function(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o||!o.payment_proof){toast('مفيش صورة تحويل على الأوردر ده');return}
+  $('payProofModal')?.remove();
+  const c=o.customer||{};
+  const html=`<div class="modal" id="payProofModal" onclick="if(event.target===this)this.remove()"><div class="modal-card" style="width:min(520px,100%)"><div class="modal-head"><div><h3>إثبات الدفع — ${esc(o.code)}</h3><p class="muted" style="margin:4px 0 0">${esc(c.name||'')}${o.payment_ref?' · رقم العملية: '+esc(o.payment_ref):''}</p></div><button type="button" class="icon-btn" onclick="$('payProofModal').remove()">✕</button></div><img src="${esc(o.payment_proof)}" alt="إثبات التحويل" style="width:100%;border-radius:12px;border:1px solid var(--line);display:block"><div class="modal-actions"><a class="secondary" href="${esc(o.payment_proof)}" download="proof-${esc(o.code)}.jpg" style="text-decoration:none;padding:9px 14px;border-radius:10px;border:1px solid var(--line);font-weight:900">⬇️ تحميل الصورة</a><button type="button" class="secondary" onclick="$('payProofModal').remove()">إغلاق</button></div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+};
+function orderSlipHTML(o){
+  const c=o.customer||{};
+  const s=storeCfg();
+  const items=Array.isArray(o.items)?o.items:[];
+  const st=ORDER_STATUS[o.status]||{t:o.status};
+  const fee=Number(o.delivery_fee)||0;
+  const sub=Number(o.subtotal)||0;
+  const total=Number(o.total)||0;
+  const pay=PAY_LABEL_ADMIN[o.payment]||o.payment||'';
+  const date=orderTime(o);
+  return `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>بوليصة ${esc(o.code)}</title><style>
+    *{box-sizing:border-box}body{font-family:Tahoma,Arial,sans-serif;margin:0;padding:18px;color:#111;background:#fff}
+    .wrap{max-width:720px;margin:0 auto}
+    .top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;border-bottom:3px solid #111;padding-bottom:10px;margin-bottom:12px}
+    h1{font-size:20px;margin:0 0 4px}h2{font-size:15px;margin:0}
+    .muted{color:#555;font-size:12px;line-height:1.7}
+    .code{font-size:22px;font-weight:900;letter-spacing:1px;direction:ltr}
+    .box{border:1.5px solid #111;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:13px;line-height:1.9}
+    .box b{display:inline-block;min-width:76px}
+    table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
+    th,td{border:1px solid #999;padding:7px 8px;text-align:right}
+    th{background:#eee}
+    .tot{display:flex;justify-content:space-between;font-size:14px;padding:4px 2px}
+    .tot.grand{font-size:18px;font-weight:900;border-top:2px solid #111;margin-top:6px;padding-top:8px}
+    .note{border:1.5px dashed #111;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.8;margin-bottom:10px}
+    .sign{display:flex;justify-content:space-between;gap:20px;margin-top:22px;font-size:12px}
+    .sign div{flex:1;border-top:1px solid #111;padding-top:6px;text-align:center}
+    @media print{body{padding:0}.noprint{display:none}}
+  </style></head><body><div class="wrap">
+    <div class="top"><div><h1>${esc(s.name||'Vape Zone Store')}</h1><div class="muted">${esc(s.address||'')}${s.phone?' · '+esc(s.phone):''}${s.hours?'<br>'+esc(s.hours):''}</div></div><div style="text-align:left"><div class="code">${esc(o.code)}</div><div class="muted">${esc(date)}</div><div class="muted">${esc(st.t)}</div></div></div>
+    <div class="box"><b>العميل:</b> ${esc(c.name||'—')}<br><b>الموبايل:</b> <span dir="ltr">${esc(c.phone||'—')}</span><br><b>النوع:</b> ${o.fulfillment==='pickup'?'استلام من الفرع':'توصيل'}<br>${o.fulfillment==='pickup'?'':`<b>المنطقة:</b> ${esc(c.zone||c.area||'—')}<br><b>العنوان:</b> ${esc(c.address||'—')}<br>`}<b>الدفع:</b> ${esc(pay)}${o.payment_ref?`<br><b>رقم العملية:</b> <span dir="ltr">${esc(o.payment_ref)}</span>`:''}</div>
+    <table><thead><tr><th>الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${items.map(it=>`<tr><td>${esc(it.name)}</td><td>${Number(it.qty)||0}</td><td>${money(it.price)}</td><td>${money(it.subtotal)}</td></tr>`).join('')}</tbody></table>
+    <div class="tot"><span>إجمالي الأصناف</span><b>${money(sub)}</b></div>
+    <div class="tot"><span>${o.fulfillment==='pickup'?'الاستلام من الفرع':'التوصيل'}</span><b>${fee?money(fee):'مجانًا'}</b></div>
+    <div class="tot grand"><span>المطلوب</span><b>${money(total)}</b></div>
+    ${o.note?`<div class="note">📝 ملاحظة العميل: ${esc(o.note)}</div>`:''}
+    <div class="note">احتفظ بالبوليصة دي — للتأكيد أو الاسترجاع كود الأوردر <b dir="ltr">${esc(o.code)}</b> ورقم الموبايل.</div>
+    <div class="sign"><div>توقيع العميل</div><div>توقيع الاستلام</div></div>
+    <div class="noprint" style="margin-top:18px;text-align:center"><button onclick="window.print()" style="padding:10px 22px;font-size:15px;font-weight:900;border-radius:10px;border:0;background:#111;color:#fff;cursor:pointer">🖨️ طباعة</button></div>
+  </div></body></html>`;
+}
+window.printOrderSlip=function(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o){toast('الأوردر مش موجود');return}
+  const w=window.open('','_blank');
+  if(!w){toast('المتصفح منع نافذة الطباعة — اسمح بالنوافذ المنبثقة');return}
+  w.document.open();w.document.write(orderSlipHTML(o));w.document.close();
+  setTimeout(()=>{try{w.focus();w.print()}catch(e){}},400);
+};
+async function sendTelegram(text){
+  const s=storeCfg();
+  if(!s.telegramToken||!s.telegramChat)return false;
+  try{
+    const r=await fetch(`https://api.telegram.org/bot${s.telegramToken}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:s.telegramChat,text,parse_mode:'HTML',disable_web_page_preview:true})
+    });
+    const j=await r.json().catch(()=>null);
+    return !!(j&&j.ok);
+  }catch(e){return false}
+}
+function telegramOrderText(o){
+  const c=o.customer||{};
+  const items=Array.isArray(o.items)?o.items:[];
+  const lines=[
+    `🔔 <b>أوردر جديد ${esc(o.code)}</b>`,
+    `👤 ${esc(c.name||'عميل')} — <span dir="ltr">${esc(c.phone||'')}</span>`,
+    o.fulfillment==='pickup'?'🏬 استلام من الفرع':'🚚 توصيل'+(c.zone?' — '+esc(c.zone):''),
+    c.address?'📍 '+esc(c.address):'',
+    '',
+    ...items.map(it=>`• ${esc(it.name)} ×${Number(it.qty)||0} = ${money(it.subtotal)}`),
+    '',
+    `💰 <b>الإجمالي: ${money(o.total)}</b> · ${esc(PAY_LABEL_ADMIN[o.payment]||o.payment||'')}`,
+    o.payment_ref?'🧾 رقم العملية: '+esc(o.payment_ref):'',
+    o.note?'📝 '+esc(o.note):''
+  ].filter(x=>x!=='').join('\n');
+  return lines;
+}
+window.testTelegram=async function(){
+  const btn=$('testTgBtn');
+  const s=storeCfg();
+  const token=$('storeTgToken').value.trim(),chat=$('storeTgChat').value.trim();
+  if(!token||!chat){toast('اكتب الـ Token والـ Chat ID الأول');return}
+  if(btn){btn.disabled=true;btn.textContent='⏳ بنبعث...'}
+  try{
+    const r=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({chat_id:chat,text:`✅ تجربة ناجحة من ${s.name||'Vape Zone Store'}\nهتوصلك تنبيهات الأوردرات هنا.`})
+    });
+    const j=await r.json().catch(()=>null);
+    if(j&&j.ok)toast('تم إرسال رسالة التجربة ✅');
+    else toast('فشل الإرسال — راجع الـ Token والـ Chat ID');
+  }catch(e){toast('تعذر الاتصال بتليجرام — راجع النت')}
+  finally{if(btn){btn.disabled=false;btn.textContent='📨 إرسال رسالة تجربة'}}
+};
+/* ---------------- تقييمات العملاء ---------------- */
+let storeReviews=[];
+let reviewsLoaded=false;
+async function loadReviews(){
+  if(!sb||!cloudReady||!SHOP_ID)return;
+  try{
+    const{data:rows,error}=await sb.from('store_reviews').select('*').eq('shop_id',SHOP_ID).order('created_at',{ascending:false}).limit(300);
+    if(error)throw error;
+    storeReviews=rows||[];
+    reviewsLoaded=true;
+  }catch(e){
+    storeReviews=[];reviewsLoaded=true;
+  }
+  renderReviews();
+}
+function reviewStars(n){
+  n=Math.max(0,Math.min(5,Math.round(Number(n)||0)));
+  return '★'.repeat(n)+'☆'.repeat(5-n);
+}
+function renderReviews(){
+  const box=$('reviewsList');
+  if(!box)return;
+  if($('reviewsCount'))$('reviewsCount').textContent=storeReviews.length;
+  if(!reviewsLoaded){box.innerHTML='<div class="order-empty"><span class="e">⏳</span>جاري تحميل التقييمات...</div>';return}
+  if(!storeReviews.length){box.innerHTML='<div class="order-empty"><span class="e">⭐</span>مفيش تقييمات لسه.<br><small>لما عميل يقيّم أوردر مكتمل هيتظهر هنا فورًا.</small></div>';return}
+  box.innerHTML=storeReviews.map(r=>{
+    const p=product(String(r.product_id))||product(r.product_id);
+    const name=p?p.name:'صنف #'+String(r.product_id);
+    return `<div class="order-card" style="opacity:${r.hidden?0.62:1}">
+      <div class="order-head"><div class="order-code"><b style="color:var(--yellow);letter-spacing:2px;direction:ltr">${reviewStars(r.rating)}</b><span class="badge ${r.hidden?'rejected':'ok'}">${r.hidden?'مخفي':'ظاهر'}</span><small>${esc(orderTime({created_at:r.created_at}))}</small></div><div class="order-total" style="font-size:12px">${esc(r.order_code||'')}</div></div>
+      <div class="order-cust"><span>👤 ${esc(r.customer_name||'عميل')}</span><span>🛍️ ${esc(name)}</span></div>
+      ${r.comment?`<div class="order-note" style="background:transparent">💬 ${esc(r.comment)}</div>`:''}
+      <div class="order-actions"><button type="button" onclick="toggleReview('${esc(r.id)}',${r.hidden?'false':'true'})">${r.hidden?'👁️ إظهار':'🙈 إخفاء'}</button><button type="button" class="deny" onclick="deleteReview('${esc(r.id)}')">🗑️ حذف</button></div>
+    </div>`;
+  }).join('');
+}
+window.toggleReview=async function(id,hidden){
+  if(!sb||!cloudReady){toast('محتاج إنترنت');return}
+  try{
+    const{error}=await sb.from('store_reviews').update({hidden:!!hidden}).eq('id',id).eq('shop_id',SHOP_ID);
+    if(error)throw error;
+    const r=storeReviews.find(x=>String(x.id)===String(id));
+    if(r)r.hidden=!!hidden;
+    renderReviews();
+    toast(hidden?'تم إخفاء التقييم':'تم إظهار التقييم');
+  }catch(e){toast('تعذر تحديث التقييم')}
+};
+window.deleteReview=async function(id){
+  if(!confirm('حذف التقييم نهائيًا؟'))return;
+  if(!sb||!cloudReady){toast('محتاج إنترنت');return}
+  try{
+    const{error}=await sb.from('store_reviews').delete().eq('id',id).eq('shop_id',SHOP_ID);
+    if(error)throw error;
+    storeReviews=storeReviews.filter(x=>String(x.id)!==String(id));
+    renderReviews();
+    toast('تم حذف التقييم');
+  }catch(e){toast('تعذر حذف التقييم')}
+};
 async function setOrderStatus(id,status,extra){
   if(!sb||!cloudReady){toast('محتاج إنترنت لتحديث الطلب');return false}
   try{
@@ -1936,10 +2154,16 @@ async function rejectOrder(id){
   if(reason===null)return;
   if(await setOrderStatus(id,'rejected',{reject_reason:String(reason).trim()}))toast('تم رفض الأوردر');
 }
+async function markOrderReady(id){
+  if(await setOrderStatus(id,'ready')){toast('الأوردر جاهز ✅');}
+}
+async function markOrderOut(id){
+  if(await setOrderStatus(id,'out_for_delivery')){toast('تم تسجيل خروج الأوردر للتوصيل 🛵');}
+}
 async function convertOrder(id){
   const o=orders.find(x=>x.id===id);
   if(!o)return;
-  if(o.status!=='new'&&o.status!=='confirmed'){toast('الأوردر ده مش جاري');return}
+  if(!ACTIVE_ORDER_STATUS.includes(o.status)){toast('الأوردر ده مش جاري');return}
   const items=Array.isArray(o.items)?o.items:[];
   if(!items.length){toast('الأوردر مفيهوش أصناف');return}
   const problems=[];
@@ -1953,7 +2177,7 @@ async function convertOrder(id){
   if(!sb||!cloudReady){toast('محتاج إنترنت لتأكيد الأوردر');return}
   const saleId=uid();
   try{
-    const{data:rows,error}=await sb.from('orders').update({status:'done',sale_id:String(saleId)}).eq('id',id).in('status',['new','confirmed']).select('*');
+    const{data:rows,error}=await sb.from('orders').update({status:'done',sale_id:String(saleId)}).eq('id',id).in('status',ACTIVE_ORDER_STATUS).select('*');
     if(error)throw error;
     if(!rows||!rows.length){toast('الأوردر اتحدّث من جهاز تاني — هنحدّث القائمة');loadOrders();return}
   }catch(e){toast('تعذر تحديث حالة الأوردر — راجع النت');return}
@@ -2012,6 +2236,18 @@ function notifyNewOrder(o){
   if('Notification' in window&&Notification.permission==='granted'){
     try{new Notification('🔔 أوردر جديد — '+o.code,{body:`${c.name||'عميل'} · ${money(o.total)}\n${o.fulfillment==='pickup'?'استلام من الفرع':'توصيل'}`,tag:o.id})}catch(e){}
   }
+  const s=storeCfg();
+  if(s.telegramToken&&s.telegramChat&&o.id){
+    let sent={};
+    try{sent=JSON.parse(localStorage.getItem('vz_tg_sent')||'{}')||{}}catch(e){sent={}}
+    if(!sent[o.id]){
+      const cut=Date.now()-7*86400000;
+      Object.keys(sent).forEach(k=>{if(!(sent[k]>cut))delete sent[k]});
+      sent[o.id]=Date.now();
+      try{localStorage.setItem('vz_tg_sent',JSON.stringify(sent))}catch(e){}
+      sendTelegram(telegramOrderText(o));
+    }
+  }
   updateOrderBadge();
 }
 async function enableOrderAlerts(){
@@ -2049,6 +2285,8 @@ function subscribeOrders(){
 }
 window.acceptOrder=acceptOrder;
 window.rejectOrder=rejectOrder;
+window.markOrderReady=markOrderReady;
+window.markOrderOut=markOrderOut;
 window.convertOrder=convertOrder;
 
 if($('ordersRefreshBtn'))$('ordersRefreshBtn').onclick=()=>{loadOrders();toast('جاري تحديث الطلبات...')};
@@ -2065,6 +2303,19 @@ if($('qrStoreBtn'))$('qrStoreBtn').onclick=()=>{
   if(!qr.hidden)qr.src='https://api.qrserver.com/v1/create-qr-code/?size=180x180&data='+encodeURIComponent(($('storeLink')&&$('storeLink').textContent)||storeUrl(storeCfg().slug||DEFAULT_STORE_SLUG));
 };
 if($('storeSlug'))$('storeSlug').oninput=e=>{e.target.value=e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,'').slice(0,50)};
+if($('addZoneBtn'))$('addZoneBtn').onclick=()=>{
+  const zones=readStoreZones();zones.push({name:'',fee:0});renderStoreZones(zones);
+  const rows=document.querySelectorAll('#storeZones [data-zone-row]');
+  const last=rows[rows.length-1];if(last){const n=last.querySelector('.zone-name');if(n)n.focus()}
+};
+document.addEventListener('click',e=>{
+  const del=e.target.closest&&e.target.closest('[data-zone-del]');
+  if(!del)return;
+  const row=del.closest('[data-zone-row]');
+  if(row)row.remove();
+  if(!document.querySelector('#storeZones [data-zone-row]'))renderStoreZones([]);
+});
+if($('testTgBtn'))$('testTgBtn').onclick=window.testTelegram;
 document.addEventListener('click',()=>{try{if(window.__vzAudio&&window.__vzAudio.state==='suspended')window.__vzAudio.resume()}catch(e){}},{once:true});
 
 function renderAll(){renderDashboard();renderProducts();renderSale();renderPurchases();renderReports();renderOrders();updateOrderBadge();renderSettings()}
