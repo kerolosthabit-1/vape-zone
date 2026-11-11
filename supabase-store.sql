@@ -220,6 +220,7 @@ begin
                     else null
                   end,
       'desc',     coalesce(p ->> 'desc', ''),
+      'opts',     case when jsonb_typeof(p -> 'opts') = 'array' then p -> 'opts' else '[]'::jsonb end,
       'img',      coalesce(p ->> 'img', ''),
       'qty',      greatest(0,
                     coalesce(nullif(p ->> 'qty', '')::int, 0)
@@ -312,6 +313,12 @@ declare
   v_code      text;
   v_id        uuid;
   v_lines     jsonb := '[]'::jsonb;
+  v_variant   text;
+  v_opts      jsonb;
+  v_group     jsonb;
+  v_gname     text;
+  v_gvals     jsonb;
+  v_optval    text;
   v_attempt   int := 0;
 begin
   select * into st from public.store_lookup(p_slug) limit 1;
@@ -378,6 +385,7 @@ begin
     return jsonb_build_object('ok', false, 'error', 'rate_limit');
   end if;
 
+  -- 1) التحقق من المتاح لكل صنف (مجموع الكميات مهما اختلفت الأطعمه/الألوان)
   for v_item in
     select x.id, sum(greatest(1, coalesce(x.qty, 1)))::int as qty
     from jsonb_to_recordset(p_items) as x(id text, qty int)
@@ -424,6 +432,63 @@ begin
         'available', v_avail
       );
     end if;
+  end loop;
+
+  -- 2) بناء سطور الأوردر مع الخيارات (طعم/لون/مقاس) وحساب الإجمالي
+  for v_item in
+    select x.id, x.opts, sum(greatest(1, coalesce(x.qty, 1)))::int as qty
+    from jsonb_to_recordset(p_items) as x(id text, qty int, opts jsonb)
+    group by x.id, x.opts
+  loop
+    v_qty := v_item.qty;
+
+    select p into v_prod
+    from jsonb_array_elements(
+      case when jsonb_typeof(st.data -> 'products') = 'array' then st.data -> 'products' else '[]'::jsonb end
+    ) p
+    where p ->> 'id' = v_item.id
+    limit 1;
+
+    v_opts := case
+                when jsonb_typeof(v_prod -> 'opts') = 'array' then v_prod -> 'opts'
+                else '[]'::jsonb
+              end;
+    v_variant := '';
+
+    -- لو الصنف ليه أطعمه/ألوان، لازم العميل يختار قيمة متاحة من كل خيار
+    if jsonb_array_length(v_opts) > 0 then
+      for v_group in select g from jsonb_array_elements(v_opts) g
+      loop
+        v_gname := trim(coalesce(v_group ->> 'name', ''));
+        continue when v_gname = '';
+
+        v_gvals := case
+                     when jsonb_typeof(v_group -> 'values') = 'array' then v_group -> 'values'
+                     else '[]'::jsonb
+                   end;
+        continue when jsonb_array_length(v_gvals) = 0;
+
+        v_optval := trim(coalesce(v_item.opts ->> v_gname, ''));
+
+        if v_optval = '' then
+          return jsonb_build_object(
+            'ok', false, 'error', 'variant',
+            'item', coalesce(v_prod ->> 'name', ''),
+            'group', v_gname
+          );
+        end if;
+
+        if not (v_gvals ? v_optval) then
+          return jsonb_build_object(
+            'ok', false, 'error', 'variant_invalid',
+            'item', coalesce(v_prod ->> 'name', ''),
+            'group', v_gname
+          );
+        end if;
+
+        v_variant := v_variant || case when v_variant = '' then '' else ' · ' end || v_optval;
+      end loop;
+    end if;
 
     v_price := coalesce(nullif(v_prod ->> 'storePrice', '')::numeric, nullif(v_prod ->> 'price', '')::numeric, 0);
     v_subtotal := v_subtotal + (v_price * v_qty);
@@ -431,6 +496,8 @@ begin
     v_lines := v_lines || jsonb_build_array(jsonb_build_object(
       'id',       v_prod ->> 'id',
       'name',     coalesce(v_prod ->> 'name', ''),
+      'variant',  v_variant,
+      'opts',     coalesce(v_item.opts, '{}'::jsonb),
       'price',    v_price,
       'qty',      v_qty,
       'subtotal', v_price * v_qty
