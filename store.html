@@ -1124,9 +1124,33 @@ function cleanOpts(list){
       if(t&&!values.includes(t))values.push(t);
     });
     if(!values.length)return;
-    if(!out.some(o=>o.name===name))out.push({name,values:values.slice(0,40)});
+    if(out.some(o=>o.name===name))return;
+    const stock={};
+    if(g.stock&&typeof g.stock==='object'){
+      Object.keys(g.stock).forEach(k=>{
+        const t=String(k==null?'':k).trim().slice(0,30);
+        const n=Math.floor(Number(g.stock[k]));
+        if(t&&values.includes(t)&&Number.isFinite(n)&&n>=0)stock[t]=n;
+      });
+    }
+    out.push({name,values:values.slice(0,40),...(Object.keys(stock).length?{stock}:{})});
   });
   return out.slice(0,4);
+}
+function valueLeft(g,val){
+  if(!g||!g.stock)return null;
+  if(!Object.prototype.hasOwnProperty.call(g.stock,val))return null;
+  return Math.max(0,Number(g.stock[val])||0);
+}
+function variantCap(p,v){
+  let cap=99;
+  const vv=cleanVariant(v);
+  cleanOpts(p&&p.opts).forEach(g=>{
+    const val=vv[g.name];
+    const left=val?valueLeft(g,val):null;
+    if(left!=null)cap=Math.min(cap,left);
+  });
+  return cap;
 }
 function optIcon(name){
   const n=String(name||'');
@@ -1141,13 +1165,17 @@ function saveCart(){try{localStorage.setItem(CART_KEY,JSON.stringify(cart))}catc
 function productById(id){return products.find(p=>String(p.id)===String(id))||null}
 function pruneCart(){
   if(!products.length)return;
-  const used={};
+  const used={},usedVar={};
   cart=cart.filter(x=>{
     const p=productById(x.id);if(!p||p.qty<=0)return false;
+    if(!variantAvailable(p,x.v))return false;
+    const vk=vKey(x.id,x.v);
     const left=Math.max(0,p.qty-(used[x.id]||0));
-    x.qty=Math.min(x.qty,left,99);
+    const vleft=Math.max(0,variantCap(p,x.v)-(usedVar[vk]||0));
+    x.qty=Math.min(x.qty,left,vleft,99);
     if(x.qty<=0)return false;
     used[x.id]=(used[x.id]||0)+x.qty;
+    usedVar[vk]=(usedVar[vk]||0)+x.qty;
     return true;
   });
   saveCart();
@@ -1427,14 +1455,24 @@ function addToCart(id,qty=1,v){
   if(!p)return;
   if(p.qty<=0){toast('الصنف ده خلص حاليًا');return}
   const vv=cleanVariant(v);
+  const groups=cleanOpts(p.opts);
+  for(const g of groups){
+    const val=vv[g.name];
+    if(!val){toast('اختار '+g.name+' الأول 👆');return}
+    if(!g.values.includes(val)){toast('الخيار اللي اخترته مش متاح — حدّث الصفحة');return}
+  }
   const key=vKey(p.id,vv);
   const ex=cart.find(x=>vKey(x.id,x.v)===key);
-  const have=cart.filter(x=>String(x.id)===String(p.id)).reduce((s,x)=>s+x.qty,0);
-  const max=Math.min(p.qty,99);
-  if(have+qty>max){
-    if(max===99)toast('الحد الأقصى 99 قطعة من نفس الصنف');
-    else toast(`المتاح من «${p.name}» ${p.qty} بس`);
-    qty=Math.max(0,max-have);
+  const usedTotal=cart.filter(x=>String(x.id)===String(p.id)).reduce((s,x)=>s+x.qty,0);
+  const usedVar=cart.filter(x=>vKey(x.id,x.v)===key).reduce((s,x)=>s+x.qty,0);
+  const cap=variantCap(p,vv);
+  if(cap<=0){toast(`«${p.name}» بالاختيار ده خلص حاليًا`);return}
+  const room=Math.min(Math.min(p.qty,99)-usedTotal,cap-usedVar);
+  if(qty>room){
+    if(cap<=usedVar)toast(`«${p.name}» بالاختيار ده خلص`);
+    else if(room<=0)toast(`المتاح من «${p.name}» ${Math.min(p.qty,99)} بس`);
+    else toast(`المتاح من «${p.name}» بالاختيار ده ${room} بس`);
+    qty=Math.max(0,room);
   }
   if(qty<=0)return;
   if(ex)ex.qty+=qty;else cart.push({id:p.id,qty,v:vv});
@@ -1448,13 +1486,14 @@ function setQty(key,delta){
   const x=cart.find(i=>vKey(i.id,i.v)===key);
   if(!x)return;
   const p=productById(x.id);if(!p)return;
-  const others=cart.filter(i=>i!==x&&String(i.id)===String(x.id)).reduce((s,i)=>s+i.qty,0);
-  const max=Math.min(p.qty,99)-others;
+  const othersTotal=cart.filter(i=>i!==x&&String(i.id)===String(x.id)).reduce((s,i)=>s+i.qty,0);
+  const othersVar=cart.filter(i=>i!==x&&vKey(i.id,i.v)===key).reduce((s,i)=>s+i.qty,0);
+  const max=Math.min(Math.min(p.qty,99)-othersTotal,variantCap(p,x.v)-othersVar);
   const next=x.qty+delta;
   if(next<=0){cart=cart.filter(i=>i!==x)}
   else if(next>max){
-    if(max<=0){toast(`المتاح من «${p.name}» خلص`);cart=cart.filter(i=>i!==x)}
-    else{toast(max===99?'الحد الأقصى 99 قطعة من نفس الصنف':`المتاح من «${p.name}» ${p.qty} بس`);x.qty=max}
+    if(max<=0){toast(`المتاح من «${p.name}» بالاختيار ده خلص`);cart=cart.filter(i=>i!==x)}
+    else{toast(`المتاح من «${p.name}» بالاختيار ده ${max} بس`);x.qty=max}
   }
   else x.qty=next;
   saveCart();renderCart();renderMobileBar();
@@ -1467,11 +1506,22 @@ function renderPmOpts(){
   const groups=currentProduct?cleanOpts(currentProduct.opts):[];
   if(!groups.length){box.innerHTML='';box.hidden=true;return}
   box.hidden=false;
-  box.innerHTML=groups.map(g=>`<div class="pm-opt-group"><label>${optIcon(g.name)} اختار ${esc(g.name)}${g.values.length===1?' (متاح واحد)':''}</label><div class="pm-opt-chips">${g.values.map(v=>`<button type="button" class="pm-opt-chip ${pmVariant[g.name]===v?'on':''}" data-pmv="${esc(g.name)}" data-pmval="${esc(v)}" aria-pressed="${pmVariant[g.name]===v?'true':'false'}">${pmVariant[g.name]===v?'✓ ':''}${esc(v)}</button>`).join('')}</div></div>`).join('');
+  box.innerHTML=groups.map(g=>{
+    const sel=pmVariant[g.name];
+    return `<div class="pm-opt-group"><label>${optIcon(g.name)} اختار ${esc(g.name)}${g.values.length===1?' (متاح واحد)':''}</label><div class="pm-opt-chips">${g.values.map(v=>{
+      const left=valueLeft(g,v);
+      const off=left===0;
+      const on=sel===v&&!off;
+      return `<button type="button" class="pm-opt-chip ${on?'on':''}${off?' off':''}" data-pmv="${esc(g.name)}" data-pmval="${esc(v)}" ${off?'disabled aria-disabled="true"':''} aria-pressed="${on?'true':'false'}">${on?'✓ ':''}${esc(v)}${off?' · خلص':(left!=null&&left<=5?` · آخر ${left}`:'')}</button>`;
+    }).join('')}</div></div>`;
+  }).join('');
 }
 function pmMissing(){
   const groups=currentProduct?cleanOpts(currentProduct.opts):[];
-  for(const g of groups){if(!pmVariant[g.name])return g.name}
+  for(const g of groups){
+    const val=pmVariant[g.name];
+    if(!val||!g.values.includes(val)||valueLeft(g,val)===0)return g.name;
+  }
   return '';
 }
 function variantAvailable(p,v){
@@ -1481,13 +1531,14 @@ function variantAvailable(p,v){
   for(const g of groups){
     const val=vv[g.name];
     if(!val||!g.values.includes(val))return false;
+    if(valueLeft(g,val)===0)return false;
   }
   return true;
 }
 function openProduct(id){
   const p=productById(id);if(!p)return;
   currentProduct=p;pmQty=1;pmVariant={};
-  cleanOpts(p.opts).forEach(g=>{if(g.values.length===1)pmVariant[g.name]=g.values[0]});
+  cleanOpts(p.opts).forEach(g=>{if(g.values.length===1&&valueLeft(g,g.values[0])!==0)pmVariant[g.name]=g.values[0]});
   const out=p.qty<=0;
   $('#pmName').textContent=p.name;
   $('#pmCat').textContent=(CAT_EMOJI[p.category]||'📦')+' '+p.category;
@@ -1516,14 +1567,31 @@ function openProduct(id){
   <div class="pm-reviews" id="pmReviews"></div>`;
   $('#pmShare').onclick=shareProduct;
   renderPmOpts();
+  syncPmQty();
   $('#pmAdd').disabled=out;
   $('#pmAdd').textContent=out?'نفد حاليًا':'أضف للسلة · '+money(p.price);
   $('#pmMinus').onclick=()=>{pmQty=Math.max(1,pmQty-1);$('#pmQty').textContent=pmQty};
-  $('#pmPlus').onclick=()=>{pmQty=Math.min(p.qty,99,pmQty+1);$('#pmQty').textContent=pmQty};
+  $('#pmPlus').onclick=()=>{pmQty=Math.min(p.qty,99,variantCap(p,pmVariant),pmQty+1);$('#pmQty').textContent=pmQty;syncPmQty()};
   openModal('productModal');
   syncDeepLink(p.id);
   updateProductSeo(p);
   loadProductReviews(p.id);
+}
+function syncPmQty(){
+  if(!currentProduct)return;
+  const p=currentProduct;
+  const cap=Math.min(p.qty,99,variantCap(p,pmVariant));
+  if(pmQty>cap)pmQty=Math.max(1,cap);
+  const q=$('#pmQty');if(q)q.textContent=pmQty;
+  const picked=Object.keys(cleanVariant(pmVariant)).length>0;
+  const dead=p.qty<=0||(picked&&cap<=0);
+  const line=document.querySelector('.stockline');
+  if(line){
+    line.classList.toggle('out',dead);
+    line.textContent=dead?'نفد حاليًا':(picked&&cap<p.qty?`متاح ${cap} قطعة بالاختيار ده`:`متاح ${p.qty} قطعة`);
+  }
+  const add=$('#pmAdd');
+  if(add){add.disabled=dead;add.textContent=dead?'نفد حاليًا':'أضف للسلة · '+money(p.price)}
 }
 function addCurrentProduct(){
   if(!currentProduct)return;
@@ -1760,7 +1828,7 @@ async function placeOrder(){
     }
     if(!data||!data.ok){
       alertBox.innerHTML=`<div class="alert bad">⚠️ ${esc(orderError(data||{}))}</div>`;
-      if(data&&data.error==='out_of_stock')loadCatalog();
+      if(data&&(data.error==='out_of_stock'||data.error==='variant_stock'||data.error==='variant_invalid'))loadCatalog();
       return;
     }
     const snapshotItems=lines.map(x=>({id:x.p.id,name:x.p.name,qty:x.qty,price:x.p.price,variant:variantText(x.v,x.p),opts:cleanVariant(x.v)}));
@@ -1809,6 +1877,7 @@ function orderError(d){
     case 'item_hidden':return `«${d.item||'الصنف'}» مش متاح حاليًا.`;
     case 'variant':return `اختار «${d.group||'الخيار'}» لـ«${d.item||'الصنف'}» الأول.`;
     case 'variant_invalid':return `الخيار اللي اخترته لـ«${d.item||'الصنف'}» خلص — حدّث الصفحة واختار تاني.`;
+    case 'variant_stock':return `«${d.value||''}» من «${d.item||'الصنف'}» متاح ${d.available||0} بس — عدّل السلة وجرّب تاني.`;
     case 'too_many':return 'الحد الأقصى 99 قطعة من نفس الصنف في الأوردر الواحد.';
     case 'bad_items':return 'في بيانات صنف غير صحيحة — حدّث الصفحة وجرّب تاني.';
     case 'busy':return 'حصل زحمة — جرّب تبعت الأوردر تاني.';
@@ -1946,6 +2015,7 @@ function bindEvents(){
     const b=e.target.closest&&e.target.closest('[data-pmv]');
     if(!b)return;
     pmVariant[b.dataset.pmv]=b.dataset.pmval;
+    syncPmQty();
     renderPmOpts();
   });
   $$('#fulfillmentSeg button').forEach(b=>b.onclick=()=>setFulfillment(b.dataset.ful));

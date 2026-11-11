@@ -423,6 +423,10 @@ tbody tr:nth-child(10){animation-delay:.27s}
 .opt-add input{flex:1;min-width:0}
 .opt-add button{padding:6px 10px;font-size:12px;white-space:nowrap}
 .opt-selected{font-size:11.5px;font-weight:800;color:var(--muted);line-height:1.9}
+.opt-stock{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:6px}
+.opt-stock-title{font-size:10.5px;font-weight:800;color:var(--muted);line-height:1.7}
+.opt-stock-row{display:grid;grid-template-columns:1fr 110px;gap:8px;align-items:center;font-size:12px;font-weight:800}
+.opt-stock-row input{padding:7px 9px;font-size:12px;text-align:center}
 .opt-tag{display:inline-block;background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent2);border-radius:999px;padding:2px 9px;margin:2px 3px;font-size:11px}
 .opt-hint{font-size:11px;font-weight:700;color:var(--muted);opacity:.85}
 .opt-tools{display:flex;gap:7px;flex-wrap:wrap}
@@ -499,7 +503,7 @@ tbody tr:nth-child(10){animation-delay:.27s}
 <section class="view" id="view-settings">
   <div class="page-title"><div><h2>الإعدادات والنسخ الاحتياطي</h2><p>حافظ على بيانات المحل وانقلها بين الأجهزة.</p></div></div>
   <div class="panel"><h3>بيانات المحل</h3><form id="settingsForm"><div class="form-grid"><div class="field"><label>اسم المحل</label><input id="shopName" placeholder="اسم المحل"></div><div class="field"><label>العملة</label><input value="جنيه مصري (ج.م)" disabled></div></div><div class="form-actions"><button type="submit">حفظ الإعدادات</button></div></form><div class="data-meter"><span>حجم البيانات: <b id="dataSize">0</b></span><span>صور الأصناف: <b id="imgCount">0</b></span><span id="dataHint">الصور بتتصغّر تلقائيًا للمزامنة السريعة</span></div></div>
-  <div class="panel store-panel" style="margin-top:15px"><div class="panel-head"><h3>🛒 المتجر الإلكتروني</h3><span class="badge" id="storeStatusBadge">موقوف</span></div><p class="muted" style="margin:-6px 0 12px;line-height:1.9">خلّي عملاءك يطلبوا بنفسهم من لينك المتجر. الأوردر بيوصلك في تاب «الطلبات الأونلاين» مع تنبيه صوتي، وتقدر تحوّله فاتورة بضغطة.</p><div class="store-help" style="margin-bottom:10px;line-height:1.9">🧩 <b>أصناف المتجر هي نفس أصناف البرنامج تلقائيًا:</b> مفيش نسخ ولا إدخال تاني. أي صنف تضيفه من «المخزون والأصناف» بيظهر في المتجر، وأي تغيير في السعر أو الصورة أو الكمية بيتحدّث فورًا. السعر المستخدم هو <b>سعر البيع</b> إلا لو كتبت «سعر المتجر». لو مش عايز صنف يظهر، شيل علامة «ظاهر في المتجر» من بيانات الصنف.</div><div class="store-help" id="storeVisibleCount" style="margin-bottom:12px">🛍️ —</div><div class="form-grid"><div class="field"><label>اسم المتجر</label><input id="storeName" maxlength="60" placeholder="Vape Zone Store"></div><div class="field"><label>لينك المتجر (Slug)</label><input id="storeSlug" maxlength="50" dir="ltr" style="text-align:left" placeholder="vape-zone-store"></div><div class="field"><label>رقم الموبايل</label><input id="storePhone" inputmode="tel" maxlength="15" placeholder="01xxxxxxxxx"></div><div class="field"><label>واتساب</label><input id="storeWhatsapp" inputmode="tel" maxlength="15" placeholder="لو مختلف عن الموبايل"></div><div class="field wide"><label>عنوان الفرع</label><input id="storeAddress" maxlength="120" placeholder="المحافظة - المنطقة - الشارع"></div><div class="field"><label>مواعيد العمل</label><input id="storeHours" maxlength="80" placeholder="يوميًا من 2 م لـ 2 ص"></div><div class="field"><label>رسوم التوصيل (ج.م)</label><input id="storeDeliveryFee" type="number" min="0" step=".01" value="0"></div><div class="field"><label>توصيل مجاني فوق (ج.م)</label><input id="storeFreeOver" type="number" min="0" step=".01" value="0"></div><div class="field"><label>أقل قيمة أوردر (ج.م)</label><input id="storeMinOrder" type="number" min="0" step=".01" value="0"></div><div class="field wide"><label>مناطق التوصيل وأسعارها</label><div id="storeZones" style="display:grid;gap:7px"></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px"><button type="button" class="secondary small" id="addZoneBtn">＋ إضافة منطقة</button><span class="muted" style="font-size:11px">لو أضفت مناطق، العميل لازم يختار منطقته والسعر بيتحدد تلقائي.</span></div></div><div class="field wide"><label>ملاحظة/تعليمات التوصيل</label><input id="storeDeliveryNote" maxlength="160" placeholder="التوصيل خلال 24-48 ساعة داخل المدينة"></div><div class="field wide"><label>تعليمات الاستلام من الفرع</label><input id="storePickupNote" maxlength="160" placeholder="الاستلام من الفرع خلال ساعة من التأكيد"></div><div class="field wide"><label>إعلان أعلى المتجر (اختياري)</label><input id="storeAnnouncement" maxlength="120" placeholder="توصيل مجاني للأوردرات فوق 500 ج.م"></div><div class="field wide"><label>تعليمات الدفع (تظهر للعميل مع إنستاباي/المحفظة)</label><input id="storePaymentInfo" maxlength="140" placeholder="مثال: حوّل على إنستاباي 010xxxxxxxx ثم ارفع صورة التحويل"></div></div><div class="store-help" style="margin-top:10px">🔔 <b>تنبيه تيليجرام فوري:</b> اعمل بوت من <b>@BotFather</b>، وخد الـ Token، وابعت للبوت رسالة، وبعدين هات الـ Chat ID من <b>@userinfobot</b>. التنبيه بيتبعت مرة واحدة لكل أوردر جديد.</div><div class="form-grid"><div class="field"><label>Telegram Bot Token</label><input id="storeTgToken" dir="ltr" style="text-align:left" maxlength="120" placeholder="123456:ABC-DEF..."></div><div class="field"><label>Chat ID</label><input id="storeTgChat" dir="ltr" style="text-align:left" maxlength="40" placeholder="123456789"></div></div><div class="form-actions" style="margin-top:6px;align-items:center"><button type="button" class="secondary" id="testTgBtn">📨 إرسال رسالة تجربة</button><span class="muted" style="font-size:11px;line-height:1.8">لو مش عارف تجيب البيانات دي، ابعتلي وأنا أعملك الخطوات بالصور.</span></div><div class="field" style="margin-top:4px"><label>طرق الدفع</label><div style="display:flex;gap:14px;flex-wrap:wrap"><label class="compact-toggle"><input type="checkbox" data-store-pay="cod" checked> الدفع عند الاستلام</label><label class="compact-toggle"><input type="checkbox" data-store-pay="instapay"> إنستاباي</label><label class="compact-toggle"><input type="checkbox" data-store-pay="wallet"> محفظة إلكترونية</label></div></div><div class="form-actions" style="align-items:center;gap:8px"><label class="store-switch"><input type="checkbox" id="storeActive" checked> المتجر مفتوح</label><button type="button" id="saveStoreBtn">💾 حفظ ونشر المتجر</button><button type="button" class="secondary" id="copyStoreBtn">📋 نسخ لينك المتجر</button></div><div class="store-link-box"><code id="storeLink">—</code><button type="button" id="openStoreBtn">فتح ↗</button><button type="button" id="qrStoreBtn">QR</button><img class="store-qr" id="storeQr" alt="QR المتجر" hidden></div><div class="store-help">اللينك لازم يكون حروف إنجليزي صغيرة وأرقام وشرطات (-) — مثال: <b dir="ltr">vape-zone-store</b>. بعد الحفظ، شارك اللينك مع عملائك. المتجر بيشتغل 24 ساعة حتى لو البرنامج مقفول.</div></div>
+  <div class="panel store-panel" style="margin-top:15px"><div class="panel-head"><h3>🛒 المتجر الإلكتروني</h3><span class="badge" id="storeStatusBadge">موقوف</span></div><p class="muted" style="margin:-6px 0 12px;line-height:1.9">خلّي عملاءك يطلبوا بنفسهم من لينك المتجر. الأوردر بيوصلك في تاب «الطلبات الأونلاين» مع تنبيه صوتي، وتقدر تحوّله فاتورة بضغطة.</p><div class="store-help" style="margin-bottom:10px;line-height:1.9">🧩 <b>أصناف المتجر هي نفس أصناف البرنامج تلقائيًا:</b> مفيش نسخ ولا إدخال تاني. أي صنف تضيفه من «المخزون والأصناف» بيظهر في المتجر، وأي تغيير في السعر أو الصورة أو الكمية بيتحدّث فورًا. السعر المستخدم هو <b>سعر البيع</b> إلا لو كتبت «سعر المتجر». لو مش عايز صنف يظهر، شيل علامة «ظاهر في المتجر» من بيانات الصنف.</div><div class="store-help" id="storeVisibleCount" style="margin-bottom:12px">🛍️ —</div><div class="form-grid"><div class="field"><label>اسم المتجر</label><input id="storeName" maxlength="60" placeholder="Vape Zone Store"></div><div class="field"><label>لينك المتجر (Slug)</label><input id="storeSlug" maxlength="50" dir="ltr" style="text-align:left" placeholder="vape-zone-store"></div><div class="field"><label>رقم الموبايل</label><input id="storePhone" inputmode="tel" maxlength="15" placeholder="01xxxxxxxxx"></div><div class="field"><label>واتساب</label><input id="storeWhatsapp" inputmode="tel" maxlength="15" placeholder="لو مختلف عن الموبايل"></div><div class="field wide"><label>عنوان الفرع</label><input id="storeAddress" maxlength="120" placeholder="المحافظة - المنطقة - الشارع"></div><div class="field"><label>مواعيد العمل</label><input id="storeHours" maxlength="80" placeholder="يوميًا من 2 م لـ 2 ص"></div><div class="field"><label>رسوم التوصيل (ج.م)</label><input id="storeDeliveryFee" type="number" min="0" step=".01" value="0"></div><div class="field"><label>توصيل مجاني فوق (ج.م)</label><input id="storeFreeOver" type="number" min="0" step=".01" value="0"></div><div class="field"><label>أقل قيمة أوردر (ج.م)</label><input id="storeMinOrder" type="number" min="0" step=".01" value="0"></div><div class="field"><label>إلغاء تلقائي للأوردرات غير المؤكدة بعد (ساعة)</label><input id="storeAutoCancel" type="number" min="0" max="720" step="1" value="24" placeholder="24"><small class="muted" style="font-weight:700;font-size:10.5px;line-height:1.6">0 = متقفل. الافتراضي 24 ساعة.</small></div><div class="field wide"><label>مناطق التوصيل وأسعارها</label><div id="storeZones" style="display:grid;gap:7px"></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px"><button type="button" class="secondary small" id="addZoneBtn">＋ إضافة منطقة</button><span class="muted" style="font-size:11px">لو أضفت مناطق، العميل لازم يختار منطقته والسعر بيتحدد تلقائي.</span></div></div><div class="field wide"><label>ملاحظة/تعليمات التوصيل</label><input id="storeDeliveryNote" maxlength="160" placeholder="التوصيل خلال 24-48 ساعة داخل المدينة"></div><div class="field wide"><label>تعليمات الاستلام من الفرع</label><input id="storePickupNote" maxlength="160" placeholder="الاستلام من الفرع خلال ساعة من التأكيد"></div><div class="field wide"><label>إعلان أعلى المتجر (اختياري)</label><input id="storeAnnouncement" maxlength="120" placeholder="توصيل مجاني للأوردرات فوق 500 ج.م"></div><div class="field wide"><label>تعليمات الدفع (تظهر للعميل مع إنستاباي/المحفظة)</label><input id="storePaymentInfo" maxlength="140" placeholder="مثال: حوّل على إنستاباي 010xxxxxxxx ثم ارفع صورة التحويل"></div></div><div class="store-help" style="margin-top:10px">🔔 <b>تنبيه تيليجرام فوري:</b> اعمل بوت من <b>@BotFather</b>، وخد الـ Token، وابعت للبوت رسالة، وبعدين هات الـ Chat ID من <b>@userinfobot</b>. التنبيه بيتبعت مرة واحدة لكل أوردر جديد.</div><div class="form-grid"><div class="field"><label>Telegram Bot Token</label><input id="storeTgToken" dir="ltr" style="text-align:left" maxlength="120" placeholder="123456:ABC-DEF..."></div><div class="field"><label>Chat ID</label><input id="storeTgChat" dir="ltr" style="text-align:left" maxlength="40" placeholder="123456789"></div></div><div class="form-actions" style="margin-top:6px;align-items:center"><button type="button" class="secondary" id="testTgBtn">📨 إرسال رسالة تجربة</button><span class="muted" style="font-size:11px;line-height:1.8">لو مش عارف تجيب البيانات دي، ابعتلي وأنا أعملك الخطوات بالصور.</span></div><div class="field" style="margin-top:4px"><label>طرق الدفع</label><div style="display:flex;gap:14px;flex-wrap:wrap"><label class="compact-toggle"><input type="checkbox" data-store-pay="cod" checked> الدفع عند الاستلام</label><label class="compact-toggle"><input type="checkbox" data-store-pay="instapay"> إنستاباي</label><label class="compact-toggle"><input type="checkbox" data-store-pay="wallet"> محفظة إلكترونية</label></div></div><div class="form-actions" style="align-items:center;gap:8px"><label class="store-switch"><input type="checkbox" id="storeActive" checked> المتجر مفتوح</label><button type="button" id="saveStoreBtn">💾 حفظ ونشر المتجر</button><button type="button" class="secondary" id="copyStoreBtn">📋 نسخ لينك المتجر</button></div><div class="store-link-box"><code id="storeLink">—</code><button type="button" id="openStoreBtn">فتح ↗</button><button type="button" id="qrStoreBtn">QR</button><img class="store-qr" id="storeQr" alt="QR المتجر" hidden></div><div class="store-help">اللينك لازم يكون حروف إنجليزي صغيرة وأرقام وشرطات (-) — مثال: <b dir="ltr">vape-zone-store</b>. بعد الحفظ، شارك اللينك مع عملائك. المتجر بيشتغل 24 ساعة حتى لو البرنامج مقفول.</div></div>
   <div class="panel" style="margin-top:15px"><h3>أدوات الكاشير</h3><p class="muted" style="margin:-6px 0 12px;line-height:1.8">مرتجع / استبدال، العملاء والحساب الآجل، والجرد الفعلي وتسوية الفروقات.</p><div class="form-actions"><button class="secondary" type="button" onclick="openReturnModal()">↩️ مرتجع / استبدال</button><button class="secondary" type="button" onclick="openCustomersModal()">👥 العملاء والحساب الآجل</button><button class="secondary" type="button" onclick="openCountModal()">📋 جرد فعلي وتسوية الفروقات</button><button class="secondary" type="button" onclick="openIntegrity()">🩺 فحص سلامة البيانات</button></div></div>
   <div class="panel" style="margin-top:15px"><h3>مظهر البرنامج</h3><p class="muted" style="margin:-6px 0 12px;line-height:1.8">اختار الوضع اللي يريحك. الاختيار بيتحفظ على الجهاز ده، وتقدر تغيّره في أي وقت.</p><div style="margin-bottom:10px"><label class="compact-toggle"><input type="checkbox" id="compactToggle"> وضع مضغوط (أصناف أصغر على الشاشة)</label></div><div style="margin-bottom:10px"><label class="compact-toggle"><input type="checkbox" id="bgToggle"> خلفية الصورة (blur + حركة خفيفة)</label></div><div class="theme-grid">
     <button type="button" class="theme-option" data-theme-option="light"><span class="tp"><span class="tp-main" style="background:#f3f5f9"></span><span class="tp-side" style="background:#ffffff"></span><span class="tp-dot" style="background:#0e7a5a"></span></span><b>☀️ فاتح</b><small>أبيض مريح للنهار</small></button>
@@ -623,15 +627,34 @@ function cleanOpts(list){
       if(t&&!vals.includes(t))vals.push(t);
     });
     if(!vals.length)return;
+    const stock={};
+    if(g.stock&&typeof g.stock==='object'){
+      Object.keys(g.stock).forEach(k=>{
+        const t=String(k==null?'':k).trim().slice(0,30);
+        const n=Math.floor(Number(g.stock[k]));
+        if(t&&vals.includes(t)&&Number.isFinite(n)&&n>=0)stock[t]=n;
+      });
+    }
+    const hasStock=Object.keys(stock).length>0;
     const ex=out.find(o=>o.name===name);
-    if(ex){vals.forEach(v=>{if(!ex.values.includes(v))ex.values.push(v)});ex.values=ex.values.slice(0,40)}
-    else out.push({name,values:vals.slice(0,40)});
+    if(ex){
+      vals.forEach(v=>{if(!ex.values.includes(v))ex.values.push(v)});
+      ex.values=ex.values.slice(0,40);
+      if(hasStock){
+        ex.stock=ex.stock||{};
+        Object.keys(stock).forEach(k=>{if(ex.values.includes(k))ex.stock[k]=stock[k]});
+      }
+    }
+    else out.push({name,values:vals.slice(0,40),...(hasStock?{stock}:{})});
   });
   return out.slice(0,4);
 }
 function optsSummary(p){
   const list=cleanOpts(p&&p.opts);
-  return list.length?list.map(g=>`<span>${optIcon(g.name)} ${esc(g.name)} ${g.values.length}</span>`).join(''):'';
+  return list.length?list.map(g=>{
+    const out=g.stock?Object.keys(g.stock).filter(k=>g.stock[k]<=0).length:0;
+    return `<span>${optIcon(g.name)} ${esc(g.name)} ${g.values.length}${out?` · ${out} خلص`:''}</span>`;
+  }).join(''):'';
 }
 function renderOptEditor(){
   const box=$('optEditor');
@@ -644,6 +667,10 @@ function renderOptEditor(){
     const preset=OPT_PRESETS[g.name]||[];
     const all=[...new Set([...preset,...g.values])];
     const chips=all.map(v=>`<button type="button" class="opt-chip ${g.values.includes(v)?'on':''}" data-opt-toggle="${gi}" data-val="${esc(v)}" aria-pressed="${g.values.includes(v)?'true':'false'}">${g.values.includes(v)?'✓ ':''}${esc(v)}</button>`).join('');
+    const stockRows=g.values.map(v=>{
+      const cur=g.stock&&g.stock[v]!=null?g.stock[v]:'';
+      return `<label class="opt-stock-row"><span>${esc(v)}</span><input type="number" min="0" step="1" inputmode="numeric" placeholder="غير محدود" value="${cur}" data-opt-stock="${gi}" data-stock-val="${esc(v)}" aria-label="المتوفر من ${esc(v)}"></label>`;
+    }).join('');
     return `<div class="opt-group" data-opt-group="${gi}">
       <div class="opt-group-head">
         <input class="opt-name" maxlength="24" value="${esc(g.name)}" placeholder="اسم الخيار (الطعم / اللون / المقاس)" data-opt-name="${gi}">
@@ -655,6 +682,7 @@ function renderOptEditor(){
         <button type="button" class="secondary" data-opt-add="${gi}">＋ إضافة</button>
       </div>
       <div class="opt-selected">هيظهر في المتجر: ${g.values.length?g.values.map(v=>`<span class="opt-tag">${esc(v)}</span>`).join(''):'<span class="opt-hint">لسه مفيش — علّم على قيمة فوق</span>'}</div>
+      ${g.values.length?`<div class="opt-stock"><div class="opt-stock-title">المتوفر من كل قيمة (اختياري) — سيبها فاضية يعني غير محدود</div>${stockRows}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -872,6 +900,15 @@ if($('optEditor')){
     if(t.dataset&&t.dataset.optName!=null){
       const gi=Number(t.dataset.optName);
       if(productOpts[gi])productOpts[gi].name=t.value.slice(0,24);
+    }
+    if(t.dataset&&t.dataset.optStock!=null){
+      const gi=Number(t.dataset.optStock),val=t.dataset.stockVal;
+      const g=productOpts[gi];
+      if(!g)return;
+      g.stock=g.stock||{};
+      const raw=String(t.value||'').trim();
+      if(raw==='')delete g.stock[val];
+      else g.stock[val]=Math.max(0,Math.floor(Number(raw)||0));
     }
   });
   $('optEditor').addEventListener('change',e=>{
@@ -1155,7 +1192,7 @@ window.addCart=function(id){const p=product(id);if(!p)return;const row=cart.find
 window.scanBarcode=function(){const input=document.createElement('input');input.type='file';input.accept='image/*';input.capture='environment';input.onchange=async(e)=>{const file=e.target.files[0];if(!file)return;toast('جاري محاولة المسح...');try{if(typeof BarcodeDetector==='undefined'){toast('متصفحك مايدعمش مسح الباركود بالكاميرا هنا');return}const bd=new BarcodeDetector({formats:['ean_13','ean_8','upc_a','upc_e','code_128','code_39','qr_code']});const img=await createImageBitmap(file);const codes=await bd.detect(img);if(!codes.length){toast('مفيش باركود واضح - جرب تاني بقرب أكتر');return}const code=String(codes[0].rawValue||'').trim();if(!code){toast('مفيش باركود واضح');return}const p=data.products.find(x=>String(x.code||'').trim()===code);if(!p){toast('مفيش صنف بالكود ده: '+code);return}if(p.qty<=0){toast('الصنف ده نفذ من المخزون');return}addCart(p.id);toast('تم إضافة '+p.name)}catch(err){toast('فشل مسح الباركود')}};input.click()}
 window.openReturnModal=function(){const list=data.sales.filter(s=>!s.voided).slice(-20).reverse().map(s=>`<option value="${s.id}">#${s.id} - ${s.date} - ${money(s.total)}</option>`).join('');if(!list){toast('مفيش فواتير سارية تعمل عليها مرتجع');return}const html=`<div class="modal" id="returnModal"><div class="modal-card"><div class="modal-head"><h3>مرتجع / استبدال</h3><button class="icon-btn" onclick="closeReturnModal()">✕</button></div><div class="field"><label>اختار الفاتورة</label><select id="retSale">${list}</select></div><div class="field"><label>نوع العملية</label><select id="retType"><option value="return">مرتجع</option><option value="exchange">استبدال</option></select></div><div class="field"><label>سبب</label><input id="retReason" placeholder="اختياري"></div><div class="modal-actions"><button class="secondary" onclick="closeReturnModal()">إلغاء</button><button onclick="doReturn()">تطبيق</button></div></div></div>`;document.body.insertAdjacentHTML('beforeend',html)}
 window.closeReturnModal=function(){$('returnModal')?.remove()}
-window.doReturn=function(){const sid=$('retSale').value;const type=$('retType').value;const reason=$('retReason').value.trim();const sale=data.sales.find(s=>String(s.id)===String(sid));if(!sale){toast('فاتورة غير موجودة');return}if(sale.voided){toast('الفاتورة دي ملغية — مش هينفع تعمل عليها مرتجع');return}for(const it of (sale.items||[])){const p=product(it.id);if(!p)continue;p.qty += Number(it.qty)||0;markDirty(p.id);data.moves.push({id:uid(),date:dateTime(),day:today(),type:type==='exchange'?'استبدال':'مرتجع',name:it.name,qty:Number(it.qty)||0,note:reason||('مرتجع لفاتورة #'+sale.id)})}returns.push({id:uid(),date:dateTime(),saleId:sale.id,type,reason,items:sale.items});logAudit(type==='exchange'?'استبدال':'مرتجع',`${type==='exchange'?'استبدال':'مرتجع'} لفاتورة #${sale.id} — ${(sale.items||[]).map(x=>x.name+' ×'+x.qty).join('، ')}${reason?' — السبب: '+reason:''}`,{saleId:String(sale.id)});saveReturns();save();closeReturnModal();renderAll();toast(type==='exchange'?'تم الاستبدال وإرجاع الأصناف':'تم المرتجع وإرجاع الأصناف للمخزون')}
+window.doReturn=function(){const sid=$('retSale').value;const type=$('retType').value;const reason=$('retReason').value.trim();const sale=data.sales.find(s=>String(s.id)===String(sid));if(!sale){toast('فاتورة غير موجودة');return}if(sale.voided){toast('الفاتورة دي ملغية — مش هينفع تعمل عليها مرتجع');return}for(const it of (sale.items||[])){const p=product(it.id);if(!p)continue;p.qty += Number(it.qty)||0;variantStockMove(p,it.opts,it.qty,1);markDirty(p.id);data.moves.push({id:uid(),date:dateTime(),day:today(),type:type==='exchange'?'استبدال':'مرتجع',name:it.name,qty:Number(it.qty)||0,note:reason||('مرتجع لفاتورة #'+sale.id)})}returns.push({id:uid(),date:dateTime(),saleId:sale.id,type,reason,items:sale.items});logAudit(type==='exchange'?'استبدال':'مرتجع',`${type==='exchange'?'استبدال':'مرتجع'} لفاتورة #${sale.id} — ${(sale.items||[]).map(x=>x.name+' ×'+x.qty).join('، ')}${reason?' — السبب: '+reason:''}`,{saleId:String(sale.id)});saveReturns();save();closeReturnModal();renderAll();toast(type==='exchange'?'تم الاستبدال وإرجاع الأصناف':'تم المرتجع وإرجاع الأصناف للمخزون')}
 window.openCustomersModal=function(){const debt=customers.reduce((s,c)=>s+(Number(c.balance)||0),0);const list=customers.length?customers.map(c=>`<div class="quick-row"><div><strong>${esc(c.name)}</strong><small>${esc(c.phone||'')}</small></div><div style="text-align:left;display:flex;align-items:center;gap:8px"><div><div>${money(c.balance||0)}</div><small>الرصيد</small></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="secondary small" onclick="openCustomerStatement('${c.id}')">كشف</button>${Number(c.balance||0)>0?`<button class="secondary small" onclick="settleCustomer('${c.id}')">تسديد</button>`:''}</div></div></div>`).join(''):'<div class="empty">مفيش عملاء</div>';const html=`<div class="modal" id="custModal"><div class="modal-card"><div class="modal-head"><h3>العملاء والحساب الآجل</h3><button class="icon-btn" onclick="closeCustomersModal()">✕</button></div><div class="field"><label>اسم العميل</label><input id="custName"></div><div class="field"><label>رقم التليفون</label><input id="custPhone"></div><div class="modal-actions"><button onclick="addCustomer()">إضافة عميل</button></div><div class="total-line final" style="margin-top:14px"><span>إجمالي المديونيات</span><b>${money(debt)}</b></div><div style="margin-top:8px" id="custList">${list}</div></div></div>`;document.body.insertAdjacentHTML('beforeend',html)}
 window.closeCustomersModal=function(){$('custModal')?.remove()}
 window.addCustomer=function(){const name=$('custName').value.trim();const phone=$('custPhone').value.trim();if(!name){toast('اكتب اسم العميل');return}customers.push({id:uid(),name,phone,balance:0,upd:Date.now(),created:dateTime()});logAudit('إضافة عميل',`إضافة عميل «${name}»${phone?' — '+phone:''}`);saveCustomers();save();closeCustomersModal();openCustomersModal();toast('تم إضافة العميل')}
@@ -1661,7 +1698,7 @@ window.voidSale=function(id){
   const already=returnedMap.get(String(it.id))||0;
   const back=Math.max(0,(Number(it.qty)||0)-already);
   if(!back)continue;
-  p.qty=(Number(p.qty)||0)+back;restoredQty+=back;markDirty(p.id);
+  p.qty=(Number(p.qty)||0)+back;restoredQty+=back;variantStockMove(p,it.opts,back,1);markDirty(p.id);
   data.moves.push({id:uid(),date:dateTime(),day:today(),type:'إلغاء فاتورة',name:p.name,qty:back,note:`إلغاء فاتورة #${sale.id} — ${reason}`});
  }
  if(sale.method==='credit'&&sale.customer){
@@ -1861,6 +1898,7 @@ function storeCfg(){
     freeOver:Number(s.freeOver)||0,
     zones:Array.isArray(s.zones)?s.zones.filter(z=>z&&String(z.name||'').trim()).map(z=>({name:String(z.name).trim(),fee:Math.max(0,Number(z.fee)||0)})):[],
     minOrder:Number(s.minOrder)||0,
+    autoCancelHours:s.autoCancelHours==null?24:Math.max(0,Math.min(720,Number(s.autoCancelHours)||0)),
     deliveryNote:s.deliveryNote||'',
     pickupNote:s.pickupNote||'',
     paymentInfo:s.paymentInfo||'',
@@ -1904,6 +1942,7 @@ function renderStoreSettings(){
   $('storeDeliveryFee').value=s.deliveryFee;
   $('storeFreeOver').value=s.freeOver;
   $('storeMinOrder').value=s.minOrder;
+  if($('storeAutoCancel'))$('storeAutoCancel').value=s.autoCancelHours;
   $('storeDeliveryNote').value=s.deliveryNote;
   $('storePickupNote').value=s.pickupNote;
   $('storeAnnouncement').value=s.announcement;
@@ -1947,6 +1986,7 @@ async function saveStoreSettings(){
     freeOver:Math.max(0,Number($('storeFreeOver').value)||0),
     zones:readStoreZones(),
     minOrder:Math.max(0,Number($('storeMinOrder').value)||0),
+    autoCancelHours:Math.max(0,Math.min(720,Math.floor(Number($('storeAutoCancel').value)||0))),
     deliveryNote:$('storeDeliveryNote').value.trim(),
     pickupNote:$('storePickupNote').value.trim(),
     paymentInfo:$('storePaymentInfo').value.trim(),
@@ -2007,13 +2047,27 @@ function orderTime(o){try{return new Date(o.created_at).toLocaleString('ar-EG',{
 function orderDay(o){try{return new Date(o.created_at).toLocaleDateString('en-CA')}catch(e){return ''}}
 function orderSale(o){if(!o||!o.sale_id)return null;return data.sales.find(s=>String(s.id)===String(o.sale_id))||null}
 function waPhone(phone){let d=String(phone||'').replace(/[^0-9]/g,'');if(!d)return '';if(d.startsWith('00'))d=d.slice(2);if(d.startsWith('20'))return d;if(d.startsWith('0'))return '2'+d;return d.length===10?'20'+d:d}
+function digits(v){return String(v==null?'':v).replace(/[^0-9]/g,'')}
 function updateOrderBadge(){
   const n=orders.filter(o=>o.status==='new').length;
   document.querySelectorAll('[data-order-badge]').forEach(b=>{b.hidden=n<=0;b.textContent=n>99?'99+':String(n)});
   try{document.title=n>0?`(${n}) Vape Zone — جرد ومبيعات (أونلاين)`:'Vape Zone — جرد ومبيعات (أونلاين)';}catch(e){}
 }
+let expireOrdersAt=0;
+function maybeExpireOrders(){
+  const s=storeCfg();
+  const hours=Number(s.autoCancelHours);
+  if(!(hours>0))return;
+  if(Date.now()-expireOrdersAt<30*60000)return;
+  expireOrdersAt=Date.now();
+  const slug=s.slug||DEFAULT_STORE_SLUG;
+  sb.rpc('store_expire_orders',{p_slug:slug}).then(({error})=>{
+    if(!error&&$('view-orders')&&$('view-orders').classList.contains('active'))loadOrders(true);
+  }).catch(()=>{});
+}
 async function loadOrders(silent){
   if(!sb||!cloudReady||!SHOP_ID)return;
+  maybeExpireOrders();
   try{
     const{data:rows,error}=await sb.from('orders').select('*').eq('shop_id',SHOP_ID).order('created_at',{ascending:false}).limit(300);
     if(error)throw error;
@@ -2081,7 +2135,7 @@ function orderCard(o){
     canAct?`<button type="button" onclick="printOrderSlip('${esc(o.id)}')">🖨️ بوليصة</button>`:'',
     canAct?`<button type="button" class="deny" onclick="rejectOrder('${esc(o.id)}')">✕ رفض</button>`:'',
     phone?`<a href="tel:${esc(phone)}">📞 اتصال</a>`:'',
-    wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent(orderWaText(o))}" target="_blank" rel="noopener">💬 واتساب</a>`:'',
+    wa?`<a href="https://wa.me/${wa}?text=${encodeURIComponent(orderWaText(o))}" target="_blank" rel="noopener">💬 تحديث واتساب</a>`:'',
     o.sale_id?`<button type="button" onclick="showOrderInvoice('${esc(o.sale_id)}')">📄 عرض الفاتورة</button>`:'',
     o.status==='done'?`<button type="button" onclick="printOrderSlip('${esc(o.id)}')">🖨️ طباعة</button>`:''
   ].filter(Boolean).join('');
@@ -2100,13 +2154,21 @@ function orderCard(o){
 function orderWaText(o){
   const c=o.customer||{};
   const st=ORDER_STATUS[o.status]||{t:''};
+  const items=Array.isArray(o.items)?o.items:[];
+  const slug=storeCfg().slug;
   const lines=[`أهلاً ${c.name||''} 👋`,`بخصوص أوردرك ${o.code} من ${storeCfg().name||'Vape Zone Store'}`,`الحالة: ${st.t||o.status}`];
   if(o.total!=null)lines.push(`الإجمالي: ${money(o.total)}`);
+  if(items.length)lines.push('الطلب: '+items.map(it=>`${it.name}${it.variant?' ('+it.variant+')':''} ×${Number(it.qty)||0}`).join('، '));
   if(o.fulfillment==='pickup')lines.push('الاستلام من الفرع 🏬');
   else if(c.zone||c.address)lines.push('التوصيل: '+[c.zone,c.address].filter(Boolean).join(' — '));
+  if(o.status==='new')lines.push('وصلنا أوردرك وهنأكده معاك في أقرب وقت ⏳');
+  if(o.status==='confirmed')lines.push('استلمنا أوردرك وبدأنا نجهّزه ✅');
   if(o.status==='ready')lines.push(o.fulfillment==='pickup'?'أوردرك جاهز للاستلام من الفرع 🎉':'أوردرك جاهز وهيتحرك مع الكابتن قريب 🎉');
   if(o.status==='out_for_delivery')lines.push('الكابتن في الطريق ليك 🛵');
   if(o.status==='done')lines.push('شكرًا ليك ❤️ لو حبيت تقيّم تجربتك من صفحة المتجر هنسعد بيك.');
+  if(o.status==='rejected')lines.push('الأوردر اتلغى'+(o.reject_reason?' — السبب: '+o.reject_reason:'')+' 🙏');
+  if(o.status==='cancelled')lines.push('الأوردر اتلغى'+(o.reject_reason?' — السبب: '+o.reject_reason:'')+' 🙏');
+  if(slug)lines.push(`تتابع الأوردر من صفحة المتجر (📦 تتبع أوردر) بكود ${o.code} ورقم موبايلك.`);
   return lines.join('\n');
 }
 window.showOrderInvoice=function(id){
@@ -2306,6 +2368,18 @@ async function markOrderReady(id){
 async function markOrderOut(id){
   if(await setOrderStatus(id,'out_for_delivery')){toast('تم تسجيل خروج الأوردر للتوصيل 🛵');}
 }
+function variantStockMove(p,opts,qty,sign){
+  if(!p||!Array.isArray(p.opts))return;
+  const o=(opts&&typeof opts==='object')?opts:{};
+  const n=Math.abs(Number(qty)||0);
+  if(!n)return;
+  p.opts.forEach(g=>{
+    if(!g||!g.stock||typeof g.stock!=='object')return;
+    const val=String(o[g.name]||'').trim();
+    if(!val||g.stock[val]==null)return;
+    g.stock[val]=Math.max(0,(Number(g.stock[val])||0)+sign*n);
+  });
+}
 async function convertOrder(id){
   const o=orders.find(x=>x.id===id);
   if(!o)return;
@@ -2332,22 +2406,34 @@ async function convertOrder(id){
     const qty=Number(it.qty)||0;
     const price=Number(it.price)||0;
     const cost=Number(p.cost)||0;
-    return{id:p.id,name:p.name+(it.variant?' — '+it.variant:''),qty,price,cost,subtotal:price*qty,profit:(price-cost)*qty};
+    const variant=String(it.variant||'');
+    const opts=(it.opts&&typeof it.opts==='object')?it.opts:{};
+    return{id:p.id,name:p.name+(variant?' — '+variant:''),variant,opts,qty,price,cost,subtotal:price*qty,profit:(price-cost)*qty};
   });
   for(const x of saleItems){
     const p=product(x.id);
     p.qty=Math.max(0,Number(p.qty)-x.qty);
+    variantStockMove(p,x.opts,x.qty,-1);
     data.moves.push({id:uid(),date:dateTime(),day:today(),type:'بيع أونلاين',name:x.name,qty:-x.qty,note:`أوردر ${o.code}`});
     markDirty(x.id);
   }
   const sub=Number(o.subtotal)||0;
   const total=Number(o.total)||0;
+  const custPhone=digits((o.customer&&o.customer.phone)||'');
+  const custName=String((o.customer&&o.customer.name)||'').trim()||'عميل المتجر';
+  let cust=custPhone?customers.find(x=>digits(x.phone)===custPhone):null;
+  if(!cust&&(custPhone||custName)){
+    cust={id:uid(),name:custName,phone:custPhone,balance:0,upd:Date.now(),created:dateTime(),source:'store'};
+    customers.push(cust);
+    saveCustomers();
+    logAudit('إضافة عميل',`إضافة عميل «${custName}»${custPhone?' — '+custPhone:''} تلقائيًا من أوردر ${o.code}`);
+  }
   const sale={
     id:saleId,date:dateTime(),day:today(),ts:Date.now(),
     items:saleItems,subtotal:sub,discount:0,total,paid:total,change:0,
     profit:saleItems.reduce((s,x)=>s+x.profit,0),
     method:'cash',channel:'store',orderCode:o.code,deliveryFee:Number(o.delivery_fee)||0,
-    customer:{id:'',name:(o.customer&&o.customer.name)||''}
+    customer:{id:cust?cust.id:'',name:cust?cust.name:custName}
   };
   data.sales.push(sale);
   logAudit('بيع أونلاين',`تحويل أوردر ${o.code} لفاتورة #${sale.id} بقيمة ${money(total)} — ${saleItems.map(x=>x.name+' ×'+x.qty).join('، ')}`,{saleId:String(sale.id)});

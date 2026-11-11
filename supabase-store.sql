@@ -156,6 +156,66 @@ revoke all on function public.store_lookup(text) from anon;
 revoke all on function public.store_lookup(text) from authenticated;
 
 -- ------------------------------------------------------------
+-- 5ب) إلغاء الأوردرات القديمة اللي لسه «جديد» (تحرير المخزون المحجوز)
+-- ------------------------------------------------------------
+create or replace function public.store_expire_orders_internal(p_shop_id text, p_hours int)
+returns int
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_hours int;
+  v_n     int := 0;
+begin
+  v_hours := greatest(0, least(720, coalesce(p_hours, 24)));
+  if v_hours = 0 then
+    return 0;
+  end if;
+
+  update public.orders
+     set status = 'cancelled',
+         reject_reason = coalesce(nullif(reject_reason, ''), 'إلغاء تلقائي — الأوردر اتأكدش خلال ' || v_hours || ' ساعة')
+   where shop_id = p_shop_id
+     and status = 'new'
+     and created_at < now() - make_interval(hours => v_hours);
+  get diagnostics v_n = row_count;
+  return v_n;
+end $$;
+
+revoke all on function public.store_expire_orders_internal(text, int) from public;
+revoke all on function public.store_expire_orders_internal(text, int) from anon;
+revoke all on function public.store_expire_orders_internal(text, int) from authenticated;
+
+-- نسخة عامة بالـ slug: بتنفّذ التنظيف حسب إعداد autoCancelHours بتاع المالك
+create or replace function public.store_expire_orders(p_slug text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  st      record;
+  v_hours int;
+  v_n     int;
+begin
+  select * into st from public.store_lookup(p_slug) limit 1;
+  if st.shop_id is null then
+    return jsonb_build_object('ok', false, 'error', 'store_not_found');
+  end if;
+
+  v_hours := case
+               when (st.data -> 'settings' -> 'store' ->> 'autoCancelHours') ~ '^[0-9]{1,3}$'
+                 then least(720, (st.data -> 'settings' -> 'store' ->> 'autoCancelHours')::int)
+               else 24
+             end;
+  v_n := public.store_expire_orders_internal(st.shop_id, v_hours);
+  return jsonb_build_object('ok', true, 'cancelled', v_n, 'hours', v_hours);
+end $$;
+
+grant execute on function public.store_expire_orders(text) to anon, authenticated;
+
+-- ------------------------------------------------------------
 -- 6) كتالوج المتجر للعميل (بدون أي بيانات تكلفة)
 -- ------------------------------------------------------------
 create or replace function public.store_catalog(p_slug text)
@@ -165,11 +225,13 @@ security definer
 set search_path = public
 as $$
 declare
-  st       record;
-  cfg      jsonb;
-  reserved jsonb := '{}'::jsonb;
-  ratings  jsonb := '{}'::jsonb;
-  prods    jsonb;
+  st           record;
+  cfg          jsonb;
+  v_hours      int;
+  reserved     jsonb := '{}'::jsonb;
+  reserved_var jsonb := '{}'::jsonb;
+  ratings      jsonb := '{}'::jsonb;
+  prods        jsonb;
 begin
   select * into st from public.store_lookup(p_slug) limit 1;
 
@@ -178,6 +240,13 @@ begin
   end if;
 
   cfg := coalesce(st.data -> 'settings' -> 'store', '{}'::jsonb);
+
+  -- إلغاء تلقائي للأوردرات القديمة اللي لسه «جديد» (تحرير المخزون المحجوز)
+  v_hours := case
+               when (cfg ->> 'autoCancelHours') ~ '^[0-9]{1,3}$' then least(720, (cfg ->> 'autoCancelHours')::int)
+               else 24
+             end;
+  perform public.store_expire_orders_internal(st.shop_id, v_hours);
 
   -- الكميات المحجوزة في الطلبات الجارية (جديد + مقبول + جاهز + خرج للتوصيل)
   select coalesce(jsonb_object_agg(x.pid, x.qty), '{}'::jsonb)
@@ -189,6 +258,25 @@ begin
     cross join lateral jsonb_array_elements(
       case when jsonb_typeof(o.items) = 'array' then o.items else '[]'::jsonb end
     ) it
+    where o.shop_id = st.shop_id
+      and o.status in ('new', 'confirmed', 'ready', 'out_for_delivery')
+      and it ->> 'id' is not null
+    group by 1
+  ) x;
+
+  -- الكميات المحجوزة لكل قيمة خيار (طعم/لون) في الطلبات الجارية
+  select coalesce(jsonb_object_agg(x.vk, x.qty), '{}'::jsonb)
+    into reserved_var
+  from (
+    select (it ->> 'id') || '|' || g.key || '|' || g.value as vk,
+           sum(greatest(0, coalesce((it ->> 'qty')::int, 0))) as qty
+    from public.orders o
+    cross join lateral jsonb_array_elements(
+      case when jsonb_typeof(o.items) = 'array' then o.items else '[]'::jsonb end
+    ) it
+    cross join lateral jsonb_each_text(
+      case when jsonb_typeof(it -> 'opts') = 'object' then it -> 'opts' else '{}'::jsonb end
+    ) g
     where o.shop_id = st.shop_id
       and o.status in ('new', 'confirmed', 'ready', 'out_for_delivery')
       and it ->> 'id' is not null
@@ -220,7 +308,27 @@ begin
                     else null
                   end,
       'desc',     coalesce(p ->> 'desc', ''),
-      'opts',     case when jsonb_typeof(p -> 'opts') = 'array' then p -> 'opts' else '[]'::jsonb end,
+      'opts',     (
+                    select coalesce(jsonb_agg(
+                      g || jsonb_build_object(
+                        'stock',
+                        coalesce((
+                          select jsonb_object_agg(v, greatest(0,
+                                   case when (g -> 'stock' ->> v) ~ '^[0-9]+$' then (g -> 'stock' ->> v)::int else 0 end
+                                   - coalesce((reserved_var ->> ((p ->> 'id') || '|' || (g ->> 'name') || '|' || v))::int, 0)
+                                 ))
+                          from jsonb_array_elements_text(
+                                 case when jsonb_typeof(g -> 'values') = 'array' then g -> 'values' else '[]'::jsonb end
+                               ) v
+                          where jsonb_typeof(g -> 'stock') = 'object'
+                            and (g -> 'stock') ? v
+                        ), '{}'::jsonb)
+                      )
+                    ), '[]'::jsonb)
+                    from jsonb_array_elements(
+                      case when jsonb_typeof(p -> 'opts') = 'array' then p -> 'opts' else '[]'::jsonb end
+                    ) g
+                  ),
       'img',      coalesce(p ->> 'img', ''),
       'qty',      greatest(0,
                     coalesce(nullif(p ->> 'qty', '')::int, 0)
@@ -319,6 +427,9 @@ declare
   v_gname     text;
   v_gvals     jsonb;
   v_optval    text;
+  v_hours     int;
+  v_cap       int;
+  v_var_res   int;
   v_attempt   int := 0;
 begin
   select * into st from public.store_lookup(p_slug) limit 1;
@@ -331,6 +442,13 @@ begin
 
   -- قفل لكل محل: يمنع بيع آخر قطعة مرتين لو عميلين طلبوا في نفس اللحظة
   perform pg_advisory_xact_lock(hashtext(st.shop_id));
+
+  -- إلغاء تلقائي للأوردرات القديمة اللي لسه «جديد» (تحرير المخزون المحجوز)
+  v_hours := case
+               when (cfg ->> 'autoCancelHours') ~ '^[0-9]{1,3}$' then least(720, (cfg ->> 'autoCancelHours')::int)
+               else 24
+             end;
+  perform public.store_expire_orders_internal(st.shop_id, v_hours);
 
   if coalesce(cfg ->> 'active', 'true') = 'false' then
     return jsonb_build_object('ok', false, 'error', 'store_closed');
@@ -484,6 +602,35 @@ begin
             'item', coalesce(v_prod ->> 'name', ''),
             'group', v_gname
           );
+        end if;
+
+        -- لو القيمة دي ليها كمية محددة، نتحقق من المتاح بعد حجز الطلبات الجارية
+        if jsonb_typeof(v_group -> 'stock') = 'object' and (v_group -> 'stock') ? v_optval then
+          select coalesce(sum(greatest(0, coalesce((it ->> 'qty')::int, 0))), 0)::int
+            into v_var_res
+          from public.orders o
+          cross join lateral jsonb_array_elements(
+            case when jsonb_typeof(o.items) = 'array' then o.items else '[]'::jsonb end
+          ) it
+          where o.shop_id = st.shop_id
+            and o.status in ('new', 'confirmed', 'ready', 'out_for_delivery')
+            and it ->> 'id' = v_item.id
+            and coalesce(it -> 'opts' ->> v_gname, '') = v_optval;
+
+          v_cap := greatest(0,
+                     case when (v_group -> 'stock' ->> v_optval) ~ '^[0-9]+$'
+                          then (v_group -> 'stock' ->> v_optval)::int else 0 end
+                     - v_var_res);
+
+          if v_qty > v_cap then
+            return jsonb_build_object(
+              'ok', false, 'error', 'variant_stock',
+              'item', coalesce(v_prod ->> 'name', ''),
+              'group', v_gname,
+              'value', v_optval,
+              'available', v_cap
+            );
+          end if;
         end if;
 
         v_variant := v_variant || case when v_variant = '' then '' else ' · ' end || v_optval;
