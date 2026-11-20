@@ -187,6 +187,12 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shado
 .se-up{color:var(--accent)}.se-down{color:var(--red)}
 .se-old{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.65;white-space:normal}
 .se-old b{color:var(--text);font-weight:650}
+.oe-opts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.oe-opts select{flex:1 1 90px;min-width:80px;padding:6px 7px;font-size:12px}
+.oe-totals{display:flex;gap:8px 18px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:12px;padding-top:10px;font-size:12.5px}
+.oe-totals .final{margin-inline-start:auto;font-size:15px}
+.pc-opts .opt-low{background:color-mix(in srgb,var(--yellow) 18%,transparent);color:var(--yellow)}
+.pc-opts .opt-out{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
 .se-new-tag{color:var(--accent);font-weight:700}
 .se-history{width:min(920px,100%)}
 .se-hist-card{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:12px;background:var(--panel2)}
@@ -649,12 +655,33 @@ function cleanOpts(list){
   });
   return out.slice(0,4);
 }
+function optsLow(p){
+  const min=Math.max(0,Math.floor(Number(p&&p.min)||0));
+  let low=0,out=0;
+  cleanOpts(p&&p.opts).forEach(g=>{
+    if(!g.stock)return;
+    Object.keys(g.stock).forEach(k=>{
+      const n=Number(g.stock[k])||0;
+      if(n<=0)out++;else if(min>0&&n<=min)low++;
+    });
+  });
+  return {low,out};
+}
 function optsSummary(p){
   const list=cleanOpts(p&&p.opts);
-  return list.length?list.map(g=>{
-    const out=g.stock?Object.keys(g.stock).filter(k=>g.stock[k]<=0).length:0;
-    return `<span>${optIcon(g.name)} ${esc(g.name)} ${g.values.length}${out?` · ${out} خلص`:''}</span>`;
-  }).join(''):'';
+  const min=Math.max(0,Math.floor(Number(p&&p.min)||0));
+  if(!list.length)return '';
+  return list.map(g=>{
+    let out=0,low=0;
+    if(g.stock)Object.keys(g.stock).forEach(k=>{
+      const n=Number(g.stock[k])||0;
+      if(n<=0)out++;else if(min>0&&n<=min)low++;
+    });
+    const tags=[];
+    if(out)tags.push(`<span class="opt-out">⛔ ${out} خلص</span>`);
+    if(low)tags.push(`<span class="opt-low">⚠️ ${low} قرب يخلص</span>`);
+    return `<span>${optIcon(g.name)} ${esc(g.name)} ${g.values.length}${tags.length?' · '+tags.join(' · '):''}</span>`;
+  }).join('');
 }
 function renderOptEditor(){
   const box=$('optEditor');
@@ -837,8 +864,8 @@ renderBackupReminder();
 }
 function normalizeArabic(s){return String(s||'').toLowerCase().replace(/[\u064B-\u065F\u0670]/g,'').replace(/[\u0622\u0623\u0625]/g,'\u0627').replace(/\u0649/g,'\u064A').replace(/\u0629/g,'\u0647')}
 window.openProductForm=function(id=''){const p=id?product(id):null;imageToken++;imageBusy=false;pendingImage=p?.img||'';$('productForm').reset();$('editProductId').value=p?.id||'';$('productFormTitle').textContent=p?'تعديل بيانات الصنف':'إضافة صنف جديد';$('pName').value=p?.name||'';$('pCode').value=p?.code||'';$('pCategory').value=p?.category||categories[0];$('pQty').value=p?.qty??0;$('pCost').value=p?.cost??0;$('pPrice').value=p?.price??0;$('pStorePrice').value=(p&&p.storePrice!=null)?p.storePrice:'';$('pDesc').value=p?.desc||'';$('pVisible').checked=!(p&&p.hidden);$('pMin').value=p?.min??3;productOpts=cleanOpts(p&&p.opts);renderOptEditor();renderImagePreview();updateImageButtons();$('productDialog').showModal()}
-function catalogCard(p){const s=stockInfo(p);return `<div class="product-card catalog-card" role="button" tabindex="0" onclick="openProductForm('${p.id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openProductForm('${p.id}')}"><span class="pc-media">${artLayer(p)}${artImg(p)}<span class="pc-stock ${s.cls}">${s.text}</span><span class="pc-actions"><button type="button" class="secondary pc-del" onclick="event.stopPropagation();deleteProduct('${p.id}')" title="حذف الصنف" aria-label="حذف الصنف">🗑</button></span></span><span class="pc-body"><b class="pc-name">${esc(p.name)}</b><span class="pc-cat">${esc(p.category)}${p.code?' · '+esc(p.code):''}</span>${cleanOpts(p.opts).length?`<span class="pc-opts">${optsSummary(p)}</span>`:''}<span class="pc-foot"><strong class="pc-price">${money(p.price)}</strong><span class="pc-hint">تعديل ✎</span></span></span></div>`}
-function renderProducts(){const q=normalizeArabic($('productSearch').value.trim()),cat=$('categoryFilter').value;const arr=data.products.filter(p=>(!q||[p.name,p.code,p.category].some(v=>normalizeArabic(v).includes(q)))&&(!cat||p.category===cat));$('productsViewToggle').textContent=productsView==='grid'?'▤ عرض كجدول':'▦ عرض كمعرض';if(productsView==='grid'){$('productsTable').innerHTML=arr.length?`<div class="product-grid">${arr.map(p=>catalogCard(p)).join('')}</div>`:'<div class="empty">مفيش أصناف مطابقة. اضغط «إضافة صنف» للبدء.</div>';return}$('productsTable').innerHTML=table(['الصنف','القسم','الكمية','الشراء','البيع','قيمة المخزون','الحالة','إجراءات'],arr.map(p=>{const s=stockInfo(p);return `<tr><td><div class="prod-cell">${thumbOf(p)}<div class="prod-meta"><b>${esc(p.name)}</b><small class="muted">${esc(p.code||'بدون كود')}${cleanOpts(p.opts).length?' · '+cleanOpts(p.opts).map(g=>esc(g.name)+' '+g.values.length).join(' / '):''}</small></div></div></td><td>${esc(p.category)}</td><td>${p.qty}</td><td>${money(p.cost)}</td><td>${money(p.price)}</td><td>${money(p.qty*p.cost)}</td><td><span class="badge ${s.cls}">${s.text}</span></td><td><div class="actions"><button class="secondary" onclick="openProductForm('${p.id}')">تعديل</button><button class="danger" onclick="deleteProduct('${p.id}')">حذف</button></div></td></tr>`}),'مفيش أصناف مطابقة. اضغط «إضافة صنف» للبدء.')}
+function catalogCard(p){const s=stockInfo(p);const ol=optsLow(p);const lowTag=ol.out?('⛔ '+ol.out+' خلص'):(ol.low?('⚠️ '+ol.low+' قرب يخلص'):'');return `<div class="product-card catalog-card" role="button" tabindex="0" onclick="openProductForm('${p.id}')" onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();openProductForm('${p.id}')}"><span class="pc-media">${artLayer(p)}${artImg(p)}<span class="pc-stock ${s.cls}">${s.text}${lowTag?' · '+lowTag:''}</span><span class="pc-actions"><button type="button" class="secondary pc-del" onclick="event.stopPropagation();deleteProduct('${p.id}')" title="حذف الصنف" aria-label="حذف الصنف">🗑</button></span></span><span class="pc-body"><b class="pc-name">${esc(p.name)}</b><span class="pc-cat">${esc(p.category)}${p.code?' · '+esc(p.code):''}</span>${cleanOpts(p.opts).length?`<span class="pc-opts">${optsSummary(p)}</span>`:''}<span class="pc-foot"><strong class="pc-price">${money(p.price)}</strong><span class="pc-hint">تعديل ✎</span></span></span></div>`}
+function renderProducts(){const q=normalizeArabic($('productSearch').value.trim()),cat=$('categoryFilter').value;const arr=data.products.filter(p=>(!q||[p.name,p.code,p.category].some(v=>normalizeArabic(v).includes(q)))&&(!cat||p.category===cat));$('productsViewToggle').textContent=productsView==='grid'?'▤ عرض كجدول':'▦ عرض كمعرض';if(productsView==='grid'){$('productsTable').innerHTML=arr.length?`<div class="product-grid">${arr.map(p=>catalogCard(p)).join('')}</div>`:'<div class="empty">مفيش أصناف مطابقة. اضغط «إضافة صنف» للبدء.</div>';return}$('productsTable').innerHTML=table(['الصنف','القسم','الكمية','الشراء','البيع','قيمة المخزون','الحالة','إجراءات'],arr.map(p=>{const s=stockInfo(p);return `<tr><td><div class="prod-cell">${thumbOf(p)}<div class="prod-meta"><b>${esc(p.name)}</b><small class="muted">${esc(p.code||'بدون كود')}${cleanOpts(p.opts).length?' · <span class="pc-opts" style="margin:0">'+optsSummary(p)+'</span>':''}</small></div></div></td><td>${esc(p.category)}</td><td>${p.qty}</td><td>${money(p.cost)}</td><td>${money(p.price)}</td><td>${money(p.qty*p.cost)}</td><td><span class="badge ${s.cls}">${s.text}</span></td><td><div class="actions"><button class="secondary" onclick="openProductForm('${p.id}')">تعديل</button><button class="danger" onclick="deleteProduct('${p.id}')">حذف</button></div></td></tr>`}),'مفيش أصناف مطابقة. اضغط «إضافة صنف» للبدء.')}
 window.deleteProduct=function(id){const p=product(id);if(!p)return;if(!confirm(`حذف الصنف «${p.name}»؟ لن يمكن التراجع عن الحذف.`))return;takeSnapshot('قبل حذف صنف',true);data.products=data.products.filter(x=>x.id!==id);cart=cart.filter(x=>x.id!==id);markDirty(id);logAudit('حذف صنف',`حذف صنف «${p.name}» — كان المتاح ${Number(p.qty)||0}`,{productId:String(id)});save();renderProducts();renderSale();toast('تم حذف الصنف')}
 $('productForm').addEventListener('submit',e=>{e.preventDefault();if(imageBusy){toast('استنى لحظة، الصورة بتتجهز');return}const id=$('editProductId').value,code=$('pCode').value.trim();if(code&&data.products.some(p=>p.code===code&&p.id!==id)){toast('الكود مستخدم بالفعل لصنف آخر');return}const p={id:id||uid(),name:$('pName').value.trim(),code,category:$('pCategory').value,qty:num('pQty'),cost:num('pCost'),price:num('pPrice'),storePrice:$('pStorePrice').value.trim()===''?null:num('pStorePrice'),desc:$('pDesc').value.trim(),hidden:!$('pVisible').checked,min:num('pMin'),img:pendingImage,opts:cleanOpts(productOpts)};if(!p.name||[p.qty,p.cost,p.price,p.min,p.storePrice||0].some(n=>n<0)||!Number.isInteger(p.qty)||!Number.isInteger(p.min)){toast('راجع البيانات والكميات');return}if(id){const i=data.products.findIndex(x=>x.id===id);if(i>=0)data.products[i]=p}else{data.products.push(p);data.moves.push({id:uid(),date:dateTime(),day:today(),type:'رصيد افتتاحي',name:p.name,qty:p.qty,note:'إضافة صنف جديد'})}markDirty(p.id);save();$('productDialog').close();renderProducts();renderSale();toast('تم حفظ الصنف بنجاح')});
 $('closeProduct').onclick=$('cancelProduct').onclick=()=>$('productDialog').close();
@@ -1915,6 +1942,11 @@ function storeUrl(slug){
     return u.href;
   }catch(e){return 'store.html'+(slug?'?s='+encodeURIComponent(slug):'')}
 }
+function trackUrl(code){
+  const base=storeUrl(storeCfg().slug);
+  try{const u=new URL(base);u.searchParams.set('track',String(code||'').trim().toUpperCase());return u.href}
+  catch(e){return base+(base.includes('?')?'&':'?')+'track='+encodeURIComponent(code||'')}
+}
 function cleanSlug(v){
   return String(v||'').toLowerCase().trim().replace(/[^a-z0-9-]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').slice(0,50);
 }
@@ -2130,6 +2162,7 @@ function orderCard(o){
   const actions=[
     o.status==='new'?`<button type="button" onclick="acceptOrder('${esc(o.id)}')">✅ قبول</button>`:'',
     o.status==='confirmed'?`<button type="button" onclick="markOrderReady('${esc(o.id)}')">📦 جاهز</button>`:'',
+    (o.status==='new'||o.status==='confirmed')?`<button type="button" onclick="openOrderEdit('${esc(o.id)}')">✏️ تعديل</button>`:'',
     (o.status==='confirmed'||o.status==='ready')&&!pickup?`<button type="button" onclick="markOrderOut('${esc(o.id)}')">🛵 خرج للتوصيل</button>`:'',
     canAct?`<button type="button" class="go" onclick="convertOrder('${esc(o.id)}')">🧾 ${pickup?'تسليم وتحويل لفاتورة':'تحويل لفاتورة'}</button>`:'',
     canAct?`<button type="button" onclick="printOrderSlip('${esc(o.id)}')">🖨️ بوليصة</button>`:'',
@@ -2168,9 +2201,226 @@ function orderWaText(o){
   if(o.status==='done')lines.push('شكرًا ليك ❤️ لو حبيت تقيّم تجربتك من صفحة المتجر هنسعد بيك.');
   if(o.status==='rejected')lines.push('الأوردر اتلغى'+(o.reject_reason?' — السبب: '+o.reject_reason:'')+' 🙏');
   if(o.status==='cancelled')lines.push('الأوردر اتلغى'+(o.reject_reason?' — السبب: '+o.reject_reason:'')+' 🙏');
-  if(slug)lines.push(`تتابع الأوردر من صفحة المتجر (📦 تتبع أوردر) بكود ${o.code} ورقم موبايلك.`);
+  if(slug)lines.push('📦 تابع أوردرك مباشرة من هنا: '+trackUrl(o.code));
   return lines.join('\n');
 }
+/* ---------------- تعديل الأوردر قبل التحويل ---------------- */
+let orderEdit=null;
+let orderEditReserved={byP:{},byV:{}};
+function oeLine(p,opts,qty,price){
+  return {id:String(p&&p.id||''),name:String(p&&p.name||''),price:Math.max(0,Number(price)||0),qty:Math.max(1,Math.floor(Number(qty)||1)),opts:(opts&&typeof opts==='object')?{...opts}:{},variant:''};
+}
+function oeVariantText(p,opts){
+  return cleanOpts(p&&p.opts).map(g=>String((opts||{})[g.name]||'').trim()).filter(Boolean).join(' · ');
+}
+function oeReservedFor(exceptId){
+  const byP={},byV={};
+  (Array.isArray(orders)?orders:[]).forEach(o=>{
+    if(String(o.id)===String(exceptId)||!ACTIVE_ORDER_STATUS.includes(o.status))return;
+    (Array.isArray(o.items)?o.items:[]).forEach(it=>{
+      const pid=String(it&&it.id||'');const q=Math.max(0,Number(it&&it.qty)||0);
+      if(!pid||!q)return;
+      byP[pid]=(byP[pid]||0)+q;
+      const op=(it&&it.opts&&typeof it.opts==='object')?it.opts:{};
+      Object.keys(op).forEach(k=>{
+        const v=String(op[k]||'').trim();
+        if(v)byV[pid+'|'+v]=(byV[pid+'|'+v]||0)+q;
+      });
+    });
+  });
+  return {byP,byV};
+}
+function oeAvail(id,opts){
+  const p=product(String(id));
+  if(!p)return 0;
+  let cap=Math.max(0,(Number(p.qty)||0)-Number(orderEditReserved.byP[String(id)]||0));
+  cleanOpts(p.opts).forEach(g=>{
+    if(!g.stock)return;
+    const v=String((opts||{})[g.name]||'').trim();
+    if(!v||g.stock[v]==null)return;
+    const left=Math.max(0,(Number(g.stock[v])||0)-Number(orderEditReserved.byV[String(id)+'|'+v]||0));
+    cap=Math.min(cap,left);
+  });
+  return cap;
+}
+function oeRowHTML(it,i){
+  const p=product(it.id);
+  const groups=cleanOpts(p&&p.opts);
+  const opts=groups.length?`<div class="oe-opts">`+groups.map((g,gi)=>{
+    const cur=String((it.opts||{})[g.name]||'');
+    const choices=['<option value="">— '+esc(g.name)+' —</option>'].concat(g.values.map(v=>{
+      const left=(g.stock&&g.stock[v]!=null)?Math.max(0,(Number(g.stock[v])||0)-Number(orderEditReserved.byV[it.id+'|'+v]||0)):null;
+      return `<option value="${esc(v)}"${cur===v?' selected':''}>${esc(v)}${left!=null?' ('+left+')':''}</option>`;
+    })).join('');
+    return `<select id="oe_opt_${i}_${gi}" onchange="oeOptChanged()">${choices}</select>`;
+  }).join('')+`</div>`:'';
+  const avail=oeAvail(it.id,it.opts);
+  return `<div class="se-row" data-i="${i}">
+    <div class="se-cell se-prod"><label>الصنف</label><select id="oe_prod_${i}" onchange="oeProdChanged(${i})">${saleEditOptions(it.id,it)}</select>${opts}</div>
+    <div class="se-cell"><label>الكمية</label><input id="oe_qty_${i}" type="number" min="1" step="1" value="${it.qty}" oninput="oeRecalc()"></div>
+    <div class="se-cell"><label>السعر</label><input id="oe_price_${i}" type="number" min="0" step=".01" value="${it.price}" oninput="oeRecalc()"></div>
+    <div class="se-cell"><label>المتاح</label><div class="se-sub oe-avail" style="color:${avail?'var(--muted)':'var(--red)'}">${avail}</div></div>
+    <div class="se-cell"><label>الإجمالي</label><div class="se-sub oe-sub">${money(it.qty*it.price)}</div></div>
+    <button type="button" class="icon-btn" onclick="oeRemove(${i})" title="حذف الصنف">🗑</button>
+  </div>`;
+}
+function renderOeRows(){
+  if(!orderEdit)return;
+  const box=$('oeItems');if(!box)return;
+  box.innerHTML=orderEdit.items.length?orderEdit.items.map(oeRowHTML).join(''):'<div class="empty">مفيش أصناف — اضغط «＋ إضافة صنف».</div>';
+}
+function oeReadRows(){
+  if(!orderEdit)return;
+  const rows=[...document.querySelectorAll('#oeItems .se-row')];
+  if(!rows.length)return;
+  orderEdit.items=rows.map(row=>{
+    const i=Number(row.dataset.i);
+    const pid=$('oe_prod_'+i)?$('oe_prod_'+i).value:'';
+    const p=product(pid);
+    const opts={};
+    if(p)cleanOpts(p.opts).forEach((g,gi)=>{
+      const sel=$('oe_opt_'+i+'_'+gi);
+      if(sel&&String(sel.value||'').trim())opts[g.name]=String(sel.value).trim();
+    });
+    const qty=Math.max(1,Math.floor(Number($('oe_qty_'+i).value)||1));
+    const price=Math.max(0,Number($('oe_price_'+i).value)||0);
+    const it=oeLine(p||{id:pid,name:orderEdit.items[i]?orderEdit.items[i].name:''},opts,qty,price);
+    it.variant=p?oeVariantText(p,opts):'';
+    return it;
+  });
+}
+function oeDeliveryFee(subtotal){
+  const s=storeCfg();
+  if(orderEdit.fulfillment==='pickup')return 0;
+  let fee=Number(s.deliveryFee)||0;
+  const c=orderEdit.customer||{};
+  const zone=String(c.zone||c.area||'');
+  if(s.zones.length){
+    const z=s.zones.find(x=>String(x.name)===zone||String(x.id)===zone);
+    fee=z?(Number(z.fee)||0):Number(s.deliveryFee)||0;
+  }
+  if(Number(s.freeOver)>0&&subtotal>=Number(s.freeOver))fee=0;
+  return fee;
+}
+function oeRecalc(){
+  if(!orderEdit)return;
+  oeReadRows();
+  const sub=orderEdit.items.reduce((s,it)=>s+(Number(it.price)||0)*(Number(it.qty)||0),0);
+  const fee=oeDeliveryFee(sub);
+  orderEdit.totals={subtotal:sub,delivery:fee,total:sub+fee};
+  document.querySelectorAll('#oeItems .se-row').forEach((row,i)=>{
+    const it=orderEdit.items[i];if(!it)return;
+    const subEl=row.querySelector('.oe-sub');if(subEl)subEl.textContent=money(it.qty*it.price);
+    const av=row.querySelector('.oe-avail');if(av){const n=oeAvail(it.id,it.opts);av.textContent=String(n);av.style.color=n?'var(--muted)':'var(--red)'}
+  });
+  const box=$('oeTotals');
+  if(box)box.innerHTML=`<div>المجموع: <b>${money(sub)}</b></div><div>التوصيل: <b>${money(fee)}</b></div><div class="final">الإجمالي: <b>${money(sub+fee)}</b></div>`;
+}
+window.openOrderEdit=function(id){
+  const o=orders.find(x=>x.id===id);
+  if(!o)return;
+  if(o.status!=='new'&&o.status!=='confirmed'){toast('التعديل متاح للأوردرات الجديدة والمقبولة بس');return}
+  orderEditReserved=oeReservedFor(id);
+  const items=(Array.isArray(o.items)?o.items:[]).map(it=>{
+    const opts=(it&&it.opts&&typeof it.opts==='object')?{...it.opts}:{};
+    const line=oeLine({id:it.id,name:it.name},opts,it.qty,it.price);
+    line.variant=String(it.variant||'');
+    return line;
+  });
+  orderEdit={id:id,code:o.code,fulfillment:o.fulfillment,customer:o.customer||{},items,note:String(o.note||''),totals:{}};
+  $('oeModal')?.remove();
+  const html=`<div class="modal" id="oeModal"><div class="modal-card" style="width:min(940px,100%)">
+    <div class="modal-head"><div><h3>✏️ تعديل أوردر ${esc(o.code)}</h3><p class="muted" style="margin:4px 0 0">غيّر الكميات أو الأصناف قبل التحويل لفاتورة. المتاح بيشمل حجوزات الأوردرات التانية.</p></div><button type="button" class="icon-btn" onclick="closeOrderEdit()">✕</button></div>
+    <div class="se-row" style="font-weight:750;color:var(--muted);font-size:11px;padding-bottom:0"><span>الصنف</span><span>الكمية</span><span>السعر</span><span>المتاح</span><span>الإجمالي</span><span></span></div>
+    <div id="oeItems"></div>
+    <div style="margin-top:10px"><button type="button" class="secondary" onclick="oeAddItem()">＋ إضافة صنف</button></div>
+    <div class="field" style="margin-top:12px"><label>ملاحظة الأوردر</label><textarea id="oeNote" rows="2" maxlength="500" placeholder="اختياري">${esc(orderEdit.note)}</textarea></div>
+    <div id="oeTotals" class="oe-totals"></div>
+    <div class="modal-actions"><button type="button" class="secondary" onclick="closeOrderEdit()">إلغاء</button><button type="button" id="oeSave" onclick="saveOrderEdit()">💾 حفظ التعديل</button></div>
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend',html);
+  renderOeRows();oeRecalc();
+};
+window.closeOrderEdit=function(){$('oeModal')?.remove();orderEdit=null};
+window.oeAddItem=function(){
+  if(!orderEdit)return;
+  oeReadRows();
+  orderEdit.items.push(oeLine({id:'',name:''},{},1,0));
+  renderOeRows();
+  const sel=$('oe_prod_'+(orderEdit.items.length-1));if(sel)sel.focus();
+};
+window.oeRemove=function(i){
+  if(!orderEdit)return;
+  oeReadRows();orderEdit.items.splice(i,1);renderOeRows();oeRecalc();
+};
+window.oeProdChanged=function(i){
+  if(!orderEdit)return;
+  oeReadRows();
+  const pid=$('oe_prod_'+i)?$('oe_prod_'+i).value:'';
+  const p=product(pid);
+  if(p&&orderEdit.items[i]){
+    orderEdit.items[i].price=p.storePrice!=null&&p.storePrice!==''?(Number(p.storePrice)||0):(Number(p.price)||0);
+    orderEdit.items[i].opts={};
+  }
+  renderOeRows();oeRecalc();
+};
+window.oeOptChanged=function(){if(orderEdit){oeReadRows();oeRecalc()}};
+window.oeRecalc=function(){oeRecalc()};
+window.saveOrderEdit=async function(){
+  if(!orderEdit)return;
+  oeReadRows();oeRecalc();
+  const oid=orderEdit.id;
+  const items=orderEdit.items.filter(it=>it.id);
+  if(!items.length){toast('الأوردر لازم يحتوي صنف واحد على الأقل');return}
+  const problems=[];
+  const needP={};
+  items.forEach(it=>{
+    const p=product(it.id);
+    if(!p){problems.push('الصنف «'+(it.name||it.id)+'» مش موجود في المخزون');return}
+    needP[it.id]=(needP[it.id]||0)+it.qty;
+    cleanOpts(p.opts).forEach(g=>{
+      const v=String((it.opts||{})[g.name]||'').trim();
+      if(!v)problems.push('اختر '+g.name+' لـ «'+p.name+'»');
+    });
+  });
+  Object.keys(needP).forEach(id=>{
+    const cap=Math.max(0,(Number(product(id).qty)||0)-Number(orderEditReserved.byP[id]||0));
+    if(needP[id]>cap)problems.push('«'+product(id).name+'» المتاح '+cap+' بس والمطلوب '+needP[id]);
+  });
+  items.forEach(it=>{
+    const p=product(it.id);if(!p)return;
+    cleanOpts(p.opts).forEach(g=>{
+      if(!g.stock)return;
+      const v=String((it.opts||{})[g.name]||'').trim();
+      if(!v||g.stock[v]==null)return;
+      const left=Math.max(0,(Number(g.stock[v])||0)-Number(orderEditReserved.byV[it.id+'|'+v]||0));
+      if(it.qty>left)problems.push(p.name+' — '+g.name+' ('+v+') المتاح '+left+' بس');
+    });
+  });
+  if(problems.length){alert('مش هينفع تحفظ التعديل:\n\n'+problems.join('\n'));return}
+  const note=String($('oeNote')?$('oeNote').value.trim():orderEdit.note||'').slice(0,500);
+  const payload={
+    items:items.map(it=>({id:it.id,name:it.name,variant:it.variant,opts:it.opts,price:it.price,qty:it.qty,subtotal:it.price*it.qty})),
+    subtotal:orderEdit.totals.subtotal,delivery_fee:orderEdit.totals.delivery,total:orderEdit.totals.total,note
+  };
+  if(!confirm('حفظ التعديل على الأوردر '+orderEdit.code+'؟\nالكمية الجديدة: '+items.reduce((s,it)=>s+it.qty,0)+' · الإجمالي: '+money(payload.total)))return;
+  if(!sb||!cloudReady){toast('محتاج إنترنت لحفظ التعديل');return}
+  const btn=$('oeSave');if(btn){btn.disabled=true;btn.textContent='⏳ بنحفظ...'}
+  try{
+    const {data:rows,error}=await sb.from('orders').update(payload).eq('id',oid).in('status',['new','confirmed']).select('*');
+    if(error)throw error;
+    if(!rows||!rows.length){closeOrderEdit();toast('الأوردر اتغيّر من جهاز تاني — هنحدّث القائمة');loadOrders();return}
+    closeOrderEdit();
+    const idx=orders.findIndex(x=>x.id===oid);
+    if(idx>=0)orders[idx]=rows[0];
+    logAudit('تعديل أوردر',`${payload.items.length} أصناف · ${money(payload.total)}`,{orderId:String(oid)});
+    renderOrders();updateOrderBadge();
+    toast('تم حفظ تعديل الأوردر ✅');
+  }catch(e){
+    if(btn){btn.disabled=false;btn.textContent='💾 حفظ التعديل'}
+    toast('تعذر حفظ التعديل — راجع النت');
+  }
+};
 window.showOrderInvoice=function(id){
   const s=data.sales.find(x=>String(x.id)===String(id));
   if(!s){toast('الفاتورة مش موجودة في السجل');return}

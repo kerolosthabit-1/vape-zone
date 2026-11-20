@@ -846,6 +846,19 @@ function waLink(text){
   const n=waNumber();
   return n?`https://wa.me/${n}?text=${encodeURIComponent(text||'')}`:'';
 }
+function updateWaFab(){
+  const fab=$('#waFab');if(!fab)return;
+  const pm=$('#productModal');
+  const p=(pm&&!pm.hidden)?currentProduct:null;
+  const shopName=(store&&store.name)||'Vape Zone Store';
+  const w=waLink(p?('عايز أستفسر عن '+p.name+' — '+money(p.price)):('عايز أستفسر عن منتجات '+shopName));
+  if(w){fab.href=w;fab.hidden=false}else{fab.hidden=true}
+  const foot=$('#footWhats');
+  if(foot){
+    const fw=waLink('عايز أستفسر عن منتجات '+shopName);
+    if(fw){foot.href=fw;foot.hidden=false}else{foot.hidden=true}
+  }
+}
 /* ---------------- my orders (local device) ---------------- */
 let myOrders=[];
 function loadMyOrders(){
@@ -1236,6 +1249,8 @@ async function boot(){
     const t=$('#trackBtn2');
     if(t)t.title='آخر أوردر: '+lastOrder.code;
   }
+  const deepTrack=String(PARAMS.get('track')||'').trim().toUpperCase();
+  if(deepTrack)openTrack(deepTrack);
 }
 
 async function loadCatalog(){
@@ -1311,16 +1326,7 @@ function hydrateStore(){
   }else{
     $('#footPhone').hidden=true;
   }
-  const w=waLink('عايز أستفسر عن منتجات '+name);
-  if(w){
-    $('#footWhats').href=w;
-    $('#waFab').href=w;
-    $('#footWhats').hidden=false;
-    $('#waFab').hidden=false;
-  }else{
-    $('#footWhats').hidden=true;
-    $('#waFab').hidden=true;
-  }
+  updateWaFab();
   $('#footAddress').textContent=store.address?('📍 '+store.address):'📍 العنوان هيظهر هنا';
   $('#footHours').textContent=store.hours?('🕒 '+store.hours):'🕒 مواعيد العمل';
 
@@ -1576,6 +1582,7 @@ function openProduct(id){
   syncDeepLink(p.id);
   updateProductSeo(p);
   loadProductReviews(p.id);
+  updateWaFab();
 }
 function syncPmQty(){
   if(!currentProduct)return;
@@ -1604,8 +1611,8 @@ function addCurrentProduct(){
 
 /* ---------------- modals / drawer ---------------- */
 function openModal(id){$('#overlay').hidden=false;$('#'+id).hidden=false;document.body.style.overflow='hidden'}
-function closeModal(id){$('#'+id).hidden=true;if(id==='productModal'){syncDeepLink('');updateSeo();}if($$('.modal:not([hidden])').length===0&&$('#cartDrawer').hidden){$('#overlay').hidden=true;document.body.style.overflow=''}}
-function closeAllModals(){$$('.modal').forEach(m=>m.hidden=true);$('#cartDrawer').hidden=true;$('#overlay').hidden=true;document.body.style.overflow='';syncDeepLink('');if(store)updateSeo();renderMobileBar()}
+function closeModal(id){$('#'+id).hidden=true;if(id==='productModal'){syncDeepLink('');updateSeo();}if($$('.modal:not([hidden])').length===0&&$('#cartDrawer').hidden){$('#overlay').hidden=true;document.body.style.overflow=''}updateWaFab()}
+function closeAllModals(){$$('.modal').forEach(m=>m.hidden=true);$('#cartDrawer').hidden=true;$('#overlay').hidden=true;document.body.style.overflow='';syncDeepLink('');if(store)updateSeo();renderMobileBar();updateWaFab()}
 function openCart(){if(!$('#cartDrawer').hidden)return;$('#overlay').hidden=false;$('#cartDrawer').hidden=false;document.body.style.overflow='hidden';renderCart();renderMobileBar()}
 function closeCart(){$('#cartDrawer').hidden=true;if($$('.modal:not([hidden])').length===0){$('#overlay').hidden=true;document.body.style.overflow=''}renderMobileBar()}
 
@@ -1909,11 +1916,14 @@ function showSuccess(o){
 
 /* ---------------- tracking ---------------- */
 function openTrack(code){
-  if(code&&lastOrder&&lastOrder.phone){$('#trCode').value=code;$('#trPhone').value=lastOrder.phone}
+  const want=String(code||'').trim().toUpperCase();
+  const same=want&&lastOrder&&String(lastOrder.code||'').toUpperCase()===want;
+  if(same){$('#trCode').value=want;$('#trPhone').value=lastOrder.phone||''}
+  else if(want){$('#trCode').value=want;$('#trPhone').value=''}
   else if(lastOrder&&lastOrder.code){$('#trCode').value=lastOrder.code;$('#trPhone').value=lastOrder.phone||''}
   $('#trackResult').innerHTML='';
   openModal('trackModal');
-  setTimeout(()=>{if(!$('#trCode').value)$('#trCode').focus()},250);
+  setTimeout(()=>{$('#'+(want?'trPhone':'trCode')).focus()},250);
 }
 async function trackOrder(e){
   if(e)e.preventDefault();
