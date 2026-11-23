@@ -348,6 +348,7 @@ footer h4{color:#fff;font-size:12.5px;font-weight:900;margin:0 0 8px}
   .card:hover{transform:none;box-shadow:0 4px 16px rgba(9,35,24,.045);border-color:var(--line)}
   .card:hover .card-img img{transform:none}
   .add:hover,.fab:hover,.icon-btn:hover{transform:none}
+  .theme-toggle:hover{transform:none}
   .icon-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.12)}
 }
 
@@ -357,9 +358,11 @@ footer h4{color:#fff;font-size:12.5px;font-weight:900;margin:0 0 8px}
 .theme-toggle:active{transform:scale(.93)}
 .theme-toggle .tt-ico{position:relative;z-index:2;line-height:1;transition:transform .45s ease;text-shadow:0 2px 6px rgba(0,0,0,.35)}
 html[data-theme="dark"] .theme-toggle .tt-ico{transform:rotate(180deg)}
-.theme-toggle .tt-ring{position:absolute;inset:-4px;z-index:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(91,227,168,0),rgba(91,227,168,.55),rgba(91,227,168,0) 62%);opacity:0;transition:opacity .35s;pointer-events:none}
+.theme-toggle .tt-ring{position:absolute;inset:-4px;z-index:0;border-radius:50%;background:conic-gradient(from 0deg,rgba(91,227,168,0),rgba(91,227,168,.75),rgba(91,227,168,0) 62%);opacity:0;transition:opacity .35s;pointer-events:none}
 html[data-theme="dark"] .theme-toggle .tt-ring{opacity:.6}
-.theme-toggle.clicked{animation:tpop .45s ease}
+.theme-toggle.clicked{animation:tpop .5s ease}
+.theme-toggle.clicked .tt-ring{opacity:.85;animation:spin .6s ease}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes tpop{0%{transform:scale(1) rotate(0)}45%{transform:scale(1.18) rotate(20deg)}100%{transform:scale(1) rotate(0)}}
 
 /* ---------- dark mode ---------- */
@@ -827,7 +830,11 @@ function toggleTheme(){
   const next=themeNow()==='dark'?'light':'dark';
   applyStoreTheme(next);
   const btn=document.getElementById('themeBtn');
-  if(btn){btn.classList.remove('clicked');void btn.offsetWidth;btn.classList.add('clicked')}
+  if(btn){
+    btn.classList.remove('clicked');void btn.offsetWidth;btn.classList.add('clicked');
+    clearTimeout(toggleTheme._t);
+    toggleTheme._t=setTimeout(()=>btn.classList.remove('clicked'),650);
+  }
   toast(next==='dark'?'الوضع الليلي اتفعّل 🌙':'الوضع النهاري اتفعّل ☀️');
 }
 function fmtDate(v){try{return new Date(v).toLocaleString('ar-EG',{dateStyle:'medium',timeStyle:'short'})}catch(e){return ''}}
