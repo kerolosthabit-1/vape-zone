@@ -467,7 +467,7 @@ tbody tr:nth-child(10){animation-delay:.27s}
     <div class="stat"><div class="label">مبيعات اليوم</div><div class="value" id="statSales">0 ج.م</div><div class="hint">إجمالي الفواتير المسجلة اليوم</div></div>
     <div class="stat"><div class="label">مكسب اليوم التقريبي</div><div class="value" id="statProfit">0 ج.م</div><div class="hint">حسب أسعار التكلفة المسجلة</div></div>
     <div class="stat"><div class="label">قيمة المخزون بالتكلفة</div><div class="value" id="statStock">0 ج.م</div><div class="hint">الكمية الحالية × سعر الشراء</div></div>
-    <div class="stat"><div class="label">قيمة المخزون بسعر البيع</div><div class="value" id="statStockSale">0 ج.م</div><div class="hint">الكمية الحالية × سعر البيع</div></div>
+    <div class="stat"><div class="label">قيمة المخزون بسعر البيع</div><div class="value" id="statStockSale">0 ج.م</div><div class="hint">الكمية × سعر البيع + آجل لسه ما اتدفعش</div></div>
     <div class="stat"><div class="label">عدد الأصناف</div><div class="value" id="statProducts">0</div><div class="hint" id="statLow">0 صنف منخفض المخزون</div></div>
   </div>
   <div class="notice">☁️ البيانات بتتحفظ في حسابك على السحابة وبتتحدّث لحظيًا بين الكمبيوتر والموبايل. سجّل دخول بنفس الحساب على كل جهاز، وأي فاتورة أو تعديل أو حذف بيحصل على جهاز هيظهر فورًا على التاني من غير أي خطوة يدوية.</div>
@@ -727,7 +727,8 @@ function drawSquare(bmp,size){const c=document.createElement('canvas');c.width=c
 async function compressImage(file){if(file.type&&!file.type.startsWith('image/'))throw new Error('type');if(file.size>20*1024*1024)throw new Error('too-large');const bmp=await loadBitmap(file);const attempts=[[192,.66],[176,.6],[160,.55],[144,.5],[128,.45]];let best='';for(const[s,q]of attempts){const c=drawSquare(bmp,s);let out='';try{out=c.toDataURL('image/webp',q)}catch(e){}if(!out||out.indexOf('data:image/webp')!==0){try{out=c.toDataURL('image/jpeg',q)}catch(e){}}if(out&&out.length>100){best=out;if(out.length<=14000)break}}if(bmp&&bmp.close)bmp.close();if(!best)throw new Error('encode');return best}
 function lowProducts(){return data.products.filter(p=>p.qty<=p.min)}
 function stockValue(){return data.products.reduce((s,p)=>s+(Number(p.qty)||0)*(Number(p.cost)||0),0)}
-function stockValueAtPrice(){return data.products.reduce((s,p)=>s+(Number(p.qty)||0)*(Number(p.price)||0),0)}
+function unpaidCreditValue(){let n=0;for(const c of customers)for(const x of customerCreditAlloc(c))n+=x.remaining;return n}
+function stockValueAtPrice(){return data.products.reduce((s,p)=>s+(Number(p.qty)||0)*(Number(p.price)||0),0)+unpaidCreditValue()}
 function activeSales(){return data.sales.filter(s=>!s.voided)}
 function allSales(){return activeSales().reduce((s,x)=>s+(Number(x.total)||0),0)}
 function allProfit(){return activeSales().reduce((s,x)=>s+(Number(x.profit)||0),0)}
@@ -1323,7 +1324,7 @@ window.openSaleHistory=function(id){
 window.closeSaleHistory=function(){$('saleHistoryModal')?.remove()}
 
 /* ==== تعديل حركات المخزون ==== */
-const MOVE_TYPES=['رصيد افتتاحي','شراء','بيع','بيع آجل','بيع أونلاين','مرتجع','استبدال','تسوية جرد','تعديل فاتورة','إلغاء فاتورة','تراجع بيع','تحويل يدوي'];
+const MOVE_TYPES=['رصيد افتتاحي','شراء','بيع','بيع آجل','بيع أونلاين','تسديد آجل','مرتجع','استبدال','تسوية جرد','تعديل فاتورة','إلغاء فاتورة','تراجع بيع','تحويل يدوي'];
 function moveSnap(m){return{date:m.date||'',day:m.day||'',type:m.type||'',name:m.name||'',qty:Number(m.qty)||0,note:m.note||''}}
 function moveDayText(day){const d=new Date(day+'T12:00:00');return isNaN(d.getTime())?day:d.toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 window.openMoveEdit=function(idx){
@@ -1681,8 +1682,32 @@ $('saleSearch').setAttribute('autocomplete','off');$('saleSearch').setAttribute(
 $('productSearch').setAttribute('autocomplete','off');$('productSearch').setAttribute('inputmode','search');
 $('completeSale').addEventListener('click',()=>{if(!cart.length){toast('أضف صنف واحد على الأقل');return}const t=cartTotals();if(t.discount<0||t.paid<t.total){toast('المبلغ المدفوع أقل من الإجمالي');return}for(const x of cart){const p=product(x.id);if(!p||p.qty<x.qty){toast('المخزون اتغير؛ راجع الفاتورة');renderSale();return}}const items=cart.map(x=>{const p=product(x.id);return{id:p.id,name:p.name,qty:x.qty,price:p.price,cost:p.cost,subtotal:p.price*x.qty,profit:(p.price-p.cost)*x.qty}});items.forEach(x=>{product(x.id).qty-=x.qty;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'بيع',name:x.name,qty:-x.qty,note:'فاتورة بيع'})});const sale={id:uid(),date:dateTime(),day:today(),ts:Date.now(),items,subtotal:t.subtotal,discount:t.discount,total:t.total,paid:t.paid,change:t.change,profit:items.reduce((s,x)=>s+x.profit,0)-t.discount};data.sales.push(sale);items.forEach(x=>markDirty(x.id));logAudit('بيع',`فاتورة #${sale.id} بقيمة ${money(sale.total)} — ${items.map(x=>x.name+' ×'+x.qty).join('، ')}`,{saleId:String(sale.id)});save();cart=[];$('discountInput').value='0';$('paidInput').value='';renderSale();toast(`تم تسجيل الفاتورة #${sale.id} · ${money(sale.total)}`)});if($('creditSaleBtn'))$('creditSaleBtn').addEventListener('click',()=>creditSale());
 function renderCreditCustomers(){const sel=$('creditCustomer');if(!sel)return;const cur=sel.value;const opts=customers.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}${Number(c.balance||0)>0?' — مديون '+money(c.balance):''}</option>`).join('');sel.innerHTML='<option value="">— عميل نقدي —</option>'+opts;if(customers.some(c=>String(c.id)===cur))sel.value=cur}
-window.creditSale=function(){if(!cart.length){toast('أضف صنف واحد على الأقل');return}const cid=$('creditCustomer').value;const c=customers.find(x=>String(x.id)===String(cid));if(!c){toast(customers.length?'اختار العميل الأول من القائمة':'مفيش عملاء — ضيف عميل من الإعدادات ← العملاء والحساب الآجل');return}const t=cartTotals();for(const x of cart){const p=product(x.id);if(!p||p.qty<x.qty){toast('المخزون اتغير؛ راجع الفاتورة');renderSale();return}}const items=cart.map(x=>{const p=product(x.id);return{id:p.id,name:p.name,qty:x.qty,price:p.price,cost:p.cost,subtotal:p.price*x.qty,profit:(p.price-p.cost)*x.qty}});items.forEach(x=>{product(x.id).qty-=x.qty;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'بيع آجل',name:x.name,qty:-x.qty,note:'فاتورة آجل على '+c.name})});const sale={id:uid(),date:dateTime(),day:today(),ts:Date.now(),items,subtotal:t.subtotal,discount:t.discount,total:t.total,paid:0,change:0,method:'credit',customer:{id:c.id,name:c.name},profit:items.reduce((s,x)=>s+x.profit,0)-t.discount};data.sales.push(sale);c.balance=(Number(c.balance)||0)+sale.total;c.upd=Date.now();items.forEach(x=>markDirty(x.id));logAudit('بيع آجل',`فاتورة #${sale.id} بقيمة ${money(sale.total)} على ${c.name} — المديونية ${money(c.balance)}`,{saleId:String(sale.id)});saveCustomers();save();cart=[];if($('creditCustomer'))$('creditCustomer').value='';if($('discountInput'))$('discountInput').value='0';if($('paidInput'))$('paidInput').value='';renderSale();toast(`فاتورة آجل #${sale.id} على ${c.name} · ${money(sale.total)} — المديونية ${money(c.balance)}`)}
-window.settleCustomer=function(id){const c=customers.find(x=>String(x.id)===String(id));if(!c)return;const bal=Number(c.balance)||0;if(bal<=0){toast('مفيش مديونية على العميل ده');return}const ans=prompt(`تسديد مديونية ${c.name}\nالمديونية الحالية: ${money(bal)}\nاكتب المبلغ المدفوع (تقدر تسدّد جزء منه):`,String(bal));if(ans===null)return;const amt=Math.min(Number(ans)||0,bal);if(!(amt>0)){toast('مبلغ غير صحيح');return}c.balance=bal-amt;c.upd=Date.now();(c.payments=c.payments||[]).push({date:dateTime(),amount:amt});logAudit('تسديد عميل',`تسديد ${money(amt)} من ${c.name} — الباقي ${money(c.balance)}`,{customerId:String(c.id)});saveCustomers();save();closeCustomersModal();openCustomersModal();renderCart();toast(`تم تسديد ${money(amt)} — الباقي ${money(c.balance)}`)}
+window.creditSale=function(){if(!cart.length){toast('أضف صنف واحد على الأقل');return}const cid=$('creditCustomer').value;const c=customers.find(x=>String(x.id)===String(cid));if(!c){toast(customers.length?'اختار العميل الأول من القائمة':'مفيش عملاء — ضيف عميل من الإعدادات ← العملاء والحساب الآجل');return}const t=cartTotals();for(const x of cart){const p=product(x.id);if(!p||p.qty<x.qty){toast('المخزون اتغير؛ راجع الفاتورة');renderSale();return}}const items=cart.map(x=>{const p=product(x.id);return{id:p.id,name:p.name,qty:x.qty,price:p.price,cost:p.cost,subtotal:p.price*x.qty,profit:(p.price-p.cost)*x.qty}});items.forEach(x=>{product(x.id).qty-=x.qty;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'بيع آجل',name:x.name,qty:-x.qty,note:'فاتورة آجل على '+c.name})});const sale={id:uid(),date:dateTime(),day:today(),ts:Date.now(),items,subtotal:t.subtotal,discount:t.discount,total:t.total,paid:0,change:0,method:'credit',customer:{id:c.id,name:c.name},profit:items.reduce((s,x)=>s+x.profit,0)-t.discount};data.sales.push(sale);c.balance=(Number(c.balance)||0)+sale.total;c.upd=Date.now();items.forEach(x=>markDirty(x.id));logAudit('بيع آجل',`فاتورة #${sale.id} بقيمة ${money(sale.total)} على ${c.name} — المديونية ${money(c.balance)}`,{saleId:String(sale.id)});saveCustomers();save();cart=[];if($('creditCustomer'))$('creditCustomer').value='';if($('discountInput'))$('discountInput').value='0';if($('paidInput'))$('paidInput').value='';renderSale();renderDashboard();toast(`فاتورة آجل #${sale.id} على ${c.name} · ${money(sale.total)} — المديونية ${money(c.balance)}`)}
+window.settleCustomer=function(id){
+ const c=customers.find(x=>String(x.id)===String(id));
+ if(!c)return;
+ const bal=Number(c.balance)||0;
+ if(bal<=0){toast('مفيش مديونية على العميل ده');return}
+ const ans=prompt(`تسديد مديونية ${c.name}\nالمديونية الحالية: ${money(bal)}\nاكتب المبلغ المدفوع (تقدر تسدّد جزء منه):`,String(bal));
+ if(ans===null)return;
+ const amt=Math.min(Number(ans)||0,bal);
+ if(!(amt>0)){toast('مبلغ غير صحيح');return}
+ const parts=creditPaymentParts(c,amt);
+ c.balance=bal-amt;c.upd=Date.now();
+ (c.payments=c.payments||[]).push({date:dateTime(),amount:amt,ts:Date.now()});
+ for(const {s,delta} of parts){
+  const items=Array.isArray(s.items)?s.items:[];
+  const base=items.reduce((n,it)=>n+(Number(it.subtotal)||((Number(it.price)||0)*(Number(it.qty)||0))),0)||Number(s.total)||1;
+  for(const it of items){
+   const val=Number(it.subtotal)||((Number(it.price)||0)*(Number(it.qty)||0));
+   const value=delta*(val/base);
+   if(value<=0.005)continue;
+   data.moves.push({id:uid(),date:dateTime(),day:today(),type:'تسديد آجل',name:it.name,qty:0,note:`خصم ${money(value)} من قيمة «${it.name}» — فاتورة #${s.id} (مدفوع ${money(delta)})`});
+  }
+ }
+ logAudit('تسديد عميل',`تسديد ${money(amt)} من ${c.name} — الباقي ${money(c.balance)}`,{customerId:String(c.id)});
+ saveCustomers();save();closeCustomersModal();openCustomersModal();renderCart();renderDashboard();toast(`تم تسديد ${money(amt)} — الباقي ${money(c.balance)}`)
+}
 function renderPurchases(){const sel=$('purchaseProduct');const old=sel.value;sel.innerHTML='<option value="">اختر الصنف</option>'+data.products.map(p=>`<option value="${p.id}">${esc(p.name)} (المتاح ${p.qty})</option>`).join('');if(product(old))sel.value=old;$('purchasesTable').innerHTML=table(['التاريخ','الصنف','الكمية','التفاصيل'],data.moves.filter(m=>m.type==='شراء'&&!m.deleted).slice(-30).reverse().map(m=>`<tr><td>${esc(m.date)}</td><td>${esc(m.name)}</td><td>${m.qty}</td><td>${esc(m.note||'—')}</td></tr>`),'لا توجد حركات شراء مسجلة')}
 $('purchaseForm').addEventListener('submit',e=>{e.preventDefault();const p=product($('purchaseProduct').value),qty=num('purchaseQty'),cost=$('purchaseCost').value===''?null:num('purchaseCost');if(!p||!Number.isInteger(qty)||qty<=0||cost!==null&&cost<0){toast('راجع الصنف والكمية والتكلفة');return}p.qty+=qty;if(cost!==null)p.cost=cost;data.moves.push({id:uid(),date:dateTime(),day:today(),type:'شراء',name:p.name,qty,note:$('purchaseNote').value.trim()});logAudit('شراء',`إضافة ${qty} من «${p.name}»${cost!==null?' — تكلفة '+money(cost):''}`);markDirty(p.id);save();$('purchaseForm').reset();renderPurchases();toast('تم تسجيل إضافة البضاعة')});
 function toISODate(d){return d.toLocaleDateString('en-CA')}
@@ -1831,6 +1856,12 @@ function customerCreditAlloc(c){
  });
  return out;
 }
+function creditPaymentParts(c,amt){
+ const before=customerCreditAlloc(c).map(x=>({id:String(x.s.id),paid:x.paid}));
+ const after=customerCreditAlloc({...c,payments:[...(Array.isArray(c.payments)?c.payments:[]),{amount:amt,ts:Date.now(),date:dateTime()}]});
+ const map=new Map(before.map(x=>[x.id,x.paid]));
+ return after.map(x=>({s:x.s,delta:Math.max(0,x.paid-(map.get(String(x.s.id))||0))})).filter(x=>x.delta>0.005);
+}
 window.openCustomerStatement=function(id){
  const c=customers.find(x=>String(x.id)===String(id));
  if(!c){toast('العميل غير موجود');return}
@@ -1845,13 +1876,21 @@ window.openCustomerStatement=function(id){
   const bi=days<=30?0:days<=60?1:days<=90?2:3;
   buckets[bi][1]+=remaining;
   const status=remaining<=0.005?'<span class="badge ok">✅ مسدّدة</span>':paid>0?`<span class="badge part">🔶 جزئي — متبقي ${money(remaining)}</span>`:'<span class="badge">⏳ مستحق</span>';
-  return `<tr><td>#${esc(s.id)}</td><td>${esc(s.date)}</td><td>${(s.items||[]).length} صنف</td><td>${money(total)}</td><td>${money(paid)}</td><td><b>${money(remaining)}</b></td><td>${days} يوم</td><td>${status}</td></tr>`;
+  const items=Array.isArray(s.items)?s.items:[];
+  const base=items.reduce((n,it)=>n+(Number(it.subtotal)||((Number(it.price)||0)*(Number(it.qty)||0))),0)||total||1;
+  const ratio=paid/base;
+  const itemCell=items.map(it=>{
+   const val=Number(it.subtotal)||((Number(it.price)||0)*(Number(it.qty)||0));
+   const ip=val*ratio;
+   return `<div>${esc(it.name)} <span class="muted">×${Number(it.qty)||0}</span> · ${money(ip)}/${money(Math.max(0,val-ip))}</div>`;
+  }).join('')||'<span class="muted">—</span>';
+  return `<tr><td>#${esc(s.id)}</td><td>${esc(s.date)}</td><td><div style="white-space:normal;min-width:190px;max-width:320px;line-height:1.8;font-size:12px">${itemCell}</div></td><td>${money(total)}</td><td>${money(paid)}</td><td><b>${money(remaining)}</b></td><td>${days} يوم</td><td>${status}</td></tr>`;
  }).join('');
  const paid=payments.reduce((n,p)=>n+(Number(p.amount)||0),0);
  const charged=alloc.reduce((n,x)=>n+x.total,0);
  const netRemaining=alloc.reduce((n,x)=>n+x.remaining,0);
  const payRows=payments.slice().reverse().map(p=>`<div class="se-cmp-row"><span>${esc(p.date||'—')}</span><b>${money(p.amount)}</b></div>`).join('')||'<div class="muted" style="font-size:12px">مفيش مدفوعات مسجلة</div>';
- const html=`<div class="modal" id="custStatementModal"><div class="modal-card se-history"><div class="modal-head"><div><h3>كشف حساب — ${esc(c.name)}</h3><p class="muted" style="margin:4px 0 0">${esc(c.phone||'بدون رقم')} · ${sales.length} فاتورة آجل</p></div><button type="button" class="icon-btn" onclick="closeCustomerStatement()">✕</button></div><div class="stmt-sum"><div class="stmt-box"><small>الرصيد الحالي</small><b>${money(c.balance)}</b></div><div class="stmt-box"><small>إجمالي الآجل</small><b>${money(charged)}</b></div><div class="stmt-box"><small>إجمالي المدفوع</small><b>${money(paid)}</b></div><div class="stmt-box"><small>المتبقي بعد التوزيع</small><b>${money(netRemaining)}</b></div></div><div class="panel" style="box-shadow:none;margin:0"><h3 style="font-size:13px">أعمار الديون (بعد خصم المدفوعات)</h3><div class="aging">${buckets.map(([k,v])=>`<div>${k} يوم<b>${money(v)}</b></div>`).join('')}</div></div><div class="se-credit-note">💡 المدفوعات بتخصم تلقائيًا من أقدم فاتورة أولاً — لما تسدّد جزء، المتبقي بيقل فورًا في الكشف وأعمار الديون من غير ما تنتظر تسدّد الفاتورة كلها.</div><div style="margin-top:12px">${table(['الفاتورة','التاريخ','الأصناف','الإجمالي','المدفوع','المتبقي','العمر','الحالة'],rows.length?[rows]:[],'مفيش فواتير آجل على العميل')}</div><div class="se-hist-card"><div class="se-hist-head"><b>المدفوعات (${payments.length})</b><span class="muted">الأحدث أولاً</span></div>${payRows}</div><div class="modal-actions"><button type="button" class="secondary" onclick="closeCustomerStatement()">إغلاق</button>${Number(c.balance)>0?`<button type="button" onclick="closeCustomerStatement();settleCustomer('${esc(c.id)}')">تسديد</button>`:''}</div></div></div>`;
+ const html=`<div class="modal" id="custStatementModal"><div class="modal-card se-history"><div class="modal-head"><div><h3>كشف حساب — ${esc(c.name)}</h3><p class="muted" style="margin:4px 0 0">${esc(c.phone||'بدون رقم')} · ${sales.length} فاتورة آجل</p></div><button type="button" class="icon-btn" onclick="closeCustomerStatement()">✕</button></div><div class="stmt-sum"><div class="stmt-box"><small>الرصيد الحالي</small><b>${money(c.balance)}</b></div><div class="stmt-box"><small>إجمالي الآجل</small><b>${money(charged)}</b></div><div class="stmt-box"><small>إجمالي المدفوع</small><b>${money(paid)}</b></div><div class="stmt-box"><small>المتبقي بعد التوزيع</small><b>${money(netRemaining)}</b></div></div><div class="panel" style="box-shadow:none;margin:0"><h3 style="font-size:13px">أعمار الديون (بعد خصم المدفوعات)</h3><div class="aging">${buckets.map(([k,v])=>`<div>${k} يوم<b>${money(v)}</b></div>`).join('')}</div></div><div class="se-credit-note">💡 المدفوعات بتخصم تلقائيًا من أقدم فاتورة أولاً — لما تسدّد جزء، المتبقي بيقل فورًا في الكشف وأعمار الديون من غير ما تنتظر تسدّد الفاتورة كلها.</div><div style="margin-top:12px">${table(['الفاتورة','التاريخ','الأصناف (مدفوع/متبقي)','الإجمالي','المدفوع','المتبقي','العمر','الحالة'],rows.length?[rows]:[],'مفيش فواتير آجل على العميل')}</div><div class="se-hist-card"><div class="se-hist-head"><b>المدفوعات (${payments.length})</b><span class="muted">الأحدث أولاً</span></div>${payRows}</div><div class="modal-actions"><button type="button" class="secondary" onclick="closeCustomerStatement()">إغلاق</button>${Number(c.balance)>0?`<button type="button" onclick="closeCustomerStatement();settleCustomer('${esc(c.id)}')">تسديد</button>`:''}</div></div></div>`;
  $('custStatementModal')?.remove();
  document.body.insertAdjacentHTML('beforeend',html);
 }
