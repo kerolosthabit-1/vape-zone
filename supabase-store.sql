@@ -1011,14 +1011,6 @@ grant execute on function public.store_product_reviews(text, text) to anon, auth
 -- تحديث كاش الـ API بعد إنشاء الجداول والدوال
 notify pgrst, 'reload schema';
 
--- ------------------------------------------------------------
---  تحقق سريع بعد التنفيذ: لازم تظهر قائمة الدوال دي
--- ------------------------------------------------------------
-select proname as function_name
-from pg_proc
-where pronamespace = 'public'::regnamespace and proname like 'store_%'
-order by proname;
-
 -- ============================================================
 --  خلاصة: العملاء بيقروا الكتالوج ويعملوا طلبات من غير تسجيل دخول،
 --  وأنت بس اللي بتشوف وتدير الطلبات من حسابك.
